@@ -428,9 +428,6 @@ class GUIControl:
         # Omitting this line was the source of annoying bugs!
         warnings.resetwarnings()
 
-        # Reload modules, in case of changes.
-        self.reload()
-
         # Make plot depending on type selected.
         # NB that the 0 is posterior weight, and 1 is chi-squared.
         # Labels is a dictionary, indexed identically to the  self.data.
@@ -580,20 +577,6 @@ class GUIControl:
         # its size...
         self.fig.set_size_inches(AP.size)
         PM.SavePlot(name)
-
-    ##########################################################################
-
-    # Other (not callback) functions.
-
-    def reload(self):
-        """ Reload the modules - we might have altered the plot options etc,
-        but not want to exit the GUI.
-        If you want to change chains, exit the GUI - seems like the best way.
-        """
-        reload(PM)
-        reload(OneDimPlot)
-        reload(TwoDimPlot)
-        reload(AP)
 
 def main():
     gtk.main()

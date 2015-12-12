@@ -185,12 +185,6 @@ class GUIControl:
 
         #######################################################################
 
-        # Check-box to indicate that chain ought to be relabelled.
-        self.checklabel = gtk.CheckButton('Relabel chain.')
-        self.gridbox.attach(self.checklabel, 1, 2, 7, 8, xoptions=gtk.FILL)
-
-        #######################################################################
-
         # Check-boxes to indicate whether data should be logged.
 
         self.logx = gtk.CheckButton('Log x-data.')
@@ -397,10 +391,6 @@ class GUIControl:
 
         """
 
-        # If required, relabel chain.
-        if self.checklabel.get_active():
-            self.relabel()
-
         # Log data if requested. First copy data to plot_data,
         # to keep a copy of orginal data.
         self.plot_data = copy.deepcopy(self.data)
@@ -604,22 +594,6 @@ class GUIControl:
         reload(OneDimPlot)
         reload(TwoDimPlot)
         reload(AP)
-
-    def relabel(self):
-        """ Reload the labels from altered module or info file.
-        """
-        self.labels = PM.LabelChain(self.data)
-        # Restart GUI so that labels are updated.
-        self.window.hide()
-        self.__init__(
-            self.labels,
-            self.data,
-            self.xindex,
-            self.yindex,
-            self.zindex,
-            self.type)
-        return
-
 
 def main():
     gtk.main()

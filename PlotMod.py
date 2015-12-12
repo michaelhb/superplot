@@ -27,8 +27,6 @@ import cPickle as pickle
 
 # SuperPy modules.
 import Appearance as AP
-import SLHADictionary as SLHA
-
 
 def OpenData():
     """ Wrapper for opening and labelling a chain.
@@ -274,10 +272,6 @@ def ReadInfo():
             # Correct index - SuperBayeS info files begin at 1, and ignore
             # posterior weight and ChiSq in positions 0 and 1 of the chain.
             index += 1
-
-            # Replace with dictionary of names if possible.
-            if SLHA.name.get(string) is not None:
-                string = SLHA.name[string]
 
             label[index] = string
 

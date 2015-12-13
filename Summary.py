@@ -8,13 +8,18 @@
 import numpy as NP
 
 # SuperPy modules.
-import PlotMod as PM
 import Stats
 import Appearance as AP
 import OneDim
+from SuperGUI import OpenFileGUI
+import DataLoader as DL
 
-# Open the chain with a GUI.
-labels, data = PM.OpenData()
+# Select chain and info file with a GUI.
+datafile = OpenFileGUI()
+infofile = OpenFileGUI()
+
+# Load and label data
+labels, data = DL.Load(infofile, datafile)
 
 # Print information for the parameters.
 print 'Param | Best-fit | Posterior Mean | 1 sigma Credible region'

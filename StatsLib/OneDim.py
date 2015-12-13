@@ -9,6 +9,7 @@
 
 import numpy as NP
 from scipy import stats
+from collections import namedtuple
 
 def PosteriorPDF(param, posterior, nbins=50, bin_limits=None):
     """ Histograms the chosen parameter to obtain PDF.
@@ -19,10 +20,13 @@ def PosteriorPDF(param, posterior, nbins=50, bin_limits=None):
     nbins -- Number of bins for histogram.
     bin_limits -- Bin limits for histogram.
     
-    Returns:
+    Returns named tuple:
     pdf -- Probability distribution.
     bins -- Bins for probability distribution.
     """
+    # Data type to return
+    posteriorpdf = namedtuple("posteriorpdf_1D", ("pdf", "bins"))
+    
     # Outliers sometimes mess up bins. So you might want to
     # specify the bin ranges.
     # Histogram the data.
@@ -36,7 +40,7 @@ def PosteriorPDF(param, posterior, nbins=50, bin_limits=None):
     # Find centres of bins.
     bins = (bin_edges[:-1] + bin_edges[1:]) * 0.5
     
-    return pdf, bins
+    return posteriorpdf(pdf, bins)
     
 def ProfileLike(param, chisq, nbins=50, bin_limits=None):
     """ Maximizes the chi-squared in each bin to obtain the profile likelihood.
@@ -47,10 +51,13 @@ def ProfileLike(param, chisq, nbins=50, bin_limits=None):
     nbins -- Number of bins for histogram.
     bin_limits -- Bin limits for histogram.
     
-    Returns:
+    Returns named tuple:
     profchisq, proflike, bins **TODO goodify description of return values**
 
     """
+    # Data type to return
+    profilelike = namedtuple("profilelike_1D", ("profchisq", "proflike", "bins"))
+    
     # Bin the data - digitialize will return a column vector
     # containing the bin number for each point in the chain.
     # NB that this requires histogramming, even thought we ignore PDF.
@@ -82,18 +89,133 @@ def ProfileLike(param, chisq, nbins=50, bin_limits=None):
         if chisq[i] < profchisq[bin_numbers[i]]:
             profchisq[bin_numbers[i]] = chisq[i]
     
+    # Now exponential to obtain likelihood, and normalize.
+    profchisq = profchisq - profchisq.min()
     
+    # This exponential can be problematic.
+    proflike = NP.exp(- profchisq * 0.5)
     
+    # Find centres of bins.
+    bins = (bin_edges[:-1] + bin_edges[1:]) * 0.5
     
+    return profilelike(profchisq, proflike, bins)
     
+def CredibleRegions(pdf, param, epsilon=NP.array([0.05, 0.32])):
+    """ 
+    Calculate one-dimensional credible regions.
     
+    Arguments:
+    pdf -- Data column of marginalised posterior PDF.
+    param -- Data column of parameter at bin centres, same length as pdf.
+    epsilon -- Probability levels.
     
+    Returns:
+    lowercredibleregion, uppercredibleregion ** TODO goodify **
+    """
+    # Data type to return
+    credibleregions = namedtuple(
+        "credibleregions_1D", 
+        ("lowercredibleregion", "uppercredibleregion"))
     
+    # Symmetric intervals -- equal amount of PDF on LHS and RHS of
+    # interval. Sum the PDF from left to right, stopping once
+    # cumulative PDF excreeds epsilon/2.
+    # At that point, we have found lower edge of credible region.
+    # Similar for upper edge.
+
+    # Normalize pdf so that area is one, rather than its maximum value is
+    # one.
+    pdf = pdf / sum(pdf)
     
+    lowercredibleregion = NP.zeros((epsilon.size))
+    uppercredibleregion = NP.zeros((epsilon.size))
     
+    for j in range(epsilon.size):
     
+        # Find lower credible region.
+        for i in range(pdf.size):
+            # If the cumualtive pdf is greater than
+            # epsilon/2, we've found lower edge.
+            if sum(pdf[:i]) > epsilon[j] * 0.5:
+                lowercredibleregion[j] = param[i]
+                break
     
+        # Find upper credible region.
+        for i in range(pdf.size):
+            # If the cumualtive pdf is greater than
+            # 1 - epsilon/2, we've found upper edge.
+            if sum(pdf[:i]) > 1 - epsilon[j] * 0.5:
+                uppercredibleregion[j] = param[i]
+                break
     
+    return credibleregions(lowercredibleregion, uppercredibleregion)
     
+def ConfidenceIntervals(chisq, param, epsilon=NP.array([0.05, 0.32])):
+    """ Calculate one dimensional confidence intervals.
     
+    Arguments:
+    chisq -- Data column of profiled chisq.
+    param -- Data column of parameter at bin centres, same length as chisq.
+    epsilon -- Confidence levels.
     
+    Returns named tuple:
+    deltachisq, confint ** TODO goodify **
+    """
+    # Data type to return
+    confidenceintervals = namedtuple(
+        "confidenceintervals_1D",
+        ("deltachisq", "confint"))
+        
+    # NB they are not contiguous. So we can't do upper/lower edges.
+    # We have to specify whether each bin is in/out of confidence
+    # interval.
+
+    # We could convert the critical chi-squared to a
+    # critical likelihood and stop there, but I don't know of a matplotlib
+    # function that will plot a line of a function only where the function <
+    # a specified value.
+
+    # The plt.fill_between in matplotlib does something similar, but it's
+    # not exactly what we want.
+    
+    # First invert the epsilons to delta chi-squared with
+    # inverse cumalative chi2 distribution with 1 dof.
+    deltachisq = stats.chi2.ppf(1 - epsilon, 1)
+
+    # Initialize the PL regions to everything outside - zeros.
+    regions = NP.zeros((epsilon.size, chisq.size))
+    
+    # Now find regions of binned parameter that have
+    # delta chi2 < delta chi2|epsilon.
+    
+    # Loop over intervals required.
+    for j in range(epsilon.size):
+        # Loop over all the bins.
+        for i in range(chisq.size):
+            # If the bin has a delta chi2 less than the chi2|epsilon.
+            if chisq[i] - chisq.min() < deltachisq[j]:
+                # Bin is inside PL - return 1.
+                regions[j, i] = 1
+            else:
+                # Bin is outside PL - return None.
+                regions[j, i] = None
+    
+    # So confidence intervals are matrix size
+    # (no. of intervals, no. of bins)
+    # None means that the bin is NOT in confidence interval, and
+    # won't be plotted.
+    # 1 means that the bin is in the confidence interval.
+    
+    # Let's mutiply the 1/Nones with the bin centers, to see where the PL
+    # regions actually are.
+    
+    confint = NP.zeros((epsilon.size, chisq.size))
+    
+    for i in range(epsilon.size):
+        confint[i, :] = regions[i, :] * param
+    
+    # Now we have a (no. of intervals, no. of bins) size array. The second entry is
+    # either the value at a bin center, if the bin is inside our confidence interval,
+    # or None, if the bin is outside.
+    
+    return confidenceintervals(deltachisq, confint)

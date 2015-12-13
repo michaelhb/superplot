@@ -72,6 +72,44 @@ def OpenFileGUI():
     dialog.destroy()
 
     return filename
+    
+def SaveFileGUI():
+    """ GUI for saving a file with a file browser.
+
+    Return:
+    filename -- Name of file selected with GUI.
+
+    """
+    # Select the file from a dialog box.
+    dialog = gtk.FileChooserDialog("Open..",
+                                   None,
+                                   gtk.FILE_CHOOSER_ACTION_SAVE,
+                                   (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                    gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+    dialog.set_default_response(gtk.RESPONSE_OK)
+
+    # Only show particular files.
+    filter = gtk.FileFilter()
+    filter.set_name("PDF, PS, EPS or PNG files.")
+    filter.add_pattern("*.pdf")
+    filter.add_pattern("*.eps")
+    filter.add_pattern("*.ps")
+    filter.add_pattern("*.png")
+    dialog.add_filter(filter)
+    filter = gtk.FileFilter()
+    dialog.add_filter(filter)
+
+    response = dialog.run()
+    if response == gtk.RESPONSE_OK:
+        print 'File:', dialog.get_filename(), 'selected.'
+    elif response == gtk.RESPONSE_CANCEL:
+        print 'Error: no file selected.'
+
+    # Save the file name/path
+    filename = dialog.get_filename()
+    dialog.destroy()
+
+    return filename
 
 #########################################################################
 
@@ -605,7 +643,7 @@ class GUIControl:
         button -- Button with this callback function.
 
         """
-        name = PM.SaveFileGUI()  # Get name to save to from a dialogue box.
+        name = SaveFileGUI()  # Get name to save to from a dialogue box.
         if not isinstance(name, str):
             return  # Case in which no file is chosen.
         # So that figure is correct size for saving - showing a figure changes

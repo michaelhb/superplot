@@ -10,10 +10,6 @@
 # External modules.
 from pylab import *
 import os
-import gobject
-import pygtk
-pygtk.require('2.0')
-import gtk
 import sys
 from matplotlib import rc
 from matplotlib.ticker import MultipleLocator
@@ -21,9 +17,7 @@ from matplotlib.ticker import MaxNLocator
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import NullLocator
 import matplotlib.pyplot as plt
-import re
 import numpy as NP
-import cPickle as pickle
 
 # SuperPy modules.
 import Appearance as AP

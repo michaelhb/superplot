@@ -112,7 +112,7 @@ def ProfileLike(paramx, paramy, chisq, nbins, bin_limits=None):
     
     # NOTE profchisql, centerx and centery don't seem to be used,
     # maybe this should just return the proflike?
-    return profilelike(profchisql, proflike, centerx, centery)
+    return profilelike(profchisq, proflike, centerx, centery)
     
 def CredibleLevels(pdf, epsilon=NP.array([0.05, 0.32])):
     """ Calculate the credible levels from marginalised pdf.

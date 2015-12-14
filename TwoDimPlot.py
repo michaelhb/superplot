@@ -5,7 +5,7 @@
 #########################################################################
 
 # Internal modules.
-import TwoDim
+import StatsLib.TwoDim as TwoDim
 import Stats
 import PlotMod as PM
 import Appearance as AP
@@ -14,7 +14,6 @@ import Appearance as AP
 import matplotlib.pyplot as plt
 import numpy as NP
 from matplotlib.ticker import MaxNLocator
-
 
 def TwoDimPlotFilledPDF(
         xdata,
@@ -83,7 +82,7 @@ def TwoDimPlotFilledPDF(
         posterior,
         nbins=number_bins,
         bin_limits=bin_limits).pdf
-    levels = TwoDim.CredibleRegions(pdf, epsilon=AP.epsilon).crediblelevel
+    levels = TwoDim.CredibleLevels(pdf, epsilon=AP.epsilon)
     # Make sure pdf is correctly normalised.
     pdf = pdf / pdf.sum()
     PM.PlotFilledContour(
@@ -167,7 +166,7 @@ def TwoDimPlotFilledPL(
         chisq,
         nbins=number_bins,
         bin_limits=bin_limits).proflike
-    levels = TwoDim.ConfidenceIntervals(epsilon=AP.epsilon).deltaPL
+    levels = TwoDim.DeltaPL(epsilon=AP.epsilon)
     PM.PlotFilledContour(
         xdata,
         ydata,
@@ -258,7 +257,7 @@ def TwoDimPlotPDF(
         AP.Posterior,
         AP.PDFTitle)
 
-    levels = TwoDim.CredibleRegions(pdf, epsilon=AP.epsilon).crediblelevel
+    levels = TwoDim.CredibleLevels(pdf, epsilon=AP.epsilon)
     # Make sure pdf is correctly normalised.
     pdf = pdf / pdf.sum()
     PM.PlotContour(
@@ -350,7 +349,7 @@ def TwoDimPlotPL(
         AP.ProfLike,
         AP.PLTitle)
 
-    levels = TwoDim.ConfidenceIntervals(epsilon=AP.epsilon).deltaPL
+    levels = TwoDim.DeltaPL(epsilon=AP.epsilon)
     PM.PlotContour(
         xdata,
         ydata,
@@ -466,7 +465,7 @@ def Scatter(
         posterior,
         nbins=number_bins,
         bin_limits=bin_limits).pdf
-    levels = TwoDim.ConfidenceIntervals(epsilon=AP.epsilon).deltaPL
+    levels = TwoDim.DeltaPL(epsilon=AP.epsilon)
     PM.PlotContour(
         xdata,
         ydata,
@@ -475,7 +474,7 @@ def Scatter(
         AP.LevelNames,
         AP.ProfLike,
         bin_limits=bin_limits)
-    levels = TwoDim.CredibleRegions(pdf, epsilon=AP.epsilon).crediblelevel
+    levels = TwoDim.CredibleLevels(pdf, epsilon=AP.epsilon)
     # Make sure pdf is correctly normalised.
     pdf = pdf / pdf.sum()
     PM.PlotContour(

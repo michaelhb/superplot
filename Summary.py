@@ -8,7 +8,7 @@
 import numpy as NP
 
 # SuperPy modules.
-import Stats
+import StatsLib.Point as Stats
 import Appearance as AP
 # import OneDim
 import StatsLib.OneDim as OneDim

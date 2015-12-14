@@ -6,7 +6,7 @@
 
 # SuperPy modules.
 import StatsLib.OneDim as OneDim
-import Stats
+import StatsLib.Point as Stats
 import PlotMod as PM
 import Appearance as AP
 

@@ -6,7 +6,7 @@
 
 # Internal modules.
 import StatsLib.TwoDim as TwoDim
-import Stats
+import StatsLib.Point as Stats
 import PlotMod as PM
 import Appearance as AP
 

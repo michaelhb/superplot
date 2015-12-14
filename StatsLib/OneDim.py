@@ -4,7 +4,7 @@
 #                                                                       #
 #########################################################################
 
-# This class contains all the functions for analysing a chain (*.txt file)
+# This module contains all the functions for analysing a chain (*.txt file)
 # and calculating the 1D stats for a particular variable.
 
 import numpy as NP

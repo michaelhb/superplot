@@ -5,7 +5,7 @@
 #########################################################################
 
 # SuperPy modules.
-import OneDim
+import StatsLib.OneDim as OneDim
 import Stats
 import PlotMod as PM
 import Appearance as AP

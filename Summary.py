@@ -10,7 +10,8 @@ import numpy as NP
 # SuperPy modules.
 import Stats
 import Appearance as AP
-import OneDim
+# import OneDim
+import StatsLib.OneDim as OneDim
 from SuperGUI import OpenFileGUI
 import DataLoader as DL
 

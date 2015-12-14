@@ -7,6 +7,7 @@
 # This module contains all the functions for analysing a chain (*.txt file)
 # and calculating the 1D stats for a particular variable.
 
+# External modules.
 import numpy as NP
 from scipy import stats
 from collections import namedtuple

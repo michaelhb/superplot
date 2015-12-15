@@ -4,7 +4,7 @@
 #                                                                       #
 #########################################################################
 """
-A named tuple data type to represent the plot options as selected in the UI.
+A named tuple to represent the plot options as selected in the UI.
 """
 from collections import namedtuple
 
@@ -19,5 +19,8 @@ plot_options = namedtuple("plot_options", (
     "legtitle",     # Plot legend
     "plot_limits",  # Plot limits [xmin, xmax, ymin, ymax]
     "nbins",        # Number of bins
-    "bin_limits"    # Bin limits [[xmin, xmax], [ymin, ymax]]
+    "bin_limits",   # Bin limits [[xmin, xmax], [ymin, ymax]]
+    "logx",         # Apply log scale to xdata
+    "logy",         # Apply log scale to ydata
+    "logz",         # Apply log scale to zdata
     ))

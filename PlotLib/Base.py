@@ -23,14 +23,17 @@ class Plot(object):
     def __init__(self, data, plot_options):
         self.plot_options = plot_options
         
+        # NB we make copies of the data so there's
+        # no way for a plot to mess things up for other plots
+        
         # Unpack posterior weight and chisq
-        self.posterior = data[0]
-        self.chisq = data[1]
+        self.posterior = NP.array(data[0])
+        self.chisq = NP.array(data[1])
         
         # Unpack x, y and z axis data
-        self.xdata = data[plot_options.xindex]
-        self.ydata = data[plot_options.yindex]
-        self.zdata = data[plot_options.zindex]
+        self.xdata = NP.array(data[plot_options.xindex])
+        self.ydata = NP.array(data[plot_options.yindex])
+        self.zdata = NP.array(data[plot_options.zindex])
         
         # Apply log scaling to data if required.
         

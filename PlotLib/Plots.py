@@ -2,6 +2,14 @@
 Implementation of plot classes. These inherit from the classes in 
 PlotLib.Base and must specify a figure() method which returns 
 a matplotlib figure object.
+
+Plots should also have a "description" attribute with a one line
+description of the type of plot.
+
+A list of implemented plot classes is at the bottom of this module.
+This is useful for the GUI, which needs to enumerate the available
+plots. So if a new plot type is implemented, it should be added 
+to this list.
 """
 
 # SuperPy modules.
@@ -19,6 +27,8 @@ import numpy as NP
 class OneDimStandard(OneDimPlot):
     """ Makes a one dimensional plot, showing profile likelihood,
     marginalised posterior, and statistics. """
+    
+    description = "One-dimensional plot."
     
     def figure():
         fig, ax = self._new_plot()
@@ -90,6 +100,8 @@ class OneDimChiSq(OneDimPlot):
     """ Makes a one dimensional plot, showing delta-chisq only,
     and excluded regions. """
     
+    description = "One-dimensional chi-squared plot."
+    
     def figure():
         fig, ax = self._new_plot()
         opt = self.plot_options
@@ -146,6 +158,8 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
     """ Makes a two dimensional plot with filled credible regions only, showing
     best-fit and posterior mean. """
     
+    description = "Two-dimensional posterior pdf, filled contours only."
+    
     def figure():
         fig, ax = self._new_plot()
         opt = self.plot_options
@@ -189,6 +203,8 @@ class TwoDimPlotFilledPL(TwoDimPlot):
     """ Makes a two dimensional plot with filled confidence intervals only, showing
     best-fit and posterior mean. """
                      
+    description = "Two-dimensional profile likelihood, filled contours only."
+                     
     def figure():
         fig, ax = self._new_plot()
         opt = self.plot_options
@@ -229,7 +245,9 @@ class TwoDimPlotFilledPL(TwoDimPlot):
 class TwoDimPlotPDF(TwoDimPlot):
     """ Makes a two dimensional marginalised posterior plot, showing
     best-fit and posterior mean and credible regions. """
-                     
+
+    description = "Two-dimensional posterior pdf."
+    
     def figure():
         fig, ax = self._new_plot()
         opt = self.plot_options
@@ -282,6 +300,8 @@ class TwoDimPlotPL(TwoDimPlot):
     """ Makes a two dimensional profile likelihood plot, showing
     best-fit and posterior mean and confidence intervals. """
     
+    description = "Two-dimensional profile likelihood."
+    
     def figure():
         fig, ax = self._new_plot()
         opt = self.plot_options
@@ -331,6 +351,8 @@ class Scatter(TwoDimPlot):
     """ Makes a three dimensional scatter plot, showing
     best-fit and posterior mean and credible regions and confidence intervals.
     The scattered points are coloured by the zdata. """
+            
+    description = "Three-dimensional scatter plot."
             
     def figure():
         fig, ax = self._new_plot()
@@ -409,6 +431,12 @@ class Scatter(TwoDimPlot):
         
         return fig
             
-            
-            
-            
+plot_types = [
+        OneDimStandard,
+        OneDimChiSq,
+        TwoDimPlotFilledPDF,
+        TwoDimPlotFilledPL,
+        TwoDimPlotPDF,
+        TwoDimPlotPL,
+        Scatter
+    ]

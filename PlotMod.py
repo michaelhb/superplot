@@ -40,18 +40,6 @@ def PlotData(x, y, Scheme):
         ms=Scheme.Size)
 
 
-def SavePlot(name):
-    """ Save the plot, with a descriptive name.
-
-    Arguments:
-    name -- Prefix of filename, without extension.
-
-    """
-    plt.savefig(name, dpi=None, facecolor='w', edgecolor='w',
-                orientation='portrait', papertype=None, format="pdf",
-                transparent=False, bbox_inches="tight", pad_inches=0.1)
-
-
 def Appearance():
     """ Specify the plots appearance, with e.g. font types etc.
     """

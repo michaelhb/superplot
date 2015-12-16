@@ -11,7 +11,6 @@
 #########################################################################
 
 #  SuperPy modules.
-import PlotMod as PM
 import DataLoader as DL
 import Appearance as AP
 import PlotLib.Plots as Plots
@@ -511,7 +510,7 @@ class GUIControl:
         # So that figure is correct size for saving - showing a figure changes
         # its size...
         self.fig.set_size_inches(AP.size)
-        PM.SavePlot(name)
+        Plots.SavePlot(name)
 
 def main():
     datafile = OpenFileGUI()

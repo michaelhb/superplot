@@ -10,6 +10,8 @@ A list of implemented plot classes is at the bottom of this module.
 This is useful for the GUI, which needs to enumerate the available
 plots. So if a new plot type is implemented, it should be added 
 to this list.
+
+Also includes a function to save the current plot.
 """
 
 # SuperPy modules.
@@ -24,6 +26,17 @@ import Appearance as AP
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import numpy as NP
+
+def SavePlot(name):
+    """ Save the plot, with a descriptive name.
+
+    Arguments:
+    name -- Prefix of filename, without extension.
+
+    """
+    plt.savefig(name, dpi=None, facecolor='w', edgecolor='w',
+                orientation='portrait', papertype=None, format="pdf",
+                transparent=False, bbox_inches="tight", pad_inches=0.1)
 
 class OneDimStandard(OneDimPlot):
     """ Makes a one dimensional plot, showing profile likelihood,

@@ -80,6 +80,8 @@ class Plot(object):
         """ Return the pyplot figure associated with this plot """
         pass
         
+    
+        
 class OneDimPlot(Plot):
     """
     Base class for one dimensional plot types.

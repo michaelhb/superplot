@@ -22,6 +22,7 @@ import Appearance as AP
 
 # External modules.
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import numpy as NP
 
 class OneDimStandard(OneDimPlot):
@@ -30,7 +31,7 @@ class OneDimStandard(OneDimPlot):
     
     description = "One-dimensional plot."
     
-    def figure():
+    def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
         
@@ -102,7 +103,7 @@ class OneDimChiSq(OneDimPlot):
     
     description = "One-dimensional chi-squared plot."
     
-    def figure():
+    def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
             
@@ -160,7 +161,7 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
     
     description = "Two-dimensional posterior pdf, filled contours only."
     
-    def figure():
+    def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
                      
@@ -205,7 +206,7 @@ class TwoDimPlotFilledPL(TwoDimPlot):
                      
     description = "Two-dimensional profile likelihood, filled contours only."
                      
-    def figure():
+    def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
                      
@@ -248,7 +249,7 @@ class TwoDimPlotPDF(TwoDimPlot):
 
     description = "Two-dimensional posterior pdf."
     
-    def figure():
+    def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
 
@@ -302,7 +303,7 @@ class TwoDimPlotPL(TwoDimPlot):
     
     description = "Two-dimensional profile likelihood."
     
-    def figure():
+    def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
         
@@ -354,7 +355,7 @@ class Scatter(TwoDimPlot):
             
     description = "Three-dimensional scatter plot."
             
-    def figure():
+    def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
             

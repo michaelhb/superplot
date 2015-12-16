@@ -10,6 +10,7 @@ import warnings
 
 # SuperPy modules.
 import Appearance as AP
+import PlotMod as PM
 
 class Plot(object):
     """
@@ -69,13 +70,13 @@ class Plot(object):
         opt = self.plot_options
         PM.PlotTicks(AP.xticks, AP.yticks, ax)
         PM.PlotLabels(opt.xlabel, opt.ylabel, opt.plottitle)
-        PM.PlotLimits(ax, plot_limits)
+        PM.PlotLimits(ax, opt.plot_limits)
         PM.Appearance()
 
         return fig, ax
         
     @abstractmethod
-    def figure():
+    def figure(self):
         """ Return the pyplot figure associated with this plot """
         pass
         
@@ -94,7 +95,7 @@ class OneDimPlot(Plot):
         extent[0] = min(self.xdata)
         extent[1] = max(self.xdata)
         extent[2] = 0
-        extend[3] = 1.2
+        extent[3] = 1.2
         
         # Downside of using named tuple is they're immutable
         # so changing options is (justifiably) annoying.
@@ -117,7 +118,7 @@ class TwoDimPlot(Plot):
     __metaclass__ = ABCMeta
     
     def __init__(self, data, plot_options):
-        super(OneDimPlot, self).__init__(data, plot_options)
+        super(TwoDimPlot, self).__init__(data, plot_options)
         
         # If the user didn't specify bin or plot limits,
         # we find the extent of the data and use that to set them.

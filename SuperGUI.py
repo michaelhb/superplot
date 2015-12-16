@@ -11,11 +11,11 @@
 #########################################################################
 
 #  SuperPy modules.
-import OneDimPlot
-import TwoDimPlot
 import PlotMod as PM
 import DataLoader as DL
 import Appearance as AP
+import PlotLib.Plots as Plots
+from PlotOptions import plot_options
 
 # External modules.
 import re
@@ -29,6 +29,7 @@ import sys
 import numpy as NP
 import copy
 import warnings
+from collections import OrderedDict
 # Uncomment to select /GTK/GTKAgg/GTKCairo
 #from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
@@ -116,7 +117,6 @@ def SaveFileGUI():
 # This class is a box to select the graph options, and a button to make a
 # graph.
 
-
 class GUIControl:
 
     def __init__(self, labels, data, dx=2, dy=3, dz=4, dtype=0):
@@ -137,6 +137,14 @@ class GUIControl:
         self.dy = dy
         self.dz = dz
 
+        # Enumerate available plot types and keep an ordered
+        # dict mapping descriptions to classes.
+        # Using an ordered dict means the order in which classes
+        # are listed in plot_types will be preserved in the GUI.
+        self.plots = OrderedDict()
+        for plot in Plots.plot_types:
+            self.plots[plot.description] = plot
+        
         #######################################################################
 
         # Make main GUI window.
@@ -162,19 +170,12 @@ class GUIControl:
         typetitle = gtk.Button("Plot type:")
         self.gridbox.attach(typetitle, 0, 1, 0, 1, xoptions=gtk.FILL)
         # Combo-box for various plot types.
-        typebox = gtk.combo_box_new_text()
-        self.gridbox.attach(typebox, 1, 2, 0, 1, xoptions=gtk.FILL)
-        typebox.append_text('One-dimensional plot.')
-        typebox.append_text('Two-dimensional posterior pdf.')
-        typebox.append_text(
-            'Two-dimensional posterior pdf, filled contours only.')
-        typebox.append_text('Two-dimensional profile likelihood.')
-        typebox.append_text(
-            'Two-dimensional profile likelihood, filled contours only.')
-        typebox.append_text('Three-dimensional scatter plot.')
-        typebox.append_text('One-dimensional chi-squared plot.')
-        typebox.connect('changed', self.ctype)
-        typebox.set_active(dtype)  # Set to default plot type.
+        self.typebox = gtk.combo_box_new_text()
+        self.gridbox.attach(self.typebox, 1, 2, 0, 1, xoptions=gtk.FILL)
+        for description in self.plots.keys():
+            self.typebox.append_text(description)
+        # typebox.connect('changed', self.ctype)
+        self.typebox.set_active(dtype)  # Set to default plot type.
 
         #######################################################################
 
@@ -403,15 +404,6 @@ class GUIControl:
         """
         self.labels[self.zindex] = textbox.get_text()
 
-    def ctype(self, combobox):
-        """ Callback function for selecting plot type.
-
-        Arguments:
-        combobox -- Box with this callback function.
-
-        """
-        self.type = combobox.get_active()
-
     def calimits(self, textbox):
         """ Callback function for setting axis/plot limits.
 
@@ -463,164 +455,34 @@ class GUIControl:
         button -- Button with this callback function.
 
         """
-
-        # Log data if requested. First copy data to plot_data,
-        # to keep a copy of orginal data.
-        self.plot_data = copy.deepcopy(self.data)
-
-        # Catch log negative number warnings.
-        # Treat warnings as exceptions.
-        warnings.filterwarnings('error')
-
-        if self.logx.get_active():
-            try:
-                self.plot_data[
-                    self.xindex] = NP.log10(
-                    self.plot_data[
-                        self.xindex])
-            except RuntimeWarning:
-                print "x-data not logged: probably logging a negative."
-        if self.logy.get_active():
-            try:
-                self.plot_data[
-                    self.yindex] = NP.log10(
-                    self.plot_data[
-                        self.yindex])
-            except RuntimeWarning:
-                print "y-data not logged: probably logging a negative."
-        if self.logz.get_active():
-            try:
-                self.plot_data[
-                    self.zindex] = NP.log10(
-                    self.plot_data[
-                        self.zindex])
-            except RuntimeWarning:
-                print "z-data not logged: probably logging a negative."
-
-        # Reset warnings, else future warnings will be treated as exceptions.
-        # Omitting this line was the source of annoying bugs!
-        warnings.resetwarnings()
-
-        # Make plot depending on type selected.
-        # NB that the 0 is posterior weight, and 1 is chi-squared.
-        # Labels is a dictionary, indexed identically to the  self.data.
-        if self.type == 0:
-            self.fig = OneDimPlot.OneDimPlot(
-                self.plot_data[
-                    self.xindex],
-                self.plot_data[0],
-                self.plot_data[1],
-                self.labels[
-                    self.xindex],
-                plottitle=self.plottitle.get_text(),
-                legtitle=self.legtitle.get_text(),
-                number_bins=self.bins.get_value_as_int(),
-                plot_limits=self.plot_limits,
-                bin_limits=self.bin_limits)
-        elif self.type == 1:
-            self.fig = TwoDimPlot.TwoDimPlotPDF(
-                self.plot_data[
-                    self.xindex],
-                self.plot_data[
-                    self.yindex],
-                self.plot_data[0],
-                self.plot_data[1],
-                self.labels[
-                    self.xindex],
-                self.labels[
-                    self.yindex],
-                plottitle=self.plottitle.get_text(),
-                legtitle=self.legtitle.get_text(),
-                number_bins=self.bins.get_value_as_int(),
-                plot_limits=self.plot_limits,
-                bin_limits=self.bin_limits)
-
-        elif self.type == 2:
-            self.fig = TwoDimPlot.TwoDimPlotFilledPDF(
-                self.plot_data[
-                    self.xindex],
-                self.plot_data[
-                    self.yindex],
-                self.plot_data[0],
-                self.plot_data[1],
-                self.labels[
-                    self.xindex],
-                self.labels[
-                    self.yindex],
-                plottitle=self.plottitle.get_text(),
-                legtitle=self.legtitle.get_text(),
-                number_bins=self.bins.get_value_as_int(),
-                plot_limits=self.plot_limits,
-                bin_limits=self.bin_limits)
-
-        elif self.type == 3:
-            self.fig = TwoDimPlot.TwoDimPlotPL(
-                self.plot_data[
-                    self.xindex],
-                self.plot_data[
-                    self.yindex],
-                self.plot_data[0],
-                self.plot_data[1],
-                self.labels[
-                    self.xindex],
-                self.labels[
-                    self.yindex],
-                plottitle=self.plottitle.get_text(),
-                legtitle=self.legtitle.get_text(),
-                number_bins=self.bins.get_value_as_int(),
-                plot_limits=self.plot_limits,
-                bin_limits=self.bin_limits)
-        elif self.type == 4:
-            self.fig = TwoDimPlot.TwoDimPlotFilledPL(
-                self.plot_data[
-                    self.xindex],
-                self.plot_data[
-                    self.yindex],
-                self.plot_data[0],
-                self.plot_data[1],
-                self.labels[
-                    self.xindex],
-                self.labels[
-                    self.yindex],
-                plottitle=self.plottitle.get_text(),
-                legtitle=self.legtitle.get_text(),
-                number_bins=self.bins.get_value_as_int(),
-                plot_limits=self.plot_limits,
-                bin_limits=self.bin_limits)
-
-        elif self.type == 5:
-            self.fig = TwoDimPlot.Scatter(
-                self.plot_data[
-                    self.xindex],
-                self.plot_data[
-                    self.yindex],
-                self.plot_data[
-                    self.zindex],
-                self.plot_data[0],
-                self.plot_data[1],
-                self.labels[
-                    self.xindex],
-                self.labels[
-                    self.yindex],
-                self.labels[
-                    self.zindex],
-                plottitle=self.plottitle.get_text(),
-                legtitle=self.legtitle.get_text(),
-                number_bins=self.bins.get_value_as_int(),
-                plot_limits=self.plot_limits,
-                bin_limits=self.bin_limits)
-        elif self.type == 6:
-            self.fig = OneDimPlot.OneDimChiSq(
-                self.plot_data[
-                    self.xindex],
-                self.plot_data[1],
-                self.labels[
-                    self.xindex],
-                plottitle=self.plottitle.get_text(),
-                legtitle=self.legtitle.get_text(),
-                number_bins=self.bins.get_value_as_int(),
-                plot_limits=self.plot_limits,
-                bin_limits=self.bin_limits)
+        
+        # Gather up all of the plot options and put them in
+        # a plot_options tuple
+        options = plot_options(
+            xindex = self.xindex,
+            yindex = self.yindex,
+            zindex = self.zindex,
+            xlabel = self.labels[self.xindex],
+            ylabel = self.labels[self.yindex],
+            zlabel = self.labels[self.zindex],
+            plottitle = self.plottitle.get_text(),
+            legtitle = self.legtitle.get_text(),
+            plot_limits = self.plot_limits,
+            nbins = self.bins.get_value_as_int(),
+            bin_limits = self.bin_limits,
+            logx = self.logx.get_active(),
+            logy = self.logy.get_active(),
+            logz = self.logz.get_active(),
+        )
+        
+        # Fetch the class for the selected plot type
+        plot_class = self.plots[self.typebox.get_active_text()]
+        
+        # Instantiate the plot
+        plot = plot_class(self.data, options)
+        
+        # Get the figure
+        self.fig = plot.figure()
 
         # Put figure in plot box.
         canvas = FigureCanvas(self.fig)  # A gtk.DrawingArea.

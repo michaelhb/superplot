@@ -39,12 +39,6 @@ def PlotData(x, y, Scheme):
         label=Scheme.Label,
         ms=Scheme.Size)
 
-def NewPlot():
-    """ Clear the plot so we start afresh."""
-    fig = plt.figure(figsize=AP.size)  # Size in inches.
-    ax = fig.add_subplot(1, 1, 1)
-    return fig, ax
-
 
 def SavePlot(name):
     """ Save the plot, with a descriptive name.

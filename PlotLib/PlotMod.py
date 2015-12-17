@@ -285,45 +285,6 @@ def PlotBand(x, y, width, ax):
     plt.plot(-1, -1, 's', color=AP.TauColour,
              label=AP.TauLabel, alpha=0.7, ms=15)
 
-
-def PlotLine(
-        filename,
-        colour="SteelBlue",
-        width=2.5,
-        style='--',
-        label=None,
-        xc=0,
-        yc=1):
-    """ Plot a line on top an existing plot.
-
-    Arguments:
-    filename -- Name of data file to be plotted.
-    colour -- Colour of line.
-    width -- Width of line.
-    style -- Style of line.
-    label -- Label with which to annotate line.
-    xc -- Column of x-data.
-    yc -- Column of y-data.
-
-    """
-
-    # Unpack data from file.
-    data = NP.genfromtxt(filename, unpack=True)
-
-    # Order points by their x-value
-    order = data[xc].argsort()
-    x = data[xc][order]
-    y = data[yc][order]
-
-    # Plot data.
-    plt.plot(x, y, style, alpha=0.8, c=colour, linewidth=width)
-    if label is not None:
-        plt.annotate(
-            label, xy=(
-                x[0], y[0]), xytext=(
-                5, 5), textcoords='offset points', va='center', arrowprops=None)
-
-
 def PlotPoints(
         filename,
         colour="SteelBlue",

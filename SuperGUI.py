@@ -19,15 +19,9 @@ from PlotOptions import plot_options
 # External modules.
 import re
 from pylab import *
-import os
-import gobject
 import pygtk
 pygtk.require('2.0')
 import gtk
-import sys
-import numpy as NP
-import copy
-import warnings
 from collections import OrderedDict
 # Uncomment to select /GTK/GTKAgg/GTKCairo
 #from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas

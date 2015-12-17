@@ -8,16 +8,12 @@
 # in a consistent manner.
 
 # External modules.
-from pylab import *
-import os
-import sys
-from matplotlib import rc
-from matplotlib.ticker import MultipleLocator
-from matplotlib.ticker import MaxNLocator
-from matplotlib.ticker import AutoMinorLocator
-from matplotlib.ticker import NullLocator
 import matplotlib.pyplot as plt
 import numpy as NP
+from matplotlib import rc
+from matplotlib.ticker import AutoMinorLocator
+from matplotlib.ticker import MaxNLocator
+from pylab import *
 
 # SuperPy modules.
 import Appearance as AP

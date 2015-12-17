@@ -5,11 +5,11 @@
 #########################################################################
 
 # External modules.
-import numpy as NP
 
 # SuperPy modules.
-import StatsLib.Point as Stats
 import Appearance as AP
+import StatsLib.Point as Stats
+
 # import OneDim
 import StatsLib.OneDim as OneDim
 from SuperGUI import OpenFileGUI

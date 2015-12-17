@@ -15,17 +15,17 @@ Also includes a function to save the current plot.
 """
 
 # SuperPy modules.
-from Base import *
+import Appearance as AP
 import PlotMod as PM
 import StatsLib.OneDim as OneDim
-import StatsLib.TwoDim as TwoDim
 import StatsLib.Point as Stats
-import Appearance as AP
+import StatsLib.TwoDim as TwoDim
+from Base import *
 
 # External modules.
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
-import numpy as NP
+
 
 def SavePlot(name):
     """ Save the plot, with a descriptive name.

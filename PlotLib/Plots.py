@@ -66,17 +66,11 @@ class OneDimStandard(OneDimPlot):
             nbins=opt.nbins,
             bin_limits=opt.bin_limits).bins
         PM.PlotData(x, pdf, AP.Posterior)
-        
-        proflike = OneDim.ProfileLike(
-            self.xdata,
-            self.chisq,
-            nbins=opt.nbins,
-            bin_limits=opt.bin_limits).proflike
-        profchisq = OneDim.ProfileLike(
-            self.xdata,
-            self.chisq,
-            nbins=opt.nbins,
-            bin_limits=opt.bin_limits).profchisq
+
+        profchisq, proflike, bins = \
+            OneDim.ProfileLike(self.xdata, self.chisq, 
+                nbins=opt.nbins, bin_limits=opt.bin_limits)
+            
         x = OneDim.ProfileLike(
             self.xdata,
             self.chisq,
@@ -85,14 +79,9 @@ class OneDimStandard(OneDimPlot):
         PM.PlotData(x, proflike, AP.ProfLike)
             
         # Plot credible regions/confidence intervals above data.
-        lowercredibleregion = OneDim.CredibleRegions(
-            pdf,
-            x,
-            epsilon=AP.epsilon).lowercredibleregion
-        uppercredibleregion = OneDim.CredibleRegions(
-            pdf,
-            x,
-            epsilon=AP.epsilon).uppercredibleregion
+        lowercredibleregion, uppercredibleregion = \
+            OneDim.CredibleRegions(pdf, x, epsilon=AP.epsilon)
+        
         confint = OneDim.ConfidenceIntervals(
             profchisq,
             x,
@@ -121,16 +110,12 @@ class OneDimChiSq(OneDimPlot):
         opt = self.plot_options
             
         # Data itself.
-        profchisq = OneDim.ProfileLike(
+        profchisq, proflike, x = OneDim.ProfileLike(
             self.xdata,
             self.chisq,
             nbins=opt.nbins,
-            bin_limits=opt.bin_limits).profchisq
-        x = OneDim.ProfileLike(
-            self.xdata,
-            self.chisq,
-            nbins=opt.nbins,
-            bin_limits=opt.bin_limits).bins
+            bin_limits=opt.bin_limits)
+            
         PM.PlotData(x, profchisq, AP.ProfChiSq)
             
         # Plot the delta chi-squared between default range, 0 - 10.

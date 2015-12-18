@@ -15,6 +15,9 @@ plot_options = namedtuple("plot_options", (
     "xlabel",       # Label for x axis
     "ylabel",       # Label for y axis
     "zlabel",       # Label for z axis
+    "size",         # Size in inches [x, y]
+    "xticks",       # Number of x ticks
+    "yticks",       # Number of y ticks
     "plottitle",    # Title of plot
     "legtitle",     # Plot legend
     "plot_limits",  # Plot limits [xmin, xmax, ymin, ymax]

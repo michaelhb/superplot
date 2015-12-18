@@ -151,6 +151,9 @@ class OneDimChiSq(OneDimPlot):
         # Add plot legend
         PM.Legend(opt.legtitle)
         
+        # Override y axis label!
+        plt.ylabel(Config.ProfChiSq.Label)
+        
         return fig
                      
 class TwoDimPlotFilledPDF(TwoDimPlot):

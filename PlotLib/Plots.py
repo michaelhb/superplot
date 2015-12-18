@@ -95,7 +95,7 @@ class OneDimStandard(OneDimPlot):
             PM.PlotData(confint[i, :], [1] * int(opt.nbins), Config.ConfIntervals[i]) 
             
         # Add plot legend
-        PM.Legend(Config.OneDimTitle)
+        PM.Legend(opt.legtitle)
         
         return fig
             

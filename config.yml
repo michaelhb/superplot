@@ -75,7 +75,6 @@ PlotOptions:
     # Legend titles for plots.
     PLTitle: 'PL' 
     PDFTitle: 'PDF'
-    OneDimTitle: 'PL and PDF'
 
     # Size in inches.
     size: [8, 8]

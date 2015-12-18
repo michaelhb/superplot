@@ -1,0 +1,101 @@
+# First draft of config file.
+# TODO: This is very user unfriendly.
+# Make sure parameters are listed in a sensible
+# order and fully explained with comments.
+Schemes:
+    PosteriorMean:
+        Colour: 'RoyalBlue'
+        Symbol: '-'
+        Label: 'Posterior pdf'
+        ColourMap: 'GnBu'
+        Colours: ['RoyalBlue', 'SeaGreen']
+    ProfLike:
+        Colour: 'DarkOrange'
+        Symbol: '--'
+        Label: 'Profile likelihood'
+        ColourMap: 'Reds'
+        Colours: ['DarkOrange', 'Brown']
+    ProfChiSq:
+        Colour: 'DarkOrange'
+        Symbol: '--'
+        Label: '$\Delta \chi^2$'
+        ColourMap: 'Reds'
+        Colours: ['DarkOrange', 'Brown']
+    Scatter:
+        Symbol: 'o'
+        ColourMap: 'Reds'
+        Size: 15
+    ConfIntervalS2:
+        Colour: 'DarkOrange'
+        Symbol: 'o'
+        Label: '$2\sigma$ confidence interval'
+    ConfIntervalS1:
+        Colour: 'Brown'
+        Symbol: 'o'
+        Label: '$1\sigma$ confidence interval'
+    CredibleRegionS2:
+        Colour: 'SeaGreen'
+        Symbol: '-'
+        Label: '$2\sigma$ credible region'
+    CredibleRegionS1:
+        Colour: 'RoyalBlue'
+        Symbol: '-'
+        Label: '$1\sigma$ credible region'
+        
+#########################################################################
+PlotOptions:
+    # Technical plot options.       
+    dof: 10
+    epsilon: [0.05, 0.32] # Values of alpha, in ascending order.
+    # plot_limits: [0,0.2,0,1.3]
+    plot_limits: null 
+    # bin_limits: [[0,1000],[0,1000]]
+    bin_limits: null
+    nbins: 70
+
+    # Plot appearance.
+    xticks: 5 # Numbers of ticks.
+    yticks: 5
+
+    # Labels for two-dimensional regions.
+    LevelNames: ['$2\sigma$ region', '$1\sigma$ region']
+    # Labels for delta chi-squared regions.
+    ChiSqLevelNames: ['$2\sigma$ excluded', '$1\sigma$ excluded']
+    
+    plottitle: 'Fowlie (2014)'
+    
+    # Legend titles for plots.
+    PLTitle: 'PL' 
+    PDFTitle: 'PDF'
+    ScatterTitle: 'Scatter'
+    OneDimTitle: 'PL and PDF'
+    ChiSqTitle: null
+
+    # Size in inches.
+    size: [8, 8]
+
+    # For theoretical error on delta chi-squared plots.
+    Tau: 2
+    TauColour: 'RoyalBlue'
+    TauLabel: 'Theory Error'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

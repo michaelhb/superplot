@@ -64,3 +64,6 @@ if size is not None:
 for scheme_name, params in _config["Schemes"].iteritems():
     scheme = Scheme(**params)
     setattr(sys.modules[__name__], scheme_name, scheme)
+    
+CredibleRegions = [CredibleRegionS2, CredibleRegionS1]
+ConfIntervals = [ConfIntervalS2, ConfIntervalS1]

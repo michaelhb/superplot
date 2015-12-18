@@ -3,12 +3,21 @@
 # Make sure parameters are listed in a sensible
 # order and fully explained with comments.
 Schemes:
-    PosteriorMean:
+    Posterior:
         Colour: 'RoyalBlue'
         Symbol: '-'
         Label: 'Posterior pdf'
         ColourMap: 'GnBu'
         Colours: ['RoyalBlue', 'SeaGreen']
+    PosteriorMean:
+        Colour: 'SeaGreen'
+        Symbol: 'o'
+        Label: 'Posterior Mean'
+    BestFit:
+        Colour: 'Brown'
+        Symbol: '*'
+        Label: 'Best-fit point'
+        Size: 12
     ProfLike:
         Colour: 'DarkOrange'
         Symbol: '--'
@@ -19,8 +28,7 @@ Schemes:
         Colour: 'DarkOrange'
         Symbol: '--'
         Label: '$\Delta \chi^2$'
-        ColourMap: 'Reds'
-        Colours: ['DarkOrange', 'Brown']
+        Colours: ['Gold', 'Peru']
     Scatter:
         Symbol: 'o'
         ColourMap: 'Reds'

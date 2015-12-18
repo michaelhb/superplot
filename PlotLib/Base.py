@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import warnings
 
 # SuperPy modules.
-import Appearance as AP
+import Config
 import PlotMod as PM
 
 class Plot(object):
@@ -64,11 +64,11 @@ class Plot(object):
     def _new_plot(self):
         # Private method to set up a new plot.
         # Returns the figure and axes.
-        fig = plt.figure(figsize=AP.size)  # Size in inches.
+        fig = plt.figure(figsize=Config.size)  # Size in inches.
         ax = fig.add_subplot(1, 1, 1)
         
         opt = self.plot_options
-        PM.PlotTicks(AP.xticks, AP.yticks, ax)
+        PM.PlotTicks(Config.xticks, Config.yticks, ax)
         PM.PlotLabels(opt.xlabel, opt.ylabel, opt.plottitle)
         PM.PlotLimits(ax, opt.plot_limits)
         PM.Appearance()

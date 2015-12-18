@@ -7,7 +7,7 @@
 # External modules.
 
 # SuperPy modules.
-import Appearance as AP
+import Config
 import StatsLib.Point as Stats
 
 # import OneDim
@@ -35,23 +35,23 @@ for key, name in labels.iteritems():
     pdf = OneDim.PosteriorPDF(
         x,
         pw,
-        nbins=AP.nbins,
-        bin_limits=AP.bin_limits).pdf
+        nbins=Config.nbins,
+        bin_limits=Config.bin_limits).pdf
     xc = OneDim.PosteriorPDF(
         x,
         pw,
-        nbins=AP.nbins,
-        bin_limits=AP.bin_limits).bins
+        nbins=Config.nbins,
+        bin_limits=Config.bin_limits).bins
     lowercredibleregion = OneDim.CredibleRegions(
         pdf,
         xc,
-        epsilon=AP.epsilon).lowercredibleregion
+        epsilon=Config.epsilon).lowercredibleregion
     uppercredibleregion = OneDim.CredibleRegions(
         pdf,
         xc,
-        epsilon=AP.epsilon).uppercredibleregion
+        epsilon=Config.epsilon).uppercredibleregion
     print name, bestfit, postmean, lowercredibleregion[0], uppercredibleregion[0]
 
 # Print best-fit information.
 print 'Min ChiSq', data[1].min()
-print 'p-value', Stats.PValue(data[1], AP.dof)
+print 'p-value', Stats.PValue(data[1], Config.dof)

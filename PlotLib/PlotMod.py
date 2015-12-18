@@ -16,7 +16,7 @@ from matplotlib.ticker import MaxNLocator
 from pylab import *
 
 # SuperPy modules.
-import Appearance as AP
+import Config
 
 def PlotData(x, y, Scheme):
     """ Plot a point with a particular color scheme.
@@ -245,7 +245,7 @@ def PlotFilledContour(
                  1.5 * abs(max(ydata)),
                  's',
                  color=Scheme.Colours[i],
-                 label=AP.LevelNames[i],
+                 label=Config.LevelNames[i],
                  alpha=0.7,
                  ms=15)
 
@@ -276,10 +276,10 @@ def PlotBand(x, y, width, ax):
                     uy[i] = y[j]
 
     # Finally plot.
-    ax.fill_between(x, ly, uy, where=None, facecolor=AP.TauColour, alpha=0.7)
+    ax.fill_between(x, ly, uy, where=None, facecolor=Config.TauColour, alpha=0.7)
     # Proxy for legend.
-    plt.plot(-1, -1, 's', color=AP.TauColour,
-             label=AP.TauLabel, alpha=0.7, ms=15)
+    plt.plot(-1, -1, 's', color=Config.TauColour,
+             label=Config.TauLabel, alpha=0.7, ms=15)
 
 def PlotPoints(
         filename,

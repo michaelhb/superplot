@@ -15,7 +15,7 @@ Also includes a function to save the current plot.
 """
 
 # SuperPy modules.
-import Appearance as AP
+import Config
 import PlotMod as PM
 import StatsLib.OneDim as OneDim
 import StatsLib.Point as Stats
@@ -50,9 +50,9 @@ class OneDimStandard(OneDimPlot):
         
         # Points of interest.
         PM.PlotData(Stats.BestFit(self.chisq, self.xdata), 
-            0.02, AP.BestFit)
+            0.02, Config.BestFit)
         PM.PlotData(Stats.PosteriorMean(self.posterior, self.xdata), 
-            0.02, AP.PosteriorMean)
+            0.02, Config.PosteriorMean)
             
         # Data itself.
         pdf = OneDim.PosteriorPDF(
@@ -65,7 +65,7 @@ class OneDimStandard(OneDimPlot):
             self.chisq,
             nbins=opt.nbins,
             bin_limits=opt.bin_limits).bins
-        PM.PlotData(x, pdf, AP.Posterior)
+        PM.PlotData(x, pdf, Config.Posterior)
 
         profchisq, proflike, bins = \
             OneDim.ProfileLike(self.xdata, self.chisq, 
@@ -76,26 +76,26 @@ class OneDimStandard(OneDimPlot):
             self.chisq,
             nbins=opt.nbins,
             bin_limits=opt.bin_limits).bins
-        PM.PlotData(x, proflike, AP.ProfLike)
+        PM.PlotData(x, proflike, Config.ProfLike)
             
         # Plot credible regions/confidence intervals above data.
         lowercredibleregion, uppercredibleregion = \
-            OneDim.CredibleRegions(pdf, x, epsilon=AP.epsilon)
+            OneDim.CredibleRegions(pdf, x, epsilon=Config.epsilon)
         
         confint = OneDim.ConfidenceIntervals(
             profchisq,
             x,
-            epsilon=AP.epsilon).confint
+            epsilon=Config.epsilon).confint
             
         # Plot credible region at 1.1 - just above plotted data which has its maximum at 1.
         # Plot confidence intervals at 1.
         for i, value in enumerate(lowercredibleregion):
             PM.PlotData([lowercredibleregion[i], uppercredibleregion[i]], [
-                        1.1, 1.1], AP.CredibleRegion[i])
-            PM.PlotData(confint[i, :], [1] * int(opt.nbins), AP.ConfInterval[i]) 
+                        1.1, 1.1], Config.CredibleRegions[i])
+            PM.PlotData(confint[i, :], [1] * int(opt.nbins), Config.ConfIntervals[i]) 
             
         # Add plot legend
-        PM.Legend(AP.OneDimTitle)
+        PM.Legend(Config.OneDimTitle)
         
         return fig
             
@@ -116,19 +116,19 @@ class OneDimChiSq(OneDimPlot):
             nbins=opt.nbins,
             bin_limits=opt.bin_limits)
             
-        PM.PlotData(x, profchisq, AP.ProfChiSq)
+        PM.PlotData(x, profchisq, Config.ProfChiSq)
             
         # Plot the delta chi-squared between default range, 0 - 10.
         PM.PlotLimits(ax, opt.plot_limits)
             
         # Bestfit point.
-        PM.PlotData(Stats.BestFit(self.chisq, self.xdata), 0.08, AP.BestFit)
+        PM.PlotData(Stats.BestFit(self.chisq, self.xdata), 0.08, Config.BestFit)
             
         # Confidence intervals as filled.
         deltachisq = OneDim.ConfidenceIntervals(
             profchisq,
             x,
-            epsilon=AP.epsilon).deltachisq
+            epsilon=Config.epsilon).deltachisq
             
         for i, dchi in enumerate(deltachisq):
             ax.fill_between(
@@ -136,17 +136,17 @@ class OneDimChiSq(OneDimPlot):
                 0,
                 10,
                 where=profchisq >= dchi,
-                facecolor=AP.ProfChiSq.Colours[i],
+                facecolor=Config.ProfChiSq.Colours[i],
                 interpolate=False,
                 alpha=0.7)
             # Plot a proxy for the legend - plot spurious data outside plot limits,
             # with legend entry matching colours of filled regions.
             plt.plot(-1, -1, 's',
-                     color=AP.ProfChiSq.Colours[i], label=AP.ChiSqLevelNames[i], alpha=0.7, ms=15)
+                     color=Config.ProfChiSq.Colours[i], label=Config.ChiSqLevelNames[i], alpha=0.7, ms=15)
                      
-        if AP.Tau is not None:
+        if Config.Tau is not None:
             # Plot the theory error as a band around the usual line.
-            PM.PlotBand(x, profchisq, AP.Tau, ax)
+            PM.PlotBand(x, profchisq, Config.Tau, ax)
                      
         # Add plot legend
         PM.Legend(opt.legtitle)
@@ -167,11 +167,11 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         PM.PlotData(
             Stats.BestFit(
                 self.chisq, self.xdata), Stats.BestFit(
-                self.chisq, self.ydata), AP.BestFit)
+                self.chisq, self.ydata), Config.BestFit)
         PM.PlotData(
             Stats.PosteriorMean(
                 self.posterior, self.xdata), Stats.PosteriorMean(
-                self.posterior, self.ydata), AP.PosteriorMean)
+                self.posterior, self.ydata), Config.PosteriorMean)
         
         pdf = TwoDim.PosteriorPDF(
             self.xdata,
@@ -179,7 +179,7 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
             self.posterior,
             nbins=opt.nbins,
             bin_limits=opt.bin_limits).pdf
-        levels = TwoDim.CredibleLevels(pdf, epsilon=AP.epsilon)
+        levels = TwoDim.CredibleLevels(pdf, epsilon=Config.epsilon)
                      
         # Make sure pdf is correctly normalised.
         pdf = pdf / pdf.sum()
@@ -189,8 +189,8 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
             self.ydata,
             pdf,
             levels,
-            AP.LevelNames,
-            AP.Posterior,
+            Config.LevelNames,
+            Config.Posterior,
             bin_limits=opt.bin_limits)
                      
         # Add legend
@@ -212,11 +212,11 @@ class TwoDimPlotFilledPL(TwoDimPlot):
         PM.PlotData(
             Stats.BestFit(
                 self.chisq, self.xdata), Stats.BestFit(
-                self.chisq, self.ydata), AP.BestFit)
+                self.chisq, self.ydata), Config.BestFit)
         PM.PlotData(
             Stats.PosteriorMean(
                 self.posterior, self.xdata), Stats.PosteriorMean(
-                self.posterior, self.ydata), AP.PosteriorMean)
+                self.posterior, self.ydata), Config.PosteriorMean)
                      
         proflike = TwoDim.ProfileLike(
             self.xdata,
@@ -225,15 +225,15 @@ class TwoDimPlotFilledPL(TwoDimPlot):
             nbins=opt.nbins,
             bin_limits=opt.bin_limits).proflike
                      
-        levels = TwoDim.DeltaPL(epsilon=AP.epsilon)
+        levels = TwoDim.DeltaPL(epsilon=Config.epsilon)
                      
         PM.PlotFilledContour(
             self.xdata,
             self.ydata,
             proflike,
             levels,
-            AP.LevelNames,
-            AP.ProfLike,
+            Config.LevelNames,
+            Config.ProfLike,
             bin_limits=opt.bin_limits)
                      
         # Add legend
@@ -255,11 +255,11 @@ class TwoDimPlotPDF(TwoDimPlot):
         PM.PlotData(
             Stats.BestFit(
                 self.chisq, self.xdata), Stats.BestFit(
-                self.chisq, self.ydata), AP.BestFit)
+                self.chisq, self.ydata), Config.BestFit)
         PM.PlotData(
             Stats.PosteriorMean(
                 self.posterior, self.xdata), Stats.PosteriorMean(
-                self.posterior, self.ydata), AP.PosteriorMean)        
+                self.posterior, self.ydata), Config.PosteriorMean)        
                      
         pdf = TwoDim.PosteriorPDF(
             self.xdata,
@@ -273,10 +273,10 @@ class TwoDimPlotPDF(TwoDimPlot):
             pdf,
             opt.bin_limits,
             opt.plot_limits,
-            AP.Posterior,
-            AP.PDFTitle)
+            Config.Posterior,
+            Config.PDFTitle)
 
-        levels = TwoDim.CredibleLevels(pdf, epsilon=AP.epsilon)
+        levels = TwoDim.CredibleLevels(pdf, epsilon=Config.epsilon)
                      
         # Make sure pdf is correctly normalised.
         pdf = pdf / pdf.sum()
@@ -286,8 +286,8 @@ class TwoDimPlotPDF(TwoDimPlot):
             self.ydata,
             pdf,
             levels,
-            AP.LevelNames,
-            AP.Posterior,
+            Config.LevelNames,
+            Config.Posterior,
             bin_limits=opt.bin_limits)
                      
         # Add legend
@@ -309,11 +309,11 @@ class TwoDimPlotPL(TwoDimPlot):
         PM.PlotData(
             Stats.BestFit(
                 self.chisq, self.xdata), Stats.BestFit(
-                self.chisq, self.ydata), AP.BestFit)
+                self.chisq, self.ydata), Config.BestFit)
         PM.PlotData(
             Stats.PosteriorMean(
                 self.posterior, self.xdata), Stats.PosteriorMean(
-                self.posterior, self.ydata), AP.PosteriorMean)             
+                self.posterior, self.ydata), Config.PosteriorMean)             
                      
         proflike = TwoDim.ProfileLike(
             self.xdata,
@@ -327,18 +327,18 @@ class TwoDimPlotPL(TwoDimPlot):
             proflike,
             opt.bin_limits,
             opt.plot_limits,
-            AP.ProfLike,
-            AP.PLTitle)
+            Config.ProfLike,
+            Config.PLTitle)
 
-        levels = TwoDim.DeltaPL(epsilon=AP.epsilon)
+        levels = TwoDim.DeltaPL(epsilon=Config.epsilon)
 
         PM.PlotContour(
             self.xdata,
             self.ydata,
             proflike,
             levels,
-            AP.LevelNames,
-            AP.ProfLike,
+            Config.LevelNames,
+            Config.ProfLike,
             bin_limits=opt.bin_limits)
             
         # Add legend
@@ -361,20 +361,20 @@ class Scatter(TwoDimPlot):
         PM.PlotData(
             Stats.BestFit(
                 self.chisq, self.xdata), Stats.BestFit(
-                self.chisq, self.ydata), AP.BestFit)
+                self.chisq, self.ydata), Config.BestFit)
         PM.PlotData(
             Stats.PosteriorMean(
                 self.posterior, self.xdata), Stats.PosteriorMean(
-                self.posterior, self.ydata), AP.PosteriorMean)
+                self.posterior, self.ydata), Config.PosteriorMean)
             
         # Plot scatter of points.
         sc = plt.scatter(
             self.xdata,
             self.ydata,
-            s=AP.Scatter.Size,
+            s=Config.Scatter.Size,
             c=self.zdata,
-            marker=AP.Scatter.Symbol,
-            cmap=AP.Scatter.ColourMap,
+            marker=Config.Scatter.Symbol,
+            cmap=Config.Scatter.ColourMap,
             norm=None,
             vmin=None,
             vmax=None,
@@ -403,16 +403,16 @@ class Scatter(TwoDimPlot):
             self.posterior,
             nbins=opt.nbins,
             bin_limits=opt.bin_limits).pdf
-        levels = TwoDim.DeltaPL(epsilon=AP.epsilon)
+        levels = TwoDim.DeltaPL(epsilon=Config.epsilon)
         PM.PlotContour(
             self.xdata,
             self.ydata,
             proflike,
             levels,
-            AP.LevelNames,
-            AP.ProfLike,
+            Config.LevelNames,
+            Config.ProfLike,
             bin_limits=opt.bin_limits)
-        levels = TwoDim.CredibleLevels(pdf, epsilon=AP.epsilon)
+        levels = TwoDim.CredibleLevels(pdf, epsilon=Config.epsilon)
         
         # Make sure pdf is correctly normalised.
         pdf = pdf / pdf.sum()
@@ -421,8 +421,8 @@ class Scatter(TwoDimPlot):
             self.ydata,
             pdf,
             levels,
-            AP.LevelNames,
-            AP.Posterior,
+            Config.LevelNames,
+            Config.Posterior,
             bin_limits=opt.bin_limits)
 
         # Add legend

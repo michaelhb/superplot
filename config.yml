@@ -75,9 +75,7 @@ PlotOptions:
     # Legend titles for plots.
     PLTitle: 'PL' 
     PDFTitle: 'PDF'
-    ScatterTitle: 'Scatter'
     OneDimTitle: 'PL and PDF'
-    ChiSqTitle: null
 
     # Size in inches.
     size: [8, 8]

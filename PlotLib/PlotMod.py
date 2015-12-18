@@ -15,9 +15,6 @@ from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import MaxNLocator
 from pylab import *
 
-# SuperPy modules.
-import Config
-
 def PlotData(x, y, Scheme):
     """ Plot a point with a particular color scheme.
 
@@ -245,7 +242,7 @@ def PlotFilledContour(
                  1.5 * abs(max(ydata)),
                  's',
                  color=Scheme.Colours[i],
-                 label=Config.LevelNames[i],
+                 label=names[i],
                  alpha=0.7,
                  ms=15)
 

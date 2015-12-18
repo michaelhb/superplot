@@ -49,6 +49,9 @@ Schemes:
         Colour: 'RoyalBlue'
         Symbol: '-'
         Label: '$1\sigma$ credible region'
+    TauBand:
+        Colour: 'RoyalBlue'
+        Label: 'Theory Error'
         
 #########################################################################
 PlotOptions:
@@ -81,8 +84,6 @@ PlotOptions:
 
     # For theoretical error on delta chi-squared plots.
     Tau: 2
-    TauColour: 'RoyalBlue'
-    TauLabel: 'Theory Error'
 
 
 

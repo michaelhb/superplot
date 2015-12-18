@@ -250,7 +250,7 @@ def PlotFilledContour(
                  ms=15)
 
 
-def PlotBand(x, y, width, ax):
+def PlotBand(x, y, width, ax, Scheme):
     """ Plot a band around a line.
     This is for a theoretical error. We find the largest and smallest
     y within +/width of the value of x, and fill between these largest and smallest
@@ -276,10 +276,10 @@ def PlotBand(x, y, width, ax):
                     uy[i] = y[j]
 
     # Finally plot.
-    ax.fill_between(x, ly, uy, where=None, facecolor=Config.TauColour, alpha=0.7)
+    ax.fill_between(x, ly, uy, where=None, facecolor=Scheme.Colour, alpha=0.7)
     # Proxy for legend.
-    plt.plot(-1, -1, 's', color=Config.TauColour,
-             label=Config.TauLabel, alpha=0.7, ms=15)
+    plt.plot(-1, -1, 's', color=Scheme.Colour,
+             label=Scheme.Label, alpha=0.7, ms=15)
 
 def PlotPoints(
         filename,

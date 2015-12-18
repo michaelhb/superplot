@@ -455,20 +455,24 @@ class GUIControl:
             xindex = self.xindex,
             yindex = self.yindex,
             zindex = self.zindex,
-            xlabel = self.labels[self.xindex],
-            ylabel = self.labels[self.yindex],
-            zlabel = self.labels[self.zindex],
-            size = Config.size,
-            xticks = Config.xticks,
-            yticks = Config.yticks,
-            plottitle = self.plottitle.get_text(),
-            legtitle = self.legtitle.get_text(),
-            plot_limits = self.plot_limits,
-            nbins = self.bins.get_value_as_int(),
-            bin_limits = self.bin_limits,
             logx = self.logx.get_active(),
             logy = self.logy.get_active(),
             logz = self.logz.get_active(),
+            
+            plot_limits = self.plot_limits,            
+            bin_limits = self.bin_limits,    
+            nbins = self.bins.get_value_as_int(),
+            xticks = Config.xticks,
+            yticks = Config.yticks,
+            
+            tau = Config.Tau,
+            
+            size = Config.size,            
+            xlabel = self.labels[self.xindex],
+            ylabel = self.labels[self.yindex],
+            zlabel = self.labels[self.zindex],
+            plottitle = self.plottitle.get_text(),
+            legtitle = self.legtitle.get_text(),
         )
         
         # Fetch the class for the selected plot type

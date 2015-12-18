@@ -144,9 +144,9 @@ class OneDimChiSq(OneDimPlot):
             plt.plot(-1, -1, 's',
                      color=Config.ProfChiSq.Colours[i], label=Config.ChiSqLevelNames[i], alpha=0.7, ms=15)
                      
-        if Config.Tau is not None:
+        if opt.tau is not None:
             # Plot the theory error as a band around the usual line.
-            PM.PlotBand(x, profchisq, Config.Tau, ax)
+            PM.PlotBand(x, profchisq, opt.tau, ax, Config.TauBand)
                      
         # Add plot legend
         PM.Legend(opt.legtitle)

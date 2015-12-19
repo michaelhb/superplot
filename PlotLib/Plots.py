@@ -80,12 +80,12 @@ class OneDimStandard(OneDimPlot):
             
         # Plot credible regions/confidence intervals above data.
         lowercredibleregion, uppercredibleregion = \
-            OneDim.CredibleRegions(pdf, x, epsilon=Config.epsilon)
+            OneDim.CredibleRegions(pdf, x, epsilon=opt.epsilon)
         
         confint = OneDim.ConfidenceIntervals(
             profchisq,
             x,
-            epsilon=Config.epsilon).confint
+            epsilon=opt.epsilon).confint
             
         # Plot credible region at 1.1 - just above plotted data which has its maximum at 1.
         # Plot confidence intervals at 1.
@@ -128,7 +128,7 @@ class OneDimChiSq(OneDimPlot):
         deltachisq = OneDim.ConfidenceIntervals(
             profchisq,
             x,
-            epsilon=Config.epsilon).deltachisq
+            epsilon=opt.epsilon).deltachisq
             
         for i, dchi in enumerate(deltachisq):
             ax.fill_between(
@@ -142,7 +142,7 @@ class OneDimChiSq(OneDimPlot):
             # Plot a proxy for the legend - plot spurious data outside plot limits,
             # with legend entry matching colours of filled regions.
             plt.plot(-1, -1, 's',
-                     color=Config.ProfChiSq.Colours[i], label=Config.ChiSqLevelNames[i], alpha=0.7, ms=15)
+                     color=Config.ProfChiSq.Colours[i], label=Config.ProfChiSq.LevelNames[i], alpha=0.7, ms=15)
                      
         if opt.tau is not None:
             # Plot the theory error as a band around the usual line.
@@ -182,7 +182,7 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
             self.posterior,
             nbins=opt.nbins,
             bin_limits=opt.bin_limits).pdf
-        levels = TwoDim.CredibleLevels(pdf, epsilon=Config.epsilon)
+        levels = TwoDim.CredibleLevels(pdf, epsilon=opt.epsilon)
                      
         # Make sure pdf is correctly normalised.
         pdf = pdf / pdf.sum()
@@ -227,7 +227,7 @@ class TwoDimPlotFilledPL(TwoDimPlot):
             nbins=opt.nbins,
             bin_limits=opt.bin_limits).proflike
                      
-        levels = TwoDim.DeltaPL(epsilon=Config.epsilon)
+        levels = TwoDim.DeltaPL(epsilon=opt.epsilon)
                      
         PM.PlotFilledContour(
             self.xdata,
@@ -276,7 +276,7 @@ class TwoDimPlotPDF(TwoDimPlot):
             opt.plot_limits,
             Config.Posterior)
 
-        levels = TwoDim.CredibleLevels(pdf, epsilon=Config.epsilon)
+        levels = TwoDim.CredibleLevels(pdf, epsilon=opt.epsilon)
                      
         # Make sure pdf is correctly normalised.
         pdf = pdf / pdf.sum()
@@ -328,7 +328,7 @@ class TwoDimPlotPL(TwoDimPlot):
             opt.plot_limits,
             Config.ProfLike)
 
-        levels = TwoDim.DeltaPL(epsilon=Config.epsilon)
+        levels = TwoDim.DeltaPL(epsilon=opt.epsilon)
 
         PM.PlotContour(
             self.xdata,
@@ -400,7 +400,7 @@ class Scatter(TwoDimPlot):
             self.posterior,
             nbins=opt.nbins,
             bin_limits=opt.bin_limits).pdf
-        levels = TwoDim.DeltaPL(epsilon=Config.epsilon)
+        levels = TwoDim.DeltaPL(epsilon=opt.epsilon)
         PM.PlotContour(
             self.xdata,
             self.ydata,
@@ -408,7 +408,7 @@ class Scatter(TwoDimPlot):
             levels,
             Config.ProfLike,
             bin_limits=opt.bin_limits)
-        levels = TwoDim.CredibleLevels(pdf, epsilon=Config.epsilon)
+        levels = TwoDim.CredibleLevels(pdf, epsilon=opt.epsilon)
         
         # Make sure pdf is correctly normalised.
         pdf = pdf / pdf.sum()

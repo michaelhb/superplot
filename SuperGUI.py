@@ -466,6 +466,7 @@ class GUIControl:
             yticks = Config.yticks,
             
             tau = Config.Tau,
+            epsilon = Config.epsilon,
             
             size = Config.size,            
             xlabel = self.labels[self.xindex],

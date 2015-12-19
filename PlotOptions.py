@@ -24,6 +24,7 @@ plot_options = namedtuple("plot_options", (
     "xticks",       # Number of x ticks
     "yticks",       # Number of y ticks    
     
+    "epsilon",      # Values of alpha in asc. order [float, float]
     "tau",          # Theoretical error width on delta chi-squared plots.
     
     # Size and labels

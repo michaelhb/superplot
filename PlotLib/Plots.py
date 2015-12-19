@@ -274,8 +274,7 @@ class TwoDimPlotPDF(TwoDimPlot):
             pdf,
             opt.bin_limits,
             opt.plot_limits,
-            Config.Posterior,
-            Config.PDFTitle)
+            Config.Posterior)
 
         levels = TwoDim.CredibleLevels(pdf, epsilon=Config.epsilon)
                      
@@ -327,8 +326,7 @@ class TwoDimPlotPL(TwoDimPlot):
             proflike,
             opt.bin_limits,
             opt.plot_limits,
-            Config.ProfLike,
-            Config.PLTitle)
+            Config.ProfLike)
 
         levels = TwoDim.DeltaPL(epsilon=Config.epsilon)
 

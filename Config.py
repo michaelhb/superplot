@@ -18,6 +18,7 @@ class Scheme:
             Label=None,
             LevelNames=None,
             ColourMap=None,
+            ColourBarTitle=None,
             Size=5,
             plot_limits=None,
             Colours=None):
@@ -30,6 +31,7 @@ class Scheme:
         Label -- Label for legend.
         LevelNames -- List of contour level names, i.e. for confidence regions
         ColourMap -- Colour map for 2D plots.
+        ColourBarTitle - Title for colour bar.
         Size -- Size of points.
         plot_limits -- Axes limits.
         Colours -- List of colours to be iterated, for, e.g., filled contours.
@@ -40,6 +42,7 @@ class Scheme:
         self.Label = Label
         self.LevelNames = LevelNames
         self.ColourMap = get_cmap(ColourMap)
+        self.ColourBarTitle = ColourBarTitle
         self.Size = Size
         self.plot_limits = plot_limits
         self.Colours = Colours

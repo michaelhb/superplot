@@ -113,7 +113,7 @@ def PlotLabels(xlabel, ylabel, plottitle=''):
     plt.title(plottitle)
 
 
-def PlotImage(xdata, ydata, data, bin_limits, plot_limits, Scheme, zlabel=''):
+def PlotImage(xdata, ydata, data, bin_limits, plot_limits, Scheme):
     """ Plot data as an image.
 
     Arguments:
@@ -123,7 +123,6 @@ def PlotImage(xdata, ydata, data, bin_limits, plot_limits, Scheme, zlabel=''):
     bin_limits -- Bin limits.
     plot_limits -- Plot limits.
     Scheme -- Object containing appearance options, colours etc.
-    zlabel -- Label for colour bar.
 
     """
 
@@ -150,7 +149,7 @@ def PlotImage(xdata, ydata, data, bin_limits, plot_limits, Scheme, zlabel=''):
     cb.locator = MaxNLocator(4)
     cb.update_ticks()
     # Colour bar label.
-    cb.ax.set_xlabel(zlabel)
+    cb.ax.set_xlabel(Scheme.ColourBarTitle)
 
 
 def PlotContour(xdata, ydata, data, levels, Scheme, bin_limits):

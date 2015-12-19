@@ -16,6 +16,7 @@ class Scheme:
             Colour=None,
             Symbol=None,
             Label=None,
+            LevelNames=None,
             ColourMap=None,
             Size=5,
             plot_limits=None,
@@ -27,6 +28,7 @@ class Scheme:
         Colour -- Colour for a line/point.
         Symbol -- Indicates point style e.g. cirlce 'o' or line style e.g '--'.
         Label -- Label for legend.
+        LevelNames -- List of contour level names, i.e. for confidence regions
         ColourMap -- Colour map for 2D plots.
         Size -- Size of points.
         plot_limits -- Axes limits.
@@ -36,6 +38,7 @@ class Scheme:
         self.Colour = Colour
         self.Symbol = Symbol
         self.Label = Label
+        self.LevelNames = LevelNames
         self.ColourMap = get_cmap(ColourMap)
         self.Size = Size
         self.plot_limits = plot_limits

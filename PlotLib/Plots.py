@@ -192,7 +192,6 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
             self.ydata,
             pdf,
             levels,
-            Config.LevelNames,
             Config.Posterior,
             bin_limits=opt.bin_limits)
                      
@@ -235,7 +234,6 @@ class TwoDimPlotFilledPL(TwoDimPlot):
             self.ydata,
             proflike,
             levels,
-            Config.LevelNames,
             Config.ProfLike,
             bin_limits=opt.bin_limits)
                      
@@ -289,7 +287,6 @@ class TwoDimPlotPDF(TwoDimPlot):
             self.ydata,
             pdf,
             levels,
-            Config.LevelNames,
             Config.Posterior,
             bin_limits=opt.bin_limits)
                      
@@ -340,7 +337,6 @@ class TwoDimPlotPL(TwoDimPlot):
             self.ydata,
             proflike,
             levels,
-            Config.LevelNames,
             Config.ProfLike,
             bin_limits=opt.bin_limits)
             
@@ -412,7 +408,6 @@ class Scatter(TwoDimPlot):
             self.ydata,
             proflike,
             levels,
-            Config.LevelNames,
             Config.ProfLike,
             bin_limits=opt.bin_limits)
         levels = TwoDim.CredibleLevels(pdf, epsilon=Config.epsilon)
@@ -424,7 +419,6 @@ class Scatter(TwoDimPlot):
             self.ydata,
             pdf,
             levels,
-            Config.LevelNames,
             Config.Posterior,
             bin_limits=opt.bin_limits)
 

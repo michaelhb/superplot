@@ -9,6 +9,7 @@ Schemes:
         Label: 'Posterior pdf'
         ColourMap: 'GnBu'
         Colours: ['RoyalBlue', 'SeaGreen']
+        LevelNames: ['$2\sigma$ region', '$1\sigma$ region']
     PosteriorMean:
         Colour: 'SeaGreen'
         Symbol: 'o'
@@ -24,11 +25,13 @@ Schemes:
         Label: 'Profile likelihood'
         ColourMap: 'Reds'
         Colours: ['DarkOrange', 'Brown']
+        LevelNames: ['$2\sigma$ region', '$1\sigma$ region']
     ProfChiSq:
         Colour: 'DarkOrange'
         Symbol: '--'
         Label: '$\Delta \chi^2$'
         Colours: ['Gold', 'Peru']
+        LevelNames: ['$2\sigma$ excluded', '$1\sigma$ excluded']
     Scatter:
         Symbol: 'o'
         ColourMap: 'Reds'
@@ -69,9 +72,9 @@ PlotOptions:
     yticks: 5
 
     # Labels for two-dimensional regions.
-    LevelNames: ['$2\sigma$ region', '$1\sigma$ region']
+    # LevelNames: ['$2\sigma$ region', '$1\sigma$ region']
     # Labels for delta chi-squared regions.
-    ChiSqLevelNames: ['$2\sigma$ excluded', '$1\sigma$ excluded']
+    # ChiSqLevelNames: ['$2\sigma$ excluded', '$1\sigma$ excluded']
     
     plottitle: 'Fowlie (2014)'
     

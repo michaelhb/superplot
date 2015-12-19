@@ -153,14 +153,13 @@ def PlotImage(xdata, ydata, data, bin_limits, plot_limits, Scheme, zlabel=''):
     cb.ax.set_xlabel(zlabel)
 
 
-def PlotContour(xdata, ydata, data, levels, names, Scheme, bin_limits):
+def PlotContour(xdata, ydata, data, levels, Scheme, bin_limits):
     """ Make unfilled contours for a plot.
     Arguments:
     xdata -- x-axis data.
     ydata -- y-axis data.
     data -- Data to be contoured.
     levels -- Levels at which to draw contours.
-    names -- Labels for the contour levels.
     Scheme -- Object containing appearance options, colours etc.
     bin_limits -- Bin limits.
     """
@@ -188,7 +187,7 @@ def PlotContour(xdata, ydata, data, levels, names, Scheme, bin_limits):
 
     # Set the contour labels - they will show labels.
     fmt = {}
-    for i, s in zip(cset.levels, names):
+    for i, s in zip(cset.levels, Scheme.LevelNames):
         fmt[i] = s
 
     # Plot inline labels on contours.
@@ -200,7 +199,6 @@ def PlotFilledContour(
         ydata,
         data,
         levels,
-        names,
         Scheme,
         bin_limits):
     """ Make filled contours for a plot.
@@ -242,7 +240,7 @@ def PlotFilledContour(
                  1.5 * abs(max(ydata)),
                  's',
                  color=Scheme.Colours[i],
-                 label=names[i],
+                 label=Scheme.LevelNames[i],
                  alpha=0.7,
                  ms=15)
 

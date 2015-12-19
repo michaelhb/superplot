@@ -12,9 +12,8 @@
 
 #  SuperPy modules.
 import DataLoader as DL
-import Config
 import PlotLib.Plots as Plots
-from PlotOptions import plot_options
+from PlotOptions import plot_options, default
 
 # External modules.
 import re
@@ -270,7 +269,7 @@ class GUIControl:
         self.gridbox.attach(tplottitle, 0, 1, 9, 10, xoptions=gtk.FILL)
         # Text box to alter title.
         self.plottitle = gtk.Entry()
-        self.plottitle.set_text(Config.plottitle)
+        self.plottitle.set_text(default("plottitle"))
         self.gridbox.attach(self.plottitle, 1, 2, 9, 10, xoptions=gtk.FILL)
 
         # Legend title.
@@ -290,7 +289,7 @@ class GUIControl:
         self.bins = gtk.SpinButton()
         self.bins.set_increments(1, 5)
         self.bins.set_range(5, 100)
-        self.bins.set_value(Config.nbins)
+        self.bins.set_value(default("nbins"))
         self.gridbox.attach(self.bins, 1, 2, 11, 12, xoptions=gtk.FILL)
 
         #######################################################################
@@ -407,7 +406,7 @@ class GUIControl:
 
         # If no limits, return default.
         if textbox.get_text() is "":
-            self.plot_limits = Config.plot_limits
+            self.plot_limits = default("plot_limits")
             return
 
         # Split text by commas etc.
@@ -425,7 +424,7 @@ class GUIControl:
 
         # If no limits, return default.
         if textbox.get_text() is "":
-            self.bin_limits = Config.bin_limits
+            self.bin_limits = default("bin_limits")
             return
 
         # Split text by commas etc.
@@ -462,13 +461,13 @@ class GUIControl:
             plot_limits = self.plot_limits,            
             bin_limits = self.bin_limits,    
             nbins = self.bins.get_value_as_int(),
-            xticks = Config.xticks,
-            yticks = Config.yticks,
+            xticks = default("xticks"),
+            yticks = default("yticks"),
             
-            tau = Config.Tau,
-            epsilon = Config.epsilon,
+            tau = default("Tau"),
+            epsilon = default("epsilon"),
             
-            size = Config.size,            
+            size = default("size"),            
             xlabel = self.labels[self.xindex],
             ylabel = self.labels[self.yindex],
             zlabel = self.labels[self.zindex],
@@ -511,7 +510,7 @@ class GUIControl:
             return  # Case in which no file is chosen.
         # So that figure is correct size for saving - showing a figure changes
         # its size...
-        self.fig.set_size_inches(Config.size)
+        self.fig.set_size_inches(default("size"))
         Plots.SavePlot(name)
 
 def main():

@@ -51,20 +51,6 @@ class Scheme:
 with open("config.yml") as cfile:
     _config = yaml.load(cfile)
     
-# Add the params in PlotOptions as module attributes
-for opt, val in _config["PlotOptions"].iteritems():
-    setattr(sys.modules[__name__], opt, val)
-    
-# Fix the types of a few options. It would also be
-# possible to directly specify the types in the YAML file,
-# but that might confuse users / be messy.
-if epsilon is not None:
-    epsilon = NP.array(epsilon)
-if plot_limits is not None:
-    plot_limits = NP.array(plot_limits)
-if size is not None:
-    size = tuple(size)
-    
 # For each scheme in the config file, create a Scheme
 # class and add it as a module attribute.
 for scheme_name, params in _config["Schemes"].iteritems():

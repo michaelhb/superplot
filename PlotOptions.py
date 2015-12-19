@@ -5,8 +5,11 @@
 #########################################################################
 """
 A named tuple to represent the plot options as selected in the UI.
+Also loads default values from config.yml and makes them available.
 """
 from collections import namedtuple
+import yaml
+import numpy as NP
 
 plot_options = namedtuple("plot_options", (
     # Data
@@ -35,3 +38,38 @@ plot_options = namedtuple("plot_options", (
     "plottitle",    # Title of plot
     "legtitle",     # Plot legend
     ))
+    
+# Store a dictionary of default options from config.yml
+with open("config.yml") as cfile:
+    _defaults = yaml.load(cfile)["PlotOptions"]
+    
+# Fix the types of a few options. It would also be
+# possible to directly specify the types in the YAML file,
+# but that might confuse users / be messy.
+if _defaults["epsilon"] is not None:
+    _defaults["epsilon"] = NP.array(_defaults["epsilon"])
+if _defaults["plot_limits"] is not None:
+    _defaults["plot_limits"] = NP.array(_defaults["plot_limits"])
+if _defaults["size"] is not None:
+    _defaults["size"] = tuple(_defaults["size"])
+    
+def default(option):
+    """
+    Retrieve the default value of a plot option.
+    
+    Arguments:
+    option - the name of the option
+    
+    Returns: 
+    - default value of option
+    
+    If no default is available, prints an error message and raises
+    a KeyError.
+    """
+    try:
+        return _defaults[option]
+    except KeyError:
+        print "PlotOptions: No default specified for option: {}".format(option)
+        raise
+    
+    

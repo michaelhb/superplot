@@ -101,14 +101,14 @@ def ProfileLike(param, chisq, nbins=50, bin_limits=None):
     
     return profilelike(profchisq, proflike, bins)
     
-def CredibleRegions(pdf, param, epsilon=NP.array([0.05, 0.32])):
+def CredibleRegions(pdf, param, alpha=NP.array([0.05, 0.32])):
     """ 
     Calculate one-dimensional credible regions.
     
     Arguments:
     pdf -- Data column of marginalised posterior PDF.
     param -- Data column of parameter at bin centres, same length as pdf.
-    epsilon -- Probability levels.
+    alpha -- Probability levels.
     
     Returns:
     lowercredibleregion, uppercredibleregion ** TODO goodify **
@@ -120,7 +120,7 @@ def CredibleRegions(pdf, param, epsilon=NP.array([0.05, 0.32])):
     
     # Symmetric intervals -- equal amount of PDF on LHS and RHS of
     # interval. Sum the PDF from left to right, stopping once
-    # cumulative PDF excreeds epsilon/2.
+    # cumulative PDF excreeds alpha/2.
     # At that point, we have found lower edge of credible region.
     # Similar for upper edge.
 
@@ -128,36 +128,36 @@ def CredibleRegions(pdf, param, epsilon=NP.array([0.05, 0.32])):
     # one.
     pdf = pdf / sum(pdf)
     
-    lowercredibleregion = NP.zeros((epsilon.size))
-    uppercredibleregion = NP.zeros((epsilon.size))
+    lowercredibleregion = NP.zeros((alpha.size))
+    uppercredibleregion = NP.zeros((alpha.size))
     
-    for j in range(epsilon.size):
+    for j in range(alpha.size):
     
         # Find lower credible region.
         for i in range(pdf.size):
             # If the cumualtive pdf is greater than
-            # epsilon/2, we've found lower edge.
-            if sum(pdf[:i]) > epsilon[j] * 0.5:
+            # alpha/2, we've found lower edge.
+            if sum(pdf[:i]) > alpha[j] * 0.5:
                 lowercredibleregion[j] = param[i]
                 break
     
         # Find upper credible region.
         for i in range(pdf.size):
             # If the cumualtive pdf is greater than
-            # 1 - epsilon/2, we've found upper edge.
-            if sum(pdf[:i]) > 1 - epsilon[j] * 0.5:
+            # 1 - alpha/2, we've found upper edge.
+            if sum(pdf[:i]) > 1 - alpha[j] * 0.5:
                 uppercredibleregion[j] = param[i]
                 break
     
     return credibleregions(lowercredibleregion, uppercredibleregion)
     
-def ConfidenceIntervals(chisq, param, epsilon=NP.array([0.05, 0.32])):
+def ConfidenceIntervals(chisq, param, alpha=NP.array([0.05, 0.32])):
     """ Calculate one dimensional confidence intervals.
     
     Arguments:
     chisq -- Data column of profiled chisq.
     param -- Data column of parameter at bin centres, same length as chisq.
-    epsilon -- Confidence levels.
+    alpha -- Confidence levels.
     
     Returns named tuple:
     deltachisq, confint ** TODO goodify **
@@ -179,21 +179,21 @@ def ConfidenceIntervals(chisq, param, epsilon=NP.array([0.05, 0.32])):
     # The plt.fill_between in matplotlib does something similar, but it's
     # not exactly what we want.
     
-    # First invert the epsilons to delta chi-squared with
+    # First invert the alphas to delta chi-squared with
     # inverse cumalative chi2 distribution with 1 dof.
-    deltachisq = stats.chi2.ppf(1 - epsilon, 1)
+    deltachisq = stats.chi2.ppf(1 - alpha, 1)
 
     # Initialize the PL regions to everything outside - zeros.
-    regions = NP.zeros((epsilon.size, chisq.size))
+    regions = NP.zeros((alpha.size, chisq.size))
     
     # Now find regions of binned parameter that have
-    # delta chi2 < delta chi2|epsilon.
+    # delta chi2 < delta chi2|alpha.
     
     # Loop over intervals required.
-    for j in range(epsilon.size):
+    for j in range(alpha.size):
         # Loop over all the bins.
         for i in range(chisq.size):
-            # If the bin has a delta chi2 less than the chi2|epsilon.
+            # If the bin has a delta chi2 less than the chi2|alpha.
             if chisq[i] - chisq.min() < deltachisq[j]:
                 # Bin is inside PL - return 1.
                 regions[j, i] = 1
@@ -210,9 +210,9 @@ def ConfidenceIntervals(chisq, param, epsilon=NP.array([0.05, 0.32])):
     # Let's mutiply the 1/Nones with the bin centers, to see where the PL
     # regions actually are.
     
-    confint = NP.zeros((epsilon.size, chisq.size))
+    confint = NP.zeros((alpha.size, chisq.size))
     
-    for i in range(epsilon.size):
+    for i in range(alpha.size):
         confint[i, :] = regions[i, :] * param
     
     # Now we have a (no. of intervals, no. of bins) size array. The second entry is

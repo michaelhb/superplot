@@ -27,7 +27,7 @@ plot_options = namedtuple("plot_options", (
     "xticks",       # Number of x ticks
     "yticks",       # Number of y ticks    
     
-    "epsilon",      # Values of alpha in asc. order [float, float]
+    "alpha",      # Values of alpha in asc. order [float, float]
     "tau",          # Theoretical error width on delta chi-squared plots.
     
     # Size and labels
@@ -46,8 +46,8 @@ with open("config.yml") as cfile:
 # Fix the types of a few options. It would also be
 # possible to directly specify the types in the YAML file,
 # but that might confuse users / be messy.
-if _defaults["epsilon"] is not None:
-    _defaults["epsilon"] = NP.array(_defaults["epsilon"])
+if _defaults["alpha"] is not None:
+    _defaults["alpha"] = NP.array(_defaults["alpha"])
 if _defaults["plot_limits"] is not None:
     _defaults["plot_limits"] = NP.array(_defaults["plot_limits"])
 if _defaults["size"] is not None:

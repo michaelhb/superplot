@@ -465,7 +465,7 @@ class GUIControl:
             yticks = default("yticks"),
             
             tau = default("Tau"),
-            epsilon = default("epsilon"),
+            alpha = default("alpha"),
             
             size = default("size"),            
             xlabel = self.labels[self.xindex],

@@ -45,11 +45,11 @@ for key, name in labels.iteritems():
     lowercredibleregion = OneDim.CredibleRegions(
         pdf,
         xc,
-        epsilon=default("epsilon")).lowercredibleregion
+        alpha=default("alpha")).lowercredibleregion
     uppercredibleregion = OneDim.CredibleRegions(
         pdf,
         xc,
-        epsilon=default("epsilon")).uppercredibleregion
+        alpha=default("alpha")).uppercredibleregion
     print name, bestfit, postmean, lowercredibleregion[0], uppercredibleregion[0]
 
 # Print best-fit information.

@@ -12,6 +12,7 @@ import numpy as NP
 from pylab import *
 from scipy import stats
 from collections import namedtuple
+from scipy.optimize import bisect
 
 def PosteriorPDF(paramx, paramy, posterior, nbins=50, bin_limits=None):
     """ Histograms the chosen parameters to obtain two-dimensional PDF.
@@ -114,58 +115,76 @@ def ProfileLike(paramx, paramy, chisq, nbins, bin_limits=None):
     # maybe this should just return the proflike?
     return profilelike(profchisq, proflike, centerx, centery)
     
-def CredibleLevels(pdf, epsilon=NP.array([0.05, 0.32])):
-    """ Calculate the credible levels from marginalised pdf.
     
-    This is used to plot two dimensional credible regions.
+def critical_density(pdf, alpha):
+    r""" 
+    Calculate "critical density" from marginalised pdf.
     
-    Arguments:
-    pdf -- Marginalised two-dimensional posterior PDF.
-    epsilon -- Probability levels.
+    Credible regions are the smallest regions that contain a given 
+    fraction of the total posterior PDF. This is in fact the "densest" region
+    of the posterior PDF. There is, therefore, a "critical density" of
+    posterior PDF, above which a point is inside a credible region. I.e. this
+    function returns :math:`p_\text{critical}` such that
     
-    Returns: credible levels **TODO goodify this comment**
-
+    math::
+        \int_{p > p_\text{critical}} p(x, y) dx dy = 1. - \alpha
+    
+    The critical density is used to calculate two-dimensional credible regions.
+    
+    .. Warning::
+        One-dimensional credible regions do not use a critical density.
+        
+    .. Warning::
+        The critical density is not invariant under reparameterisations.
+        
+    .. Warning::
+        Critical density is normalized such that integrated posterior PDF
+        equals 1.
+    
+    :param pdf: Marginalised two-dimensional posterior PDF
+    :type pdf: numpy.ndarray
+    :param alpha: Credible region contains :math:`1 - \alpha` of probability
+    :type alpha: Float
+    
+    :returns: Critical density for probability alpha
+    :rtype: Float
     """
-    # Smallest possible regions that contain given amound of PDF.
-    # Sum pdf over pdf > crediblelevel, increasing crediblelevel
-    # from 0 until sum pdf < 1 - epsilon.
-    # We only need the crediblelevel to plot a contour.
     
-    # Normalize pdf so that area is one.
+    # Normalize posterior PDF so that integral is one, if it wasn't already
     pdf = pdf / pdf.sum()
+            
+    # Minimize difference between amount of probability contained above
+    # a particular density and that desired 
+    prob_contained = lambda density: ma.masked_where(pdf < density, pdf).sum()
+    prob_desired = 1. - alpha
+    delta_prob = lambda density: prob_contained(density) - prob_desired
     
-    # Set the crediblelevels to zero.
-    crediblelevel = NP.zeros(epsilon.size)
+    # Critical density cannot be greater than maximum posterior PDF and must
+    # be greater than 0. The function delta_probability is monotonic on that 
+    # interval. Find critical density by bisection.
+    try:
+        critical_density = bisect(delta_prob, 0., pdf.max())
+    except Exception as error:
+        warnings.warn("Cannot bisect posterior PDF for critical density")
+        raise error
+        
+    return critical_density
     
-    # Loop over contours required.
-    for i in range(epsilon.size):
-        # While the sum of the PDF over the regions with density
-        # > credible level is greater than 1 - epsilon,
-        # increase the credible level slowly.
-        # Once this exits, we have found credible level
-        while ma.masked_where(pdf < crediblelevel[i],
-                              pdf).sum() > 1 - epsilon[i]:
-            crediblelevel[i] += 0.0001
-    
-    # NB that you could increase accuracy by decreasing the increment.
-    # If contours don't appear on a plot, try altering that.
-    return crediblelevel
-    
-def DeltaPL(epsilon=NP.array([0.05, 0.32])):
+def DeltaPL(alpha=NP.array([0.05, 0.32])):
     """ Use confidence levels to calculate DeltaPL.
     
     This is used to plot two dimensional confidence intervals.
 
     Arguments:
-    epsilon -- Confidence levels.
+    alpha -- Confidence levels.
 
     Returns: deltaPL
     
     ** TODO goodify comment **
     """
-    # First invert the epsilons to delta chi-squareds with inverse
+    # First invert the alphas to delta chi-squareds with inverse
     # cumalative chi-squared distribution with 2 dof.
-    deltachisq = stats.chi2.ppf(1 - epsilon, 2)
+    deltachisq = stats.chi2.ppf(1 - alpha, 2)
 
     # Convert these into PL values.
     deltaPL = NP.exp(- deltachisq / 2)

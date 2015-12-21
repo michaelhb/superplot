@@ -62,7 +62,8 @@ Schemes:
 PlotOptions:
     # Technical plot options.       
     dof: 10
-    epsilon: [0.05, 0.32] # Values of alpha, in ascending order.
+    alpha: [0.05, 0.32] # Values of alpha, in ascending order.
+    # AF This should be called alpha, and what breaks if not ascending?
     # plot_limits: [0,0.2,0,1.3]
     plot_limits: null 
     # bin_limits: [[0,1000],[0,1000]]

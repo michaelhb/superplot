@@ -276,7 +276,7 @@ class TwoDimPlotPDF(TwoDimPlot):
             opt.plot_limits,
             Schemes.Posterior)
 
-        levels = TwoDim.CredibleLevels(pdf, alpha=opt.alpha)
+        levels = [TwoDim.critical_density(pdf, aa) for aa in opt.alpha]
                      
         # Make sure pdf is correctly normalised.
         pdf = pdf / pdf.sum()
@@ -408,7 +408,7 @@ class Scatter(TwoDimPlot):
             levels,
             Schemes.ProfLike,
             bin_limits=opt.bin_limits)
-        levels = TwoDim.CredibleLevels(pdf, alpha=opt.alpha)
+        levels = [TwoDim.critical_density(pdf, aa) for aa in opt.alpha]
         
         # Make sure pdf is correctly normalised.
         pdf = pdf / pdf.sum()

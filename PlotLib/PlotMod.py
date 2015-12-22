@@ -7,6 +7,11 @@
 # General functions for plotting data, defined once so that they can be used/edited
 # in a consistent manner.
 
+# Python modules
+import subprocess
+import os
+import warnings
+
 # External modules.
 import matplotlib.pyplot as plt
 import numpy as NP
@@ -31,8 +36,7 @@ def PlotData(x, y, Scheme):
         color=Scheme.Colour,
         label=Scheme.Label,
         ms=Scheme.Size)
-
-
+        
 def Appearance(usetex):
     """ Specify the plots appearance, with e.g. font types etc.
     
@@ -41,23 +45,41 @@ def Appearance(usetex):
     """
     assert usetex in ["all", "math", "none"]
     
+    # If the user wants Tex, we first check if the 
+    # 'latex' shell command is available (as this is
+    # what matplotlib uses to interface with LaTeX).
+    # If it isn't, we issue a warning and fall back to
+    # mathtext. Otherwise we enable Tex for either 
+    # math only or all text as specified.
+    if usetex != "none":
+        # Check if LaTeX is available.
+        try:
+            subprocess.call(["latex", "-version"])
+        except OSError as e:
+            if e.errno == os.errno.ENOENT:
+                warnings.warn(
+                    "Cannot use LaTeX fonts. "
+                    "Using matplotlib's mathtext.")
+            else:
+                # Some other problem
+                raise
+        else:
+            # Enable LaTeX
+            rc('text', usetex=True)
+            
+            if usetex == "all":
+                # Enable LaTeX for all text, set font
+                rc('font',
+                   **{'family': 'serif',
+                      'serif': ['Computer Modern Roman'],
+                      'size': '20'})
+                      
     # Make the lines thicker.
     plt.rcParams['lines.linewidth'] = 4
 
     # Plot gridlines over the plot - can be useful
     plt.grid(True)
     
-    if usetex != "none":
-        # Enable LaTeX
-        rc('text', usetex=True)
-        
-        if usetex == "all":
-            # Enable LaTeX for all text, set font
-            rc('font',
-               **{'family': 'serif',
-                  'serif': ['Computer Modern Roman'],
-                  'size': '20'})
-
     # Set size of plot in inches.
     plt.rcParams['figure.figsize'] = [2.5, 2.5]
 

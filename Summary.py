@@ -8,10 +8,10 @@
 
 # SuperPy modules.
 from PlotOptions import default
-import StatsLib.Point as Stats
+import statslib.Point as Stats
 
 # import OneDim
-import StatsLib.OneDim as OneDim
+import statslib.OneDim as OneDim
 from SuperGUI import OpenFileGUI
 import DataLoader as DL
 

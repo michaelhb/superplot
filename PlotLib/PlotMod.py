@@ -33,23 +33,30 @@ def PlotData(x, y, Scheme):
         ms=Scheme.Size)
 
 
-def Appearance():
+def Appearance(usetex):
     """ Specify the plots appearance, with e.g. font types etc.
+    
+    Arguments:
+    usetex -- whether to use LaTeX. "all", "math", or "none".
     """
-
+    assert usetex in ["all", "math", "none"]
+    
     # Make the lines thicker.
     plt.rcParams['lines.linewidth'] = 4
 
     # Plot gridlines over the plot - can be useful
     plt.grid(True)
-
-    # Set the fonts - I like mathpazo/Palatino, but
-    # that would introduce an unneccesasry dependency.
-    rc('text', usetex=True)
-    rc('font',
-       **{'family': 'serif',
-          'serif': ['Computer Modern Roman'],
-          'size': '20'})
+    
+    if usetex != "none":
+        # Enable LaTeX
+        rc('text', usetex=True)
+        
+        if usetex == "all":
+            # Enable LaTeX for all text, set font
+            rc('font',
+               **{'family': 'serif',
+                  'serif': ['Computer Modern Roman'],
+                  'size': '20'})
 
     # Set size of plot in inches.
     plt.rcParams['figure.figsize'] = [2.5, 2.5]

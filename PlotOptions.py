@@ -6,6 +6,9 @@
 """
 A named tuple to represent the plot options as selected in the UI.
 Also loads default values from config.yml and makes them available.
+
+TODO: This module should also do a reasonable amount of validation
+      of config variables.
 """
 from collections import namedtuple
 import yaml
@@ -37,6 +40,7 @@ plot_options = namedtuple("plot_options", (
     "zlabel",       # Label for z axis
     "plottitle",    # Title of plot
     "legtitle",     # Plot legend
+    "usetex"        # Use LaTeX to draw text - "all", "math", or "none".
     ))
     
 # Store a dictionary of default options from config.yml

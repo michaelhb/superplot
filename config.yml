@@ -81,8 +81,12 @@ PlotOptions:
 
     # For theoretical error on delta chi-squared plots.
     Tau: 2
-
-
+    
+    # Whether to use LaTeX.
+    # - all: use LaTeX for math and text
+    # - math: use LaTeX for math only
+    # - none: do not use LaTeX at all
+    usetex: 'all'
 
 
 

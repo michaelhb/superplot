@@ -473,6 +473,7 @@ class GUIControl:
             zlabel = self.labels[self.zindex],
             plottitle = self.plottitle.get_text(),
             legtitle = self.legtitle.get_text(),
+            usetex = default("usetex")
         )
         
         # Fetch the class for the selected plot type
@@ -512,10 +513,11 @@ class GUIControl:
         # its size...
         self.fig.set_size_inches(default("size"))
         Plots.SavePlot(name)
-
+    
 def main():
     datafile = OpenFileGUI()
     infofile = OpenFileGUI()
+    
     labels, data = DL.Load(infofile, datafile)
     bcb = GUIControl(labels, data)
     gtk.main()

@@ -71,7 +71,7 @@ class Plot(object):
         PM.PlotTicks(opt.xticks, opt.yticks, ax)
         PM.PlotLabels(opt.xlabel, opt.ylabel, opt.plottitle)
         PM.PlotLimits(ax, opt.plot_limits)
-        PM.Appearance()
+        PM.Appearance(opt.usetex)
 
         return fig, ax
         

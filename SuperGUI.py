@@ -12,7 +12,7 @@
 
 #  SuperPy modules.
 import DataLoader as DL
-import PlotLib.Plots as Plots
+import plotlib.Plots as Plots
 from PlotOptions import plot_options, default
 
 # External modules.

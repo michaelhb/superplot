@@ -1,6 +1,6 @@
 """
 Implementation of plot classes. These inherit from the classes in 
-PlotLib.Base and must specify a figure() method which returns 
+plotlib.Base and must specify a figure() method which returns 
 a matplotlib figure object.
 
 Plots should also have a "description" attribute with a one line
@@ -17,9 +17,9 @@ Also includes a function to save the current plot.
 # SuperPy modules.
 import Schemes
 import PlotMod as PM
-import StatsLib.OneDim as OneDim
-import StatsLib.Point as Stats
-import StatsLib.TwoDim as TwoDim
+import statslib.OneDim as OneDim
+import statslib.Point as Stats
+import statslib.TwoDim as TwoDim
 from Base import *
 
 # External modules.

@@ -11,9 +11,9 @@
 #########################################################################
 
 #  SuperPy modules.
-import DataLoader as DL
-import plotlib.Plots as Plots
-from PlotOptions import plot_options, default
+import data_loader as DL
+import plotlib.plots as Plots
+from plot_options import plot_options, default
 
 # External modules.
 import re

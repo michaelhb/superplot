@@ -7,13 +7,13 @@
 # External modules.
 
 # SuperPy modules.
-from PlotOptions import default
-import statslib.Point as Stats
+from plot_options import default
+import statslib.point as Stats
 
 # import OneDim
-import statslib.OneDim as OneDim
+import statslib.one_dim as OneDim
 from SuperGUI import OpenFileGUI
-import DataLoader as DL
+import data_loader as DL
 
 # Select chain and info file with a GUI.
 datafile = OpenFileGUI()

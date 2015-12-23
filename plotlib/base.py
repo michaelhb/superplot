@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import warnings
 
 # SuperPy modules.
-import PlotMod as PM
+import plot_mod as PM
 
 class Plot(object):
     """

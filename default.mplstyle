@@ -5,12 +5,12 @@ lines.linewidth : 4
 axes.grid : True
 
 # Set size of plot in inches
-figure.figsize : [2.5, 2.5]
+figure.figsize : 2.5, 2.5
 
 # Legend properties
 legend.shadow : False
 legend.fancybox : True
-legend.loc : 'best'
+legend.loc : best
 legend.borderaxespad : 1.
 legend.scatterpoints : 1
 legend.numpoints : 1
@@ -23,12 +23,10 @@ font.serif : ['Computer Modern Roman']
 font.size : 20
 
 # Saving figure options
-savefig.dpi=None
-savefig.facecolor='w'
-savefig.edgecolor='w',
-savefig.orientation='portrait'
-savefig.papertype=None
-savefig.format="pdf",
-savefig.transparent=False
-savefig.bbox_inches="tight"
-savefig.pad_inches=0.1
+savefig.facecolor : white
+savefig.edgecolor : white
+savefig.orientation : portrait
+savefig.format : pdf
+savefig.transparent : False
+savefig.bbox : tight
+savefig.pad_inches : 0.1

@@ -2,61 +2,61 @@
 # TODO: This is very user unfriendly.
 # Make sure parameters are listed in a sensible
 # order and fully explained with comments.
-Schemes:
-    Posterior:
-        Colour: 'RoyalBlue'
-        Symbol: '-'
-        Label: 'Posterior pdf'
-        ColourMap: 'GnBu'
-        Colours: ['RoyalBlue', 'SeaGreen']
-        ColourBarTitle: 'PDF'
-        LevelNames: ['$2\sigma$ region', '$1\sigma$ region']
-    PosteriorMean:
-        Colour: 'SeaGreen'
-        Symbol: 'o'
-        Label: 'Posterior Mean'
-    BestFit:
-        Colour: 'Brown'
-        Symbol: '*'
-        Label: 'Best-fit point'
-        Size: 12
-    ProfLike:
-        Colour: 'DarkOrange'
-        Symbol: '--'
-        Label: 'Profile likelihood'
-        ColourMap: 'Reds'
-        Colours: ['DarkOrange', 'Brown']
-        ColourBarTitle: 'PL'
-        LevelNames: ['$2\sigma$ region', '$1\sigma$ region']
-    ProfChiSq:
-        Colour: 'DarkOrange'
-        Symbol: '--'
-        Label: '$\Delta \chi^2$'
-        Colours: ['Gold', 'Peru']
-        LevelNames: ['$2\sigma$ excluded', '$1\sigma$ excluded']
-    Scatter:
-        Symbol: 'o'
-        ColourMap: 'Reds'
-        Size: 15
-    ConfIntervalS2:
-        Colour: 'DarkOrange'
-        Symbol: 'o'
-        Label: '$2\sigma$ confidence interval'
-    ConfIntervalS1:
-        Colour: 'Brown'
-        Symbol: 'o'
-        Label: '$1\sigma$ confidence interval'
-    CredibleRegionS2:
-        Colour: 'SeaGreen'
-        Symbol: '-'
-        Label: '$2\sigma$ credible region'
-    CredibleRegionS1:
-        Colour: 'RoyalBlue'
-        Symbol: '-'
-        Label: '$1\sigma$ credible region'
-    TauBand:
-        Colour: 'RoyalBlue'
-        Label: 'Theory Error'
+schemes:
+    posterior:
+        colour: 'RoyalBlue'
+        symbol: '-'
+        label: 'Posterior pdf'
+        colour_map: 'GnBu'
+        colours: ['RoyalBlue', 'SeaGreen']
+        colour_bar_title: 'PDF'
+        level_names: ['$2\sigma$ region', '$1\sigma$ region']
+    posterior_mean:
+        colour: 'SeaGreen'
+        symbol: 'o'
+        label: 'Posterior Mean'
+    best_fit:
+        colour: 'Brown'
+        symbol: '*'
+        label: 'Best-fit point'
+        size: 12
+    prof_like:
+        colour: 'DarkOrange'
+        symbol: '--'
+        label: 'Profile likelihood'
+        colour_map: 'Reds'
+        colours: ['DarkOrange', 'Brown']
+        colour_bar_title: 'PL'
+        level_names: ['$2\sigma$ region', '$1\sigma$ region']
+    prof_chi_sq:
+        colour: 'DarkOrange'
+        symbol: '--'
+        label: '$\Delta \chi^2$'
+        colours: ['Gold', 'Peru']
+        level_names: ['$2\sigma$ excluded', '$1\sigma$ excluded']
+    scatter:
+        symbol: 'o'
+        colour_map: 'Reds'
+        size: 15
+    conf_interval_s2:
+        colour: 'DarkOrange'
+        symbol: 'o'
+        label: '$2\sigma$ confidence interval'
+    conf_interval_s1:
+        colour: 'Brown'
+        symbol: 'o'
+        label: '$1\sigma$ confidence interval'
+    credible_region_s2:
+        colour: 'SeaGreen'
+        symbol: '-'
+        label: '$2\sigma$ credible region'
+    credible_region_s1:
+        colour: 'RoyalBlue'
+        symbol: '-'
+        label: '$1\sigma$ credible region'
+    tau_band:
+        colour: 'RoyalBlue'
+        label: 'Theory Error'
         
 #########################################################################
 PlotOptions:

@@ -12,15 +12,15 @@ class Scheme:
 
     def __init__(
             self,
-            Colour=None,
-            Symbol=None,
-            Label=None,
-            LevelNames=None,
-            ColourMap=None,
-            ColourBarTitle=None,
-            Size=5,
+            colour=None,
+            symbol=None,
+            label=None,
+            level_names=None,
+            colour_map=None,
+            colour_bar_title=None,
+            size=5,
             plot_limits=None,
-            Colours=None):
+            colours=None):
         """
         Define an appearance scheme.
 
@@ -36,15 +36,15 @@ class Scheme:
         Colours -- List of colours to be iterated, for, e.g., filled contours.
 
         """
-        self.Colour = Colour
-        self.Symbol = Symbol
-        self.Label = Label
-        self.LevelNames = LevelNames
-        self.ColourMap = get_cmap(ColourMap)
-        self.ColourBarTitle = ColourBarTitle
-        self.Size = Size
+        self.colour = colour
+        self.symbol = symbol
+        self.label = label
+        self.level_names = level_names
+        self.colour_map = get_cmap(colour_map)
+        self.colour_bar_title = colour_bar_title
+        self.size = size
         self.plot_limits = plot_limits
-        self.Colours = Colours
+        self.colours = colours
         
 # Load config.yml and store contents as private dictionary
 with open("config.yml") as cfile:
@@ -52,9 +52,9 @@ with open("config.yml") as cfile:
     
 # For each scheme in the config file, create a Scheme
 # class and add it as a module attribute.
-for scheme_name, params in _config["Schemes"].iteritems():
+for scheme_name, params in _config["schemes"].iteritems():
     scheme = Scheme(**params)
     setattr(sys.modules[__name__], scheme_name, scheme)
     
-CredibleRegions = [CredibleRegionS2, CredibleRegionS1]
-ConfIntervals = [ConfIntervalS2, ConfIntervalS1]
+credible_regions = [credible_region_s1, credible_region_s2]
+conf_intervals = [conf_interval_s1, conf_interval_s2]

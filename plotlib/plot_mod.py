@@ -32,10 +32,10 @@ def plot_data(x, y, scheme):
     plt.plot(
         x,
         y,
-        scheme.Symbol,
-        color=scheme.Colour,
-        label=scheme.Label,
-        ms=scheme.Size)
+        scheme.symbol,
+        color=scheme.colour,
+        label=scheme.label,
+        ms=scheme.size)
         
 def appearance(usetex):
     """ Specify the plots appearance, with e.g. font types etc.
@@ -169,8 +169,8 @@ def plot_image(xdata, ydata, data, bin_limits, plot_limits, scheme):
     # Interpolating perhaps misleads, if you don't want it set
     # interpolation='nearest'. NB that imshow is annoying - it reads y,x
     # rather than x,y so we take transpose.
-    plt.im = plt.imshow(data.T, cmap=scheme.ColourMap, extent=bin_limits,
-                        interpolation='bilinear', label=scheme.Label,
+    plt.im = plt.imshow(data.T, cmap=scheme.colour_map, extent=bin_limits,
+                        interpolation='bilinear', label=scheme.label,
                         origin='lower', aspect=aspect)
     # Plot a colour bar.
     cb = plt.colorbar(plt.im, orientation='horizontal', shrink=0.5)
@@ -178,7 +178,7 @@ def plot_image(xdata, ydata, data, bin_limits, plot_limits, scheme):
     cb.locator = MaxNLocator(4)
     cb.update_ticks()
     # Colour bar label.
-    cb.ax.set_xlabel(scheme.ColourBarTitle)
+    cb.ax.set_xlabel(scheme.colour_bar_title)
 
 
 def plot_contour(xdata, ydata, data, levels, scheme, bin_limits):
@@ -204,7 +204,7 @@ def plot_contour(xdata, ydata, data, levels, scheme, bin_limits):
         data.T,
         levels,
         linewidths=2,
-        colors=scheme.Colour,
+        colors=scheme.colour,
         hold='on',
         extent=bin_limits,
         interpolation='bilinear',
@@ -215,7 +215,7 @@ def plot_contour(xdata, ydata, data, levels, scheme, bin_limits):
 
     # Set the contour labels - they will show labels.
     fmt = {}
-    for i, s in zip(cset.levels, scheme.LevelNames):
+    for i, s in zip(cset.levels, scheme.level_names):
         fmt[i] = s
 
     # Plot inline labels on contours.
@@ -256,19 +256,19 @@ def plot_filled_contour(
 
     # Filled contours.
     cset = plt.contourf(data.T, levels,
-                        colors=scheme.Colours,
+                        colors=scheme.colours,
                         hold='on', extent=bin_limits,
                         interpolation='bilinear', origin=None,
                         alpha=0.7)
 
     # Plot a proxy for the legend - plot spurious data outside plot limits,
     # with legend entry matching colours of filled contours.
-    for i, value in enumerate(scheme.Colours):
+    for i, value in enumerate(scheme.colours):
         plt.plot(-1.5 * abs(min(xdata)),
                  1.5 * abs(max(ydata)),
                  's',
-                 color=scheme.Colours[i],
-                 label=scheme.LevelNames[i],
+                 color=scheme.colours[i],
+                 label=scheme.level_names[i],
                  alpha=0.7,
                  ms=15)
 
@@ -299,10 +299,10 @@ def plot_band(x, y, width, ax, scheme):
                     uy[i] = y[j]
 
     # Finally plot.
-    ax.fill_between(x, ly, uy, where=None, facecolor=scheme.Colour, alpha=0.7)
+    ax.fill_between(x, ly, uy, where=None, facecolor=scheme.colour, alpha=0.7)
     # Proxy for legend.
-    plt.plot(-1, -1, 's', color=scheme.Colour,
-             label=scheme.Label, alpha=0.7, ms=15)
+    plt.plot(-1, -1, 's', color=scheme.colour,
+             label=scheme.label, alpha=0.7, ms=15)
 
 def plot_points(
         filename,

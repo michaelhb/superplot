@@ -50,9 +50,9 @@ class OneDimStandard(OneDimPlot):
         
         # Points of interest.
         pm.plot_data(stats.best_fit(self.chisq, self.xdata),
-                     0.02, schemes.BestFit)
+                     0.02, schemes.best_fit)
         pm.plot_data(stats.posterior_mean(self.posterior, self.xdata),
-                     0.02, schemes.PosteriorMean)
+                     0.02, schemes.posterior_mean)
             
         # Data itself.
         pdf = one_dim.posterior_pdf(
@@ -65,7 +65,7 @@ class OneDimStandard(OneDimPlot):
             self.chisq,
             nbins=opt.nbins,
             bin_limits=opt.bin_limits).bins
-        pm.plot_data(x, pdf, schemes.Posterior)
+        pm.plot_data(x, pdf, schemes.posterior)
 
         profchisq, proflike, bins = \
             one_dim.profile_like(self.xdata, self.chisq,
@@ -76,7 +76,7 @@ class OneDimStandard(OneDimPlot):
             self.chisq,
             nbins=opt.nbins,
             bin_limits=opt.bin_limits).bins
-        pm.plot_data(x, proflike, schemes.ProfLike)
+        pm.plot_data(x, proflike, schemes.prof_like)
             
         # Plot credible regions/confidence intervals above data.
         lowercredibleregion, uppercredibleregion = \
@@ -91,8 +91,8 @@ class OneDimStandard(OneDimPlot):
         # Plot confidence intervals at 1.
         for i, value in enumerate(lowercredibleregion):
             pm.plot_data([lowercredibleregion[i], uppercredibleregion[i]], [
-                        1.1, 1.1], schemes.CredibleRegions[i])
-            pm.plot_data(confint[i, :], [1] * int(opt.nbins), schemes.ConfIntervals[i])
+                        1.1, 1.1], schemes.credible_regions[i])
+            pm.plot_data(confint[i, :], [1] * int(opt.nbins), schemes.conf_intervals[i])
             
         # Add plot legend
         pm.legend(opt.legtitle)
@@ -116,13 +116,13 @@ class OneDimChiSq(OneDimPlot):
             nbins=opt.nbins,
             bin_limits=opt.bin_limits)
             
-        pm.plot_data(x, profchisq, schemes.ProfChiSq)
+        pm.plot_data(x, profchisq, schemes.prof_chi_sq)
             
         # Plot the delta chi-squared between default range, 0 - 10.
         pm.plot_limits(ax, opt.plot_limits)
             
         # Bestfit point.
-        pm.plot_data(stats.best_fit(self.chisq, self.xdata), 0.08, schemes.BestFit)
+        pm.plot_data(stats.best_fit(self.chisq, self.xdata), 0.08, schemes.best_fit)
             
         # Confidence intervals as filled.
         deltachisq = one_dim.confidence_intervals(
@@ -136,23 +136,23 @@ class OneDimChiSq(OneDimPlot):
                 0,
                 10,
                 where=profchisq >= dchi,
-                facecolor=schemes.ProfChiSq.Colours[i],
+                facecolor=schemes.prof_chi_sq.colours[i],
                 interpolate=False,
                 alpha=0.7)
             # Plot a proxy for the legend - plot spurious data outside plot limits,
             # with legend entry matching colours of filled regions.
             plt.plot(-1, -1, 's',
-                     color=schemes.ProfChiSq.Colours[i], label=schemes.ProfChiSq.LevelNames[i], alpha=0.7, ms=15)
+                     color=schemes.prof_chi_sq.colours[i], label=schemes.prof_chi_sq.level_names[i], alpha=0.7, ms=15)
                      
         if opt.tau is not None:
             # Plot the theory error as a band around the usual line.
-            pm.plot_band(x, profchisq, opt.tau, ax, schemes.TauBand)
+            pm.plot_band(x, profchisq, opt.tau, ax, schemes.tau_band)
                      
         # Add plot legend
         pm.legend(opt.legtitle)
         
         # Override y axis label!
-        plt.ylabel(schemes.ProfChiSq.Label)
+        plt.ylabel(schemes.prof_chi_sq.label)
         
         return fig
                      
@@ -170,11 +170,11 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         pm.plot_data(
             stats.best_fit(
                 self.chisq, self.xdata), stats.best_fit(
-                self.chisq, self.ydata), schemes.BestFit)
+                self.chisq, self.ydata), schemes.best_fit)
         pm.plot_data(
             stats.posterior_mean(
                 self.posterior, self.xdata), stats.posterior_mean(
-                self.posterior, self.ydata), schemes.PosteriorMean)
+                self.posterior, self.ydata), schemes.posterior_mean)
         
         pdf = two_dim.posterior_pdf(
             self.xdata,
@@ -192,7 +192,7 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
             self.ydata,
             pdf,
             levels,
-            schemes.Posterior,
+            schemes.posterior,
             bin_limits=opt.bin_limits)
                      
         # Add legend
@@ -214,11 +214,11 @@ class TwoDimPlotFilledPL(TwoDimPlot):
         pm.plot_data(
             stats.best_fit(
                 self.chisq, self.xdata), stats.best_fit(
-                self.chisq, self.ydata), schemes.BestFit)
+                self.chisq, self.ydata), schemes.best_fit)
         pm.plot_data(
             stats.posterior_mean(
                 self.posterior, self.xdata), stats.posterior_mean(
-                self.posterior, self.ydata), schemes.PosteriorMean)
+                self.posterior, self.ydata), schemes.posterior_mean)
                      
         proflike = two_dim.profile_like(
             self.xdata,
@@ -234,7 +234,7 @@ class TwoDimPlotFilledPL(TwoDimPlot):
             self.ydata,
             proflike,
             levels,
-            schemes.ProfLike,
+            schemes.prof_like,
             bin_limits=opt.bin_limits)
                      
         # Add legend
@@ -256,11 +256,11 @@ class TwoDimPlotPDF(TwoDimPlot):
         pm.plot_data(
             stats.best_fit(
                 self.chisq, self.xdata), stats.best_fit(
-                self.chisq, self.ydata), schemes.BestFit)
+                self.chisq, self.ydata), schemes.best_fit)
         pm.plot_data(
             stats.posterior_mean(
                 self.posterior, self.xdata), stats.posterior_mean(
-                self.posterior, self.ydata), schemes.PosteriorMean)
+                self.posterior, self.ydata), schemes.posterior_mean)
                      
         pdf = two_dim.posterior_pdf(
             self.xdata,
@@ -274,7 +274,7 @@ class TwoDimPlotPDF(TwoDimPlot):
             pdf,
             opt.bin_limits,
             opt.plot_limits,
-            schemes.Posterior)
+            schemes.posterior)
 
         levels = [two_dim.critical_density(pdf, aa) for aa in opt.alpha]
                      
@@ -286,7 +286,7 @@ class TwoDimPlotPDF(TwoDimPlot):
             self.ydata,
             pdf,
             levels,
-            schemes.Posterior,
+            schemes.posterior,
             bin_limits=opt.bin_limits)
                      
         # Add legend
@@ -308,11 +308,11 @@ class TwoDimPlotPL(TwoDimPlot):
         pm.plot_data(
             stats.best_fit(
                 self.chisq, self.xdata), stats.best_fit(
-                self.chisq, self.ydata), schemes.BestFit)
+                self.chisq, self.ydata), schemes.best_fit)
         pm.plot_data(
             stats.posterior_mean(
                 self.posterior, self.xdata), stats.posterior_mean(
-                self.posterior, self.ydata), schemes.PosteriorMean)
+                self.posterior, self.ydata), schemes.posterior_mean)
                      
         proflike = two_dim.profile_like(
             self.xdata,
@@ -326,7 +326,7 @@ class TwoDimPlotPL(TwoDimPlot):
             proflike,
             opt.bin_limits,
             opt.plot_limits,
-            schemes.ProfLike)
+            schemes.prof_like)
 
         levels = two_dim.delta_pl(alpha=opt.alpha)
 
@@ -335,7 +335,7 @@ class TwoDimPlotPL(TwoDimPlot):
             self.ydata,
             proflike,
             levels,
-            schemes.ProfLike,
+            schemes.prof_like,
             bin_limits=opt.bin_limits)
             
         # Add legend
@@ -358,20 +358,20 @@ class Scatter(TwoDimPlot):
         pm.plot_data(
             stats.best_fit(
                 self.chisq, self.xdata), stats.best_fit(
-                self.chisq, self.ydata), schemes.BestFit)
+                self.chisq, self.ydata), schemes.best_fit)
         pm.plot_data(
             stats.posterior_mean(
                 self.posterior, self.xdata), stats.posterior_mean(
-                self.posterior, self.ydata), schemes.PosteriorMean)
+                self.posterior, self.ydata), schemes.posterior_mean)
             
         # Plot scatter of points.
         sc = plt.scatter(
             self.xdata,
             self.ydata,
-            s=schemes.Scatter.Size,
+            s=schemes.scatter.size,
             c=self.zdata,
-            marker=schemes.Scatter.Symbol,
-            cmap=schemes.Scatter.ColourMap,
+            marker=schemes.scatter.symbol,
+            cmap=schemes.scatter.colour_map,
             norm=None,
             vmin=None,
             vmax=None,
@@ -406,7 +406,7 @@ class Scatter(TwoDimPlot):
             self.ydata,
             proflike,
             levels,
-            schemes.ProfLike,
+            schemes.prof_like,
             bin_limits=opt.bin_limits)
         levels = [two_dim.critical_density(pdf, aa) for aa in opt.alpha]
         
@@ -417,7 +417,7 @@ class Scatter(TwoDimPlot):
             self.ydata,
             pdf,
             levels,
-            schemes.Posterior,
+            schemes.posterior,
             bin_limits=opt.bin_limits)
 
         # Add legend

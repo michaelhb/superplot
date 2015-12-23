@@ -8,7 +8,7 @@
 
 import numpy as NP
 
-def PosteriorMean(posterior, param):
+def posterior_mean(posterior, param):
     """ Calculate the posterior mean.
 
     Arguments:
@@ -26,7 +26,7 @@ def PosteriorMean(posterior, param):
     return postmean
 
 
-def BestFit(chisq, param):
+def best_fit(chisq, param):
     """ Calculate the best-fit.
 
     Arguments:
@@ -43,7 +43,7 @@ def BestFit(chisq, param):
     return bestfit
 
 
-def PValue(chisq, dof):
+def p_value(chisq, dof):
     """ Calculate the pvalue.
 
     Arguments:

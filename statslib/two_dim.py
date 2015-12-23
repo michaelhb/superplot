@@ -14,7 +14,7 @@ from scipy import stats
 from collections import namedtuple
 from scipy.optimize import bisect
 
-def PosteriorPDF(paramx, paramy, posterior, nbins=50, bin_limits=None):
+def posterior_pdf(paramx, paramy, posterior, nbins=50, bin_limits=None):
     """ Histograms the chosen parameters to obtain two-dimensional PDF.
 
     Arguments:
@@ -48,7 +48,7 @@ def PosteriorPDF(paramx, paramy, posterior, nbins=50, bin_limits=None):
     # maybe this should just return the pdf?
     return posteriorpdf(pdf, centerx, centery)
     
-def ProfileLike(paramx, paramy, chisq, nbins, bin_limits=None):
+def profile_like(paramx, paramy, chisq, nbins, bin_limits=None):
     """ Maximizes the chisquared to obtain two-dimensional profile likelihood.
 
     Arguments:
@@ -170,7 +170,7 @@ def critical_density(pdf, alpha):
         
     return critical_density
     
-def DeltaPL(alpha=NP.array([0.05, 0.32])):
+def delta_pl(alpha=NP.array([0.05, 0.32])):
     """ Use confidence levels to calculate DeltaPL.
     
     This is used to plot two dimensional confidence intervals.

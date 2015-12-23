@@ -29,7 +29,7 @@ from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanva
 
 #########################################################################
 
-def OpenFileGUI():
+def open_file_gui():
     """ GUI for opening a file with a file browser.
 
     Return:
@@ -66,7 +66,7 @@ def OpenFileGUI():
 
     return filename
     
-def SaveFileGUI():
+def save_file_gui():
     """ GUI for saving a file with a file browser.
 
     Return:
@@ -506,7 +506,7 @@ class GUIControl:
         button -- Button with this callback function.
 
         """
-        name = SaveFileGUI()  # Get name to save to from a dialogue box.
+        name = save_file_gui()  # Get name to save to from a dialogue box.
         if not isinstance(name, str):
             return  # Case in which no file is chosen.
         # So that figure is correct size for saving - showing a figure changes
@@ -515,10 +515,10 @@ class GUIControl:
         Plots.SavePlot(name)
     
 def main():
-    datafile = OpenFileGUI()
-    infofile = OpenFileGUI()
+    datafile = open_file_gui()
+    infofile = open_file_gui()
     
-    labels, data = DL.Load(infofile, datafile)
+    labels, data = DL.load(infofile, datafile)
     bcb = GUIControl(labels, data)
     gtk.main()
     return

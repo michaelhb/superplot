@@ -68,10 +68,10 @@ class Plot(object):
         fig = plt.figure(figsize=opt.size)  # Size in inches.
         ax = fig.add_subplot(1, 1, 1)
         
-        PM.PlotTicks(opt.xticks, opt.yticks, ax)
-        PM.PlotLabels(opt.xlabel, opt.ylabel, opt.plottitle)
-        PM.PlotLimits(ax, opt.plot_limits)
-        PM.Appearance(opt.usetex)
+        PM.plot_ticks(opt.xticks, opt.yticks, ax)
+        PM.plot_labels(opt.xlabel, opt.ylabel, opt.plottitle)
+        PM.plot_limits(ax, opt.plot_limits)
+        PM.appearance(opt.usetex)
 
         return fig, ax
         

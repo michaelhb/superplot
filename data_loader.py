@@ -14,7 +14,7 @@ import cPickle as pickle
 import os 
 import re
 
-def Load(infofile, datafile):
+def load(infofile, datafile):
 	""" Import the data used by SuperPlot.
 	
 	Arguments:
@@ -27,14 +27,14 @@ def Load(infofile, datafile):
 	
 	"""
 	
-	data = OpenChain(datafile)
-	info = ReadInfo(infofile)
-	label = LabelChain(data, info)
+	data = open_chain(datafile)
+	info = read_info(infofile)
+	label = label_chain(data, info)
 	
 	return label, data
 	
 
-def OpenChain(filename):
+def open_chain(filename):
     """ Open a text file or serialised data. If opening a text file, serialise data for future plots.
 
     Arguments:
@@ -57,7 +57,7 @@ def OpenChain(filename):
 
     else:
         # Open the *txt file.
-        data = OpenDataFile(filename)
+        data = open_data_file(filename)
 
         # Serialize the data for quicker future reading.
         print 'Dumping chain...'
@@ -72,7 +72,7 @@ def OpenChain(filename):
     print 'Success: returning chain.'
     return data
 	
-def OpenDataFile(filename):
+def open_data_file(filename):
     """ Open a text file and return dictonary of numpy arrays of data.
 
     Arguments:
@@ -121,7 +121,7 @@ def OpenDataFile(filename):
 
     return data
 	
-def ReadInfo(filename):
+def read_info(filename):
     """ Read labels from a SuperBayeS style info file. """
     label = {}
 
@@ -154,7 +154,7 @@ def ReadInfo(filename):
 
     return label
 	
-def LabelChain(data, info):
+def label_chain(data, info):
     """ Match labels to the data.
     i) Check if labels match data. 
     ii) If they don't, use data indicies.

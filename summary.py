@@ -12,15 +12,15 @@ import statslib.point as Stats
 
 # import OneDim
 import statslib.one_dim as OneDim
-from SuperGUI import OpenFileGUI
+from super_gui import open_file_gui
 import data_loader as DL
 
 # Select chain and info file with a GUI.
-datafile = OpenFileGUI()
-infofile = OpenFileGUI()
+datafile = open_file_gui()
+infofile = open_file_gui()
 
 # Load and label data
-labels, data = DL.Load(infofile, datafile)
+labels, data = DL.load(infofile, datafile)
 
 # Print information for the parameters.
 print 'Param | Best-fit | Posterior Mean | 1 sigma Credible region'
@@ -30,23 +30,23 @@ for key, name in labels.iteritems():
     x = data[key]
     pw = data[0]
     chisq = data[1]
-    bestfit = Stats.BestFit(chisq, x)
-    postmean = Stats.PosteriorMean(pw, x)
-    pdf = OneDim.PosteriorPDF(
+    bestfit = Stats.best_fit(chisq, x)
+    postmean = Stats.posterior_mean(pw, x)
+    pdf = OneDim.posterior_pdf(
         x,
         pw,
         nbins=default("nbins"),
         bin_limits=default("bin_limits")).pdf
-    xc = OneDim.PosteriorPDF(
+    xc = OneDim.posterior_pdf(
         x,
         pw,
         nbins=default("nbins"),
         bin_limits=default("bin_limits")).bins
-    lowercredibleregion = OneDim.CredibleRegions(
+    lowercredibleregion = OneDim.credible_regions(
         pdf,
         xc,
         alpha=default("alpha")).lowercredibleregion
-    uppercredibleregion = OneDim.CredibleRegions(
+    uppercredibleregion = OneDim.credible_regions(
         pdf,
         xc,
         alpha=default("alpha")).uppercredibleregion
@@ -54,4 +54,4 @@ for key, name in labels.iteritems():
 
 # Print best-fit information.
 print 'Min ChiSq', data[1].min()
-print 'p-value', Stats.PValue(data[1], default("dof"))
+print 'p-value', Stats.p_value(data[1], default("dof"))

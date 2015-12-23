@@ -12,7 +12,7 @@ import numpy as NP
 from scipy import stats
 from collections import namedtuple
 
-def PosteriorPDF(param, posterior, nbins=50, bin_limits=None):
+def posterior_pdf(param, posterior, nbins=50, bin_limits=None):
     """ Histograms the chosen parameter to obtain PDF.
 
     Arguments:
@@ -43,7 +43,7 @@ def PosteriorPDF(param, posterior, nbins=50, bin_limits=None):
     
     return posteriorpdf(pdf, bins)
     
-def ProfileLike(param, chisq, nbins=50, bin_limits=None):
+def profile_like(param, chisq, nbins=50, bin_limits=None):
     """ Maximizes the chi-squared in each bin to obtain the profile likelihood.
 
     Arguments:
@@ -101,7 +101,7 @@ def ProfileLike(param, chisq, nbins=50, bin_limits=None):
     
     return profilelike(profchisq, proflike, bins)
     
-def CredibleRegions(pdf, param, alpha=NP.array([0.05, 0.32])):
+def credible_regions(pdf, param, alpha=NP.array([0.05, 0.32])):
     """ 
     Calculate one-dimensional credible regions.
     
@@ -151,7 +151,7 @@ def CredibleRegions(pdf, param, alpha=NP.array([0.05, 0.32])):
     
     return credibleregions(lowercredibleregion, uppercredibleregion)
     
-def ConfidenceIntervals(chisq, param, alpha=NP.array([0.05, 0.32])):
+def confidence_intervals(chisq, param, alpha=NP.array([0.05, 0.32])):
     """ Calculate one dimensional confidence intervals.
     
     Arguments:

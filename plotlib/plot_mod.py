@@ -20,7 +20,7 @@ from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import MaxNLocator
 from pylab import *
 
-def PlotData(x, y, Scheme):
+def plot_data(x, y, Scheme):
     """ Plot a point with a particular color scheme.
 
     Arguments:
@@ -37,7 +37,7 @@ def PlotData(x, y, Scheme):
         label=Scheme.Label,
         ms=Scheme.Size)
         
-def Appearance(usetex):
+def appearance(usetex):
     """ Specify the plots appearance, with e.g. font types etc.
     
     Arguments:
@@ -84,7 +84,7 @@ def Appearance(usetex):
     plt.rcParams['figure.figsize'] = [2.5, 2.5]
 
 
-def Legend(title=None):
+def legend(title=None):
     """ Turn on the legend.
 
     Arguments:
@@ -97,7 +97,7 @@ def Legend(title=None):
     leg.get_frame().set_alpha(0.5)
 
 
-def PlotLimits(ax, plot_limits=None):
+def plot_limits(ax, plot_limits=None):
     """ If specified plot limits, set them.
 
     Arguments:
@@ -110,7 +110,7 @@ def PlotLimits(ax, plot_limits=None):
         ax.set_ylim([plot_limits[2], plot_limits[3]])
 
 
-def PlotTicks(xticks, yticks, ax):
+def plot_ticks(xticks, yticks, ax):
     """ Set the numbers of ticks on the axis.
 
     Arguments:
@@ -127,7 +127,7 @@ def PlotTicks(xticks, yticks, ax):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
 
 
-def PlotLabels(xlabel, ylabel, plottitle=''):
+def plot_labels(xlabel, ylabel, plottitle=''):
     """ Plot axis labels.
 
     Arguments:
@@ -142,7 +142,7 @@ def PlotLabels(xlabel, ylabel, plottitle=''):
     plt.title(plottitle)
 
 
-def PlotImage(xdata, ydata, data, bin_limits, plot_limits, Scheme):
+def plot_image(xdata, ydata, data, bin_limits, plot_limits, Scheme):
     """ Plot data as an image.
 
     Arguments:
@@ -181,7 +181,7 @@ def PlotImage(xdata, ydata, data, bin_limits, plot_limits, Scheme):
     cb.ax.set_xlabel(Scheme.ColourBarTitle)
 
 
-def PlotContour(xdata, ydata, data, levels, Scheme, bin_limits):
+def plot_contour(xdata, ydata, data, levels, Scheme, bin_limits):
     """ Make unfilled contours for a plot.
     Arguments:
     xdata -- x-axis data.
@@ -222,7 +222,7 @@ def PlotContour(xdata, ydata, data, levels, Scheme, bin_limits):
     plt.clabel(cset, inline=True, fmt=fmt, fontsize=12, hold='on')
 
 
-def PlotFilledContour(
+def plot_filled_contour(
         xdata,
         ydata,
         data,
@@ -273,7 +273,7 @@ def PlotFilledContour(
                  ms=15)
 
 
-def PlotBand(x, y, width, ax, Scheme):
+def plot_band(x, y, width, ax, Scheme):
     """ Plot a band around a line.
     This is for a theoretical error. We find the largest and smallest
     y within +/width of the value of x, and fill between these largest and smallest
@@ -304,7 +304,7 @@ def PlotBand(x, y, width, ax, Scheme):
     plt.plot(-1, -1, 's', color=Scheme.Colour,
              label=Scheme.Label, alpha=0.7, ms=15)
 
-def PlotPoints(
+def plot_points(
         filename,
         colour="SteelBlue",
         size=2.5,

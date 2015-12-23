@@ -9,16 +9,11 @@
 
 # Python modules
 import subprocess
-import os
-import warnings
 
 # External modules.
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib import rc
 from matplotlib.ticker import AutoMinorLocator
-from matplotlib.ticker import MaxNLocator
 from pylab import *
+
 
 def plot_data(x, y, scheme):
     """ Plot a point with a particular color scheme.
@@ -30,13 +25,14 @@ def plot_data(x, y, scheme):
 
     """
     plt.plot(
-        x,
-        y,
-        scheme.symbol,
-        color=scheme.colour,
-        label=scheme.label,
-        ms=scheme.size)
-        
+            x,
+            y,
+            scheme.symbol,
+            color=scheme.colour,
+            label=scheme.label,
+            ms=scheme.size)
+
+
 def appearance(use_tex):
     """ Specify the plots appearance, with e.g. font types etc.
     
@@ -44,7 +40,7 @@ def appearance(use_tex):
     use_tex -- whether to use LaTeX. "all", "math", or "none".
     """
     assert use_tex in ["all", "math", "none"]
-    
+
     # If the user wants Tex, we first check if the 
     # 'latex' shell command is available (as this is
     # what matplotlib uses to interface with LaTeX).
@@ -57,37 +53,37 @@ def appearance(use_tex):
         # Check if LaTeX is available.
         try:
             subprocess.call(["latex", "-version"])
-        except OSError as e:
+        except OSError as err:
             rc('text', usetex=False)
-            if e.errno == os.errno.ENOENT:
+            if err.errno == os.errno.ENOENT:
                 warnings.warn(
-                    "Cannot use LaTeX fonts. "
-                    "Using matplotlib's mathtext.")
+                        "Cannot use LaTeX fonts. "
+                        "Using matplotlib's mathtext.")
             else:
                 # Some other problem
                 raise
         else:
             # Enable LaTeX
             rc('text', usetex=True)
-            
+
             if use_tex == "all":
                 # Enable LaTeX for all text, set font
                 rc('font',
                    **{'family': 'serif',
                       'serif': ['Computer Modern Roman'],
                       'size': '20'})
-                      
+
     # Make the lines thicker.
     plt.rcParams['lines.linewidth'] = 4
 
     # Plot gridlines over the plot - can be useful
     plt.grid(True)
-    
+
     # Set size of plot in inches.
     plt.rcParams['figure.figsize'] = [2.5, 2.5]
 
 
-def legend(title=None):
+def legend(leg_title=None):
     """ Turn on the legend.
 
     Arguments:
@@ -95,12 +91,12 @@ def legend(title=None):
 
     """
     leg = plt.legend(prop={'size': 16}, shadow=False, fancybox=True,
-                     title=title, loc='best', borderaxespad=1.,
+                     title=leg_title, loc='best', borderaxespad=1.,
                      scatterpoints=1, numpoints=1)
     leg.get_frame().set_alpha(0.5)
 
 
-def plot_limits(ax, plot_limits=None):
+def plot_limits(ax, limits=None):
     """ If specified plot limits, set them.
 
     Arguments:
@@ -108,9 +104,9 @@ def plot_limits(ax, plot_limits=None):
     plot_limits -- Array of plot limits in order xmin, xmax, ymin, ymax.
 
     """
-    if plot_limits is not None:
-        ax.set_xlim([plot_limits[0], plot_limits[1]])
-        ax.set_ylim([plot_limits[2], plot_limits[3]])
+    if limits is not None:
+        ax.set_xlim([limits[0], limits[1]])
+        ax.set_ylim([limits[2], limits[3]])
 
 
 def plot_ticks(xticks, yticks, ax):
@@ -145,7 +141,7 @@ def plot_labels(xlabel, ylabel, plot_title=''):
     plt.title(plot_title)
 
 
-def plot_image(xdata, ydata, data, bin_limits, plot_limits, scheme):
+def plot_image(data, bin_limits, plot_limits, scheme):
     """ Plot data as an image.
 
     Arguments:
@@ -160,14 +156,14 @@ def plot_image(xdata, ydata, data, bin_limits, plot_limits, scheme):
 
     # Flatten bin limits.
     bin_limits = np.array(
-        (bin_limits[0][0],
-         bin_limits[0][1],
-         bin_limits[1][0],
-         bin_limits[1][1]))
+            (bin_limits[0][0],
+             bin_limits[0][1],
+             bin_limits[1][0],
+             bin_limits[1][1]))
 
     # Set the aspect so that resulting figure is a square.
     aspect = (plot_limits[1] - plot_limits[0]) / \
-        (plot_limits[3] - plot_limits[2])
+             (plot_limits[3] - plot_limits[2])
 
     # Interpolating perhaps misleads, if you don't want it set
     # interpolation='nearest'. NB that imshow is annoying - it reads y,x
@@ -184,7 +180,7 @@ def plot_image(xdata, ydata, data, bin_limits, plot_limits, scheme):
     cb.ax.set_xlabel(scheme.colour_bar_title)
 
 
-def plot_contour(xdata, ydata, data, levels, scheme, bin_limits):
+def plot_contour(data, levels, scheme, bin_limits):
     """ Make unfilled contours for a plot.
     Arguments:
     xdata -- x-axis data.
@@ -197,24 +193,24 @@ def plot_contour(xdata, ydata, data, levels, scheme, bin_limits):
 
     # Flatten bin limits.
     bin_limits = np.array(
-        (bin_limits[0][0],
-         bin_limits[0][1],
-         bin_limits[1][0],
-         bin_limits[1][1]))
+            (bin_limits[0][0],
+             bin_limits[0][1],
+             bin_limits[1][0],
+             bin_limits[1][1]))
 
     # Make the contours of the levels.
     cset = plt.contour(
-        data.T,
-        levels,
-        linewidths=2,
-        colors=scheme.colour,
-        hold='on',
-        extent=bin_limits,
-        interpolation='bilinear',
-        origin=None,
-        linestyles=[
-            '--',
-            '-'])
+            data.T,
+            levels,
+            linewidths=2,
+            colors=scheme.colour,
+            hold='on',
+            extent=bin_limits,
+            interpolation='bilinear',
+            origin=None,
+            linestyles=[
+                '--',
+                '-'])
 
     # Set the contour labels - they will show labels.
     fmt = {}
@@ -247,10 +243,10 @@ def plot_filled_contour(
 
     # Flatten bin limits.
     bin_limits = np.array(
-        (bin_limits[0][0],
-         bin_limits[0][1],
-         bin_limits[1][0],
-         bin_limits[1][1]))
+            (bin_limits[0][0],
+             bin_limits[0][1],
+             bin_limits[1][0],
+             bin_limits[1][1]))
 
     # We need to ensure levels are in ascending order, and append the list with one.
     # This makes 2 intervals (between 3 values) that will be shown with
@@ -258,11 +254,11 @@ def plot_filled_contour(
     levels = np.append(levels, 1.0)
 
     # Filled contours.
-    cset = plt.contourf(data.T, levels,
-                        colors=scheme.colours,
-                        hold='on', extent=bin_limits,
-                        interpolation='bilinear', origin=None,
-                        alpha=0.7)
+    plt.contourf(data.T, levels,
+                 colors=scheme.colours,
+                 hold='on', extent=bin_limits,
+                 interpolation='bilinear', origin=None,
+                 alpha=0.7)
 
     # Plot a proxy for the legend - plot spurious data outside plot limits,
     # with legend entry matching colours of filled contours.
@@ -307,6 +303,7 @@ def plot_band(x, y, width, ax, scheme):
     plt.plot(-1, -1, 's', color=scheme.colour,
              label=scheme.label, alpha=0.7, ms=15)
 
+
 def plot_points(
         filename,
         colour="SteelBlue",
@@ -330,10 +327,10 @@ def plot_points(
 
     data = np.genfromtxt(filename, unpack=True)
     plt.plot(
-        data[xc][:],
-        data[yc][:],
-        style,
-        alpha=0.8,
-        c=colour,
-        ms=size,
-        label=label)
+            data[xc][:],
+            data[yc][:],
+            style,
+            alpha=0.8,
+            c=colour,
+            ms=size,
+            label=label)

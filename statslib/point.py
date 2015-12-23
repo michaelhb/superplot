@@ -8,6 +8,7 @@
 
 import numpy as np
 
+
 def posterior_mean(posterior, param):
     """ Calculate the posterior mean.
 
@@ -21,8 +22,7 @@ def posterior_mean(posterior, param):
     """
     # Calculate posterior mean - dot product weights with parameter
     # values and normalize.
-    postmean = np.dot(posterior, param) / \
-               sum(posterior)
+    postmean = np.dot(posterior, param) / sum(posterior)
     return postmean
 
 

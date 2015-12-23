@@ -77,11 +77,14 @@ PlotOptions:
     plottitle: 'Fowlie (2014)'
 
     # Size in inches.
+    #AF This may be redudant, it should be in the mpstyle sheet
     size: [8, 8]
 
     # For theoretical error on delta chi-squared plots.
     Tau: 2
     
+    #TODO this is now redundant - my apologies, I didn't
+    # know about the mplstyle sheets before
     # Whether to use LaTeX.
     # - all: use LaTeX for math and text
     # - math: use LaTeX for math only

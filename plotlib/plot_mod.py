@@ -37,65 +37,45 @@ def plot_data(x, y, scheme):
         label=scheme.label,
         ms=scheme.size)
         
-def appearance(usetex):
-    """ Specify the plots appearance, with e.g. font types etc.
+def appearance():
+    """ 
+    Specify the plot's appearance, with e.g. font types etc.
+    from an mplstyle file.
     
-    Arguments:
-    usetex -- whether to use LaTeX. "all", "math", or "none".
+    .. Warning: If the user wants LaTeX, we first check if the 'latex' \
+        shell command is available (as this is what matplotlib uses to \
+        interface with LaTeX). If it isn't, we issue a warning and fall \
+        back to mathtext. 
     """
-    assert usetex in ["all", "math", "none"]
     
-    # If the user wants Tex, we first check if the 
-    # 'latex' shell command is available (as this is
-    # what matplotlib uses to interface with LaTeX).
-    # If it isn't, we issue a warning and fall back to
-    # mathtext. Otherwise we enable Tex for either 
-    # math only or all text as specified.
-    if usetex != "none":
-        # Check if LaTeX is available.
+    plt.style.use("./default.mplstyle")
+        
+    if rcParams["text.usetex"]:
+        # Check if LaTeX is available
         try:
             subprocess.call(["latex", "-version"])
         except OSError as e:
+            rc("text", usetex=False)
             if e.errno == os.errno.ENOENT:
                 warnings.warn(
-                    "Cannot use LaTeX fonts. "
+                    "Cannot find `latex` command. "
                     "Using matplotlib's mathtext.")
             else:
-                # Some other problem
+                # Some other problem with LaTeX command
                 raise
-        else:
-            # Enable LaTeX
-            rc('text', usetex=True)
-            
-            if usetex == "all":
-                # Enable LaTeX for all text, set font
-                rc('font',
-                   **{'family': 'serif',
-                      'serif': ['Computer Modern Roman'],
-                      'size': '20'})
-                      
-    # Make the lines thicker.
-    plt.rcParams['lines.linewidth'] = 4
-
-    # Plot gridlines over the plot - can be useful
-    plt.grid(True)
-    
-    # Set size of plot in inches.
-    plt.rcParams['figure.figsize'] = [2.5, 2.5]
-
 
 def legend(title=None):
-    """ Turn on the legend.
-
-    Arguments:
-    title -- Title of legend.
-
+    """ 
+    Turn on the legend.
+    
+    .. Warning::
+        Legend properties specfied in by mplstyle, but could be
+        overridden here.
+    
+    :param title: Title of legend
+    :type title: string
     """
-    leg = plt.legend(prop={'size': 16}, shadow=False, fancybox=True,
-                     title=title, loc='best', borderaxespad=1.,
-                     scatterpoints=1, numpoints=1)
-    leg.get_frame().set_alpha(0.5)
-
+    leg = plt.legend(prop={'size': 16}, title=title)
 
 def plot_limits(ax, plot_limits=None):
     """ If specified plot limits, set them.

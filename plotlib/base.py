@@ -65,13 +65,15 @@ class Plot(object):
         # Returns the figure and axes.
         opt = self.plot_options
         
+        #TODO opt.size is probably redundant as it is set in 
+        # mplstyle in apperance
         fig = plt.figure(figsize=opt.size)  # Size in inches.
         ax = fig.add_subplot(1, 1, 1)
         
         pm.plot_ticks(opt.xticks, opt.yticks, ax)
         pm.plot_labels(opt.xlabel, opt.ylabel, opt.plottitle)
         pm.plot_limits(ax, opt.plot_limits)
-        pm.appearance(opt.usetex)
+        pm.appearance()
 
         return fig, ax
         

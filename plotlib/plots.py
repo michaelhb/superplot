@@ -28,15 +28,18 @@ from matplotlib.ticker import MaxNLocator
 
 
 def save_plot(name):
-    """ Save the plot, with a descriptive name.
+    """ 
+    Save a plot with a descriptive name.
+    
+    .. Warning::
+        Figure properties specfied in by mplstyle, but could be
+        overridden here.
 
-    Arguments:
-    name -- Prefix of filename, without extension.
+    :param name: Prefix of filename, without extension
+    :type name: string
 
     """
-    plt.savefig(name, dpi=None, facecolor='w', edgecolor='w',
-                orientation='portrait', papertype=None, format="pdf",
-                transparent=False, bbox_inches="tight", pad_inches=0.1)
+    plt.savefig(name)
 
 class OneDimStandard(OneDimPlot):
     """ Makes a one dimensional plot, showing profile likelihood,

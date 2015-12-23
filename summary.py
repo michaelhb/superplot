@@ -5,16 +5,22 @@
 #########################################################################
 
 # External modules.
-import numpy as NP
 
 # SuperPy modules.
-import PlotMod as PM
-import Stats
-import Appearance as AP
-import OneDim
+from plot_options import default
+import statslib.point as stats
 
-# Open the chain with a GUI.
-labels, data = PM.OpenData()
+# import OneDim
+import statslib.one_dim as one_dim
+from super_gui import open_file_gui
+import data_loader
+
+# Select chain and info file with a GUI.
+datafile = open_file_gui()
+infofile = open_file_gui()
+
+# Load and label data
+labels, data = data_loader.load(infofile, datafile)
 
 # Print information for the parameters.
 print 'Param | Best-fit | Posterior Mean | 1 sigma Credible region'
@@ -24,28 +30,28 @@ for key, name in labels.iteritems():
     x = data[key]
     pw = data[0]
     chisq = data[1]
-    bestfit = Stats.BestFit(chisq, x)
-    postmean = Stats.PosteriorMean(pw, x)
-    pdf = OneDim.PosteriorPDF(
+    bestfit = stats.best_fit(chisq, x)
+    postmean = stats.posterior_mean(pw, x)
+    pdf = one_dim.posterior_pdf(
         x,
         pw,
-        nbins=AP.nbins,
-        bin_limits=AP.bin_limits).pdf
-    xc = OneDim.PosteriorPDF(
+        nbins=default("nbins"),
+        bin_limits=default("bin_limits")).pdf
+    xc = one_dim.posterior_pdf(
         x,
         pw,
-        nbins=AP.nbins,
-        bin_limits=AP.bin_limits).bins
-    lowercredibleregion = OneDim.CredibleRegions(
+        nbins=default("nbins"),
+        bin_limits=default("bin_limits")).bins
+    lowercredibleregion = one_dim.credible_regions(
         pdf,
         xc,
-        epsilon=AP.epsilon).lowercredibleregion
-    uppercredibleregion = OneDim.CredibleRegions(
+        alpha=default("alpha")).lowercredibleregion
+    uppercredibleregion = one_dim.credible_regions(
         pdf,
         xc,
-        epsilon=AP.epsilon).uppercredibleregion
+        alpha=default("alpha")).uppercredibleregion
     print name, bestfit, postmean, lowercredibleregion[0], uppercredibleregion[0]
 
 # Print best-fit information.
 print 'Min ChiSq', data[1].min()
-print 'p-value', Stats.PValue(data[1], AP.dof)
+print 'p-value', stats.p_value(data[1], default("dof"))

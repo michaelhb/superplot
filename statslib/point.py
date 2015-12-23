@@ -1,15 +1,41 @@
 #########################################################################
 #                                                                       #
-#    S t a t s                                                          #
+#    P o i n t S t a t s                                                #
 #                                                                       #
 #########################################################################
 
-import numpy as NP
+# Statistical functions that return a single data point
 
-# Useful statistical functions.
+import numpy as np
+
+def shift(bin_number, nbins):
+    """
+    Modify bin numbers so that bin numbers,
+    initially (0, nbins + 1) because numpy uses extra bins for outliers,
+    match array indices (0, nbins - 1).
+    
+    :param bin_number: A bin number
+    :type bin_number: integer
+    :param nbins: Total number of bins
+    :type nbins: integer
+    
+    :returns: Shifted bin number
+    :rtype: integer
+    """
+    # First deal with outliers in 0 and nbins + 1 bins
+    if bin_number == 0:
+        bin_number = 1
+    elif bin_number == nbins + 1:
+        bin_number = nbins
+        
+    # Now subtract one from all bin numbers to shift (1, n_bins) to 
+    # (0, n_bins - 1)
+    bin_number -= 1
+    
+    return bin_number
 
 
-def PosteriorMean(posterior, param):
+def posterior_mean(posterior, param):
     """ Calculate the posterior mean.
 
     Arguments:
@@ -22,12 +48,11 @@ def PosteriorMean(posterior, param):
     """
     # Calculate posterior mean - dot product weights with parameter
     # values and normalize.
-    postmean = NP.dot(posterior, param) / \
-        sum(posterior)
+    postmean = np.dot(posterior, param) / sum(posterior)
     return postmean
 
 
-def BestFit(chisq, param):
+def best_fit(chisq, param):
     """ Calculate the best-fit.
 
     Arguments:
@@ -44,7 +69,7 @@ def BestFit(chisq, param):
     return bestfit
 
 
-def PValue(chisq, dof):
+def p_value(chisq, dof):
     """ Calculate the pvalue.
 
     Arguments:

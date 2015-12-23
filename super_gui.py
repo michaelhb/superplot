@@ -10,24 +10,26 @@
 #                                                                       #
 #########################################################################
 
+# External modules.
+
+# Uncomment to select /GTK/GTKAgg/GTKCairo
+# from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
+from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
+# from matplotlib.backends.backend_gtkcairo import FigureCanvasGTKCairo as FigureCanvas
+
+from collections import OrderedDict
+import gtk
+import re
+from pylab import *
+import pygtk
+
 #  SuperPy modules.
 import data_loader
 import plotlib.plots as plots
 from plot_options import plot_options, default
 
-# External modules.
-import re
-from pylab import *
-import pygtk
 pygtk.require('2.0')
-import gtk
-from collections import OrderedDict
-# Uncomment to select /GTK/GTKAgg/GTKCairo
-#from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
-from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
-#from matplotlib.backends.backend_gtkcairo import FigureCanvasGTKCairo as FigureCanvas
 
-#########################################################################
 
 def open_file_gui():
     """ GUI for opening a file with a file browser.
@@ -45,14 +47,14 @@ def open_file_gui():
     dialog.set_default_response(gtk.RESPONSE_OK)
 
     # Only show particular files.
-    filter = gtk.FileFilter()
-    filter.set_name("Text files, serial data or info file.")
-    filter.add_pattern("*.txt")
-    filter.add_pattern("*.pkl")
-    filter.add_pattern("*.info")
-    dialog.add_filter(filter)
-    filter = gtk.FileFilter()
-    dialog.add_filter(filter)
+    file_filter = gtk.FileFilter()
+    file_filter.set_name("Text files, serial data or info file.")
+    file_filter.add_pattern("*.txt")
+    file_filter.add_pattern("*.pkl")
+    file_filter.add_pattern("*.info")
+    dialog.add_filter(file_filter)
+    file_filter = gtk.FileFilter()
+    dialog.add_filter(file_filter)
 
     response = dialog.run()
     if response == gtk.RESPONSE_OK:
@@ -65,7 +67,8 @@ def open_file_gui():
     dialog.destroy()
 
     return filename
-    
+
+
 def save_file_gui():
     """ GUI for saving a file with a file browser.
 
@@ -82,15 +85,15 @@ def save_file_gui():
     dialog.set_default_response(gtk.RESPONSE_OK)
 
     # Only show particular files.
-    filter = gtk.FileFilter()
-    filter.set_name("PDF, PS, EPS or PNG files.")
-    filter.add_pattern("*.pdf")
-    filter.add_pattern("*.eps")
-    filter.add_pattern("*.ps")
-    filter.add_pattern("*.png")
-    dialog.add_filter(filter)
-    filter = gtk.FileFilter()
-    dialog.add_filter(filter)
+    file_filter = gtk.FileFilter()
+    file_filter.set_name("PDF, PS, EPS or PNG files.")
+    file_filter.add_pattern("*.pdf")
+    file_filter.add_pattern("*.eps")
+    file_filter.add_pattern("*.ps")
+    file_filter.add_pattern("*.png")
+    dialog.add_filter(file_filter)
+    file_filter = gtk.FileFilter()
+    dialog.add_filter(file_filter)
 
     response = dialog.run()
     if response == gtk.RESPONSE_OK:
@@ -104,39 +107,43 @@ def save_file_gui():
 
     return filename
 
+
 #########################################################################
 
 # This class is a box to select the graph options, and a button to make a
 # graph.
 
 class GUIControl:
-
-    def __init__(self, labels, data, dx=2, dy=3, dz=4, dtype=0):
+    def __init__(self, labels, data, xindex=2, yindex=3, zindex=4, default_plot_type=0):
         """ Initialise GUI.
 
         Arguments:
         labels -- List of data labels.
         data -- Data itself.
         dx, dy, dz -- Indexes of default data to be plotted on x, y, z axis.
-        dtype -- Default plot type.
+        default_plot_type -- Default plot type.
 
         """
 
         # Import data and labels as local variables, etc.
         self.data = data
         self.labels = labels
-        self.dx = dx
-        self.dy = dy
-        self.dz = dz
+        self.xindex = xindex
+        self.yindex = yindex
+        self.zindex = zindex
+
+        self.plot_limits = default("plot_limits")
+        self.bin_limits = default("bin_limits")
+        self.fig = None
 
         # Enumerate available plot types and keep an ordered
         # dict mapping descriptions to classes.
         # Using an ordered dict means the order in which classes
         # are listed in plot_types will be preserved in the GUI.
         self.plots = OrderedDict()
-        for plot in plots.plot_types:
-            self.plots[plot.description] = plot
-        
+        for plot_class in plots.plot_types:
+            self.plots[plot_class.description] = plot_class
+
         #######################################################################
 
         # Make main GUI window.
@@ -144,14 +151,14 @@ class GUIControl:
         self.window.maximize()  # Window is maximised.
         self.window.set_title("SuperPlot")  # With this title in the header.
         self.window.connect(
-            'destroy',
-            lambda w: gtk.main_quit())  # Quit when we press cross.
+                'destroy',
+                lambda w: gtk.main_quit())  # Quit when we press cross.
 
         # Add a table of boxes to the window.
         self.gridbox = gtk.Table(
-            15,
-            4,
-            False)  # 9 rows and 4 columns that are NOT homegenous.
+                15,
+                4,
+                False)  # 9 rows and 4 columns that are NOT homegenous.
         self.window.add(self.gridbox)  # Add table to our window.
         self.gridbox.show()  # Show the table.
 
@@ -167,7 +174,7 @@ class GUIControl:
         for description in self.plots.keys():
             self.typebox.append_text(description)
         # typebox.connect('changed', self.ctype)
-        self.typebox.set_active(dtype)  # Set to default plot type.
+        self.typebox.set_active(default_plot_type)  # Set to default plot type.
 
         #######################################################################
 
@@ -179,23 +186,23 @@ class GUIControl:
         self.x = gtk.combo_box_new_text()
         # List the available parameter names in a particlular order
         # in the combo-boxes.
-        for key in self.data.keys():
-            name = self.labels[key].replace(
-                '$',
-                '')  # Remove $ from GUI, but not from plot labels.
-            self.x.append_text(name)
+        for data_key in self.data.keys():
+            data_name = self.labels[data_key].replace(
+                    '$',
+                    '')  # Remove $ from GUI, but not from plot labels.
+            self.x.append_text(data_name)
         self.x.set_wrap_width(5)  # Make box wider for long lists.
         self.gridbox.attach(self.x, 1, 2, 1, 2, xoptions=gtk.FILL)
         self.x.connect('changed', self.cx)
 
         # Text box to alter x-axis label.
         self.xtext = gtk.Entry()
-        self.xtext.set_text(self.labels[self.dx])
+        self.xtext.set_text(self.labels[self.xindex])
         self.gridbox.attach(self.xtext, 1, 2, 2, 3, xoptions=gtk.FILL)
         self.xtext.connect("changed", self.cxtext)
 
         # Set default plot variable.
-        self.x.set_active(self.dx)
+        self.x.set_active(self.xindex)
 
         # y-axis.
         # Name of variable.
@@ -205,23 +212,23 @@ class GUIControl:
         self.y = gtk.combo_box_new_text()
         # List the available parameter names in a particlular order
         # in the combo-boxes.
-        for key in self.data.keys():
-            name = self.labels[key].replace(
-                '$',
-                '')  # Remove $ from GUI, but not from plot labels.
-            self.y.append_text(name)
+        for data_key in self.data.keys():
+            data_name = self.labels[data_key].replace(
+                    '$',
+                    '')  # Remove $ from GUI, but not from plot labels.
+            self.y.append_text(data_name)
         self.y.set_wrap_width(5)  # Make box wider for long lists.
         self.gridbox.attach(self.y, 1, 2, 3, 4, xoptions=gtk.FILL)
         self.y.connect('changed', self.cy)
 
         # Text box to alter y-axis label.
         self.ytext = gtk.Entry()
-        self.ytext.set_text(self.labels[self.dy])
+        self.ytext.set_text(self.labels[self.yindex])
         self.gridbox.attach(self.ytext, 1, 2, 4, 5, xoptions=gtk.FILL)
         self.ytext.connect("changed", self.cytext)
 
         # Set default plot variable.
-        self.y.set_active(self.dy)
+        self.y.set_active(self.yindex)
 
         # z-axis.
         # Name of variable.
@@ -231,23 +238,23 @@ class GUIControl:
         self.z = gtk.combo_box_new_text()
         # List the available parameter names in a particlular order
         # in the combo-boxes.
-        for key in self.data.keys():
-            name = self.labels[key].replace(
-                '$',
-                '')  # Remove $ from GUI, but not from plot labels.
-            self.z.append_text(name)
+        for data_key in self.data.keys():
+            data_name = self.labels[data_key].replace(
+                    '$',
+                    '')  # Remove $ from GUI, but not from plot labels.
+            self.z.append_text(data_name)
         self.z.set_wrap_width(5)  # Make box wider for long lists.
         self.gridbox.attach(self.z, 1, 2, 5, 6, xoptions=gtk.FILL)
         self.z.connect('changed', self.cz)
 
         # Text box to alter z-axis label.
         self.ztext = gtk.Entry()
-        self.ztext.set_text(self.labels[self.dz])
+        self.ztext.set_text(self.labels[self.zindex])
         self.gridbox.attach(self.ztext, 1, 2, 6, 7, xoptions=gtk.FILL)
         self.ztext.connect("changed", self.cztext)
 
         # Set default plot variable.
-        self.z.set_active(self.dz)
+        self.z.set_active(self.zindex)
 
         #######################################################################
 
@@ -296,7 +303,7 @@ class GUIControl:
 
         # Axes limits!
         alimits = gtk.Button(
-            "Comma separated plot limits\nx_min, x_max, y_min, y_max:")
+                "Comma separated plot limits\nx_min, x_max, y_min, y_max:")
         self.gridbox.attach(alimits, 0, 1, 12, 13, xoptions=gtk.FILL)
         # Text box to alter title.
         self.alimits = gtk.Entry()
@@ -306,7 +313,7 @@ class GUIControl:
 
         # Bin limits!
         blimits = gtk.Button(
-            "Comma separated bin limits\nx_min, x_max, y_min, y_max:")
+                "Comma separated bin limits\nx_min, x_max, y_min, y_max:")
         self.gridbox.attach(blimits, 0, 1, 13, 14, xoptions=gtk.FILL)
         # Text box to alter title.
         self.blimits = gtk.Entry()
@@ -436,7 +443,7 @@ class GUIControl:
             self.bin_limits = [[self.bin_limits[0], self.bin_limits[1]], [
                 self.bin_limits[2], self.bin_limits[3]]]
         except:
-            IndexError
+            raise IndexError
 
     def pmakeplot(self, button):
         """ Callback function for pressing make plot.
@@ -447,52 +454,49 @@ class GUIControl:
         button -- Button with this callback function.
 
         """
-        
+
         # Gather up all of the plot options and put them in
         # a plot_options tuple
         options = plot_options(
-            xindex = self.xindex,
-            yindex = self.yindex,
-            zindex = self.zindex,
-            logx = self.logx.get_active(),
-            logy = self.logy.get_active(),
-            logz = self.logz.get_active(),
-            
-            plot_limits = self.plot_limits,            
-            bin_limits = self.bin_limits,    
-            nbins = self.bins.get_value_as_int(),
-            xticks = default("xticks"),
-            yticks = default("yticks"),
-            
-            tau = default("tau"),
-            alpha = default("alpha"),
-            
-            size = default("size"),            
-            xlabel = self.labels[self.xindex],
-            ylabel = self.labels[self.yindex],
-            zlabel = self.labels[self.zindex],
-            plot_title = self.plottitle.get_text(),
-            leg_title = self.legtitle.get_text(),
-            use_tex = default("use_tex")
+                xindex=self.xindex,
+                yindex=self.yindex,
+                zindex=self.zindex,
+                logx=self.logx.get_active(),
+                logy=self.logy.get_active(),
+                logz=self.logz.get_active(),
+
+                plot_limits=self.plot_limits,
+                bin_limits=self.bin_limits,
+                nbins=self.bins.get_value_as_int(),
+                xticks=default("xticks"),
+                yticks=default("yticks"),
+
+                tau=default("tau"),
+                alpha=default("alpha"),
+
+                size=default("size"),
+                xlabel=self.labels[self.xindex],
+                ylabel=self.labels[self.yindex],
+                zlabel=self.labels[self.zindex],
+                plot_title=self.plottitle.get_text(),
+                leg_title=self.legtitle.get_text(),
+                use_tex=default("use_tex")
         )
-        
+
         # Fetch the class for the selected plot type
         plot_class = self.plots[self.typebox.get_active_text()]
-        
-        # Instantiate the plot
-        plot = plot_class(self.data, options)
-        
-        # Get the figure
-        self.fig = plot.figure()
+
+        # Instantiate the plot and get the figure
+        self.fig = plot_class(self.data, options).figure()
 
         # Put figure in plot box.
         canvas = FigureCanvas(self.fig)  # A gtk.DrawingArea.
         self.gridbox.attach(canvas, 2, 4, 0, 13)
 
         # Button to save the plot.
-        save = gtk.Button('Save plot.')
-        save.connect("clicked", self.psave)
-        self.gridbox.attach(save, 2, 4, 13, 14)
+        save_button = gtk.Button('Save plot.')
+        save_button.connect("clicked", self.psave)
+        self.gridbox.attach(save_button, 2, 4, 13, 14)
 
         # Show new buttons etc.
         self.window.show_all()
@@ -506,22 +510,24 @@ class GUIControl:
         button -- Button with this callback function.
 
         """
-        name = save_file_gui()  # Get name to save to from a dialogue box.
-        if not isinstance(name, str):
+        file_name = save_file_gui()  # Get name to save to from a dialogue box.
+        if not isinstance(file_name, str):
             return  # Case in which no file is chosen.
         # So that figure is correct size for saving - showing a figure changes
         # its size...
         self.fig.set_size_inches(default("size"))
-        plots.save_plot(name)
-    
+        plots.save_plot(file_name)
+
+
 def main():
     datafile = open_file_gui()
     infofile = open_file_gui()
-    
+
     labels, data = data_loader.load(infofile, datafile)
     bcb = GUIControl(labels, data)
     gtk.main()
     return
+
 
 if __name__ == "__main__":
     main()

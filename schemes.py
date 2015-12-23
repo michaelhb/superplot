@@ -6,8 +6,8 @@ import sys
 from pylab import get_cmap
 import yaml
 
-class Scheme:
 
+class Scheme:
     """ Holds information for how a piece of data should be plotted. """
 
     def __init__(
@@ -45,16 +45,17 @@ class Scheme:
         self.size = size
         self.plot_limits = plot_limits
         self.colours = colours
-        
+
+
 # Load config.yml and store contents as private dictionary
 with open("config.yml") as cfile:
     _config = yaml.load(cfile)
-    
+
 # For each scheme in the config file, create a Scheme
 # class and add it as a module attribute.
 for scheme_name, params in _config["schemes"].iteritems():
     scheme = Scheme(**params)
     setattr(sys.modules[__name__], scheme_name, scheme)
-    
+
 credible_regions = [credible_region_s1, credible_region_s2]
 conf_intervals = [conf_interval_s1, conf_interval_s2]

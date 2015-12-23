@@ -11,28 +11,29 @@
 
 import numpy as np
 import cPickle as pickle
-import os 
+import os
 import re
 
+
 def load(infofile, datafile):
-	""" Import the data used by SuperPlot.
-	
-	Arguments:
-	datafile - Name of chain file
-	infofile - Name of info file
-	
-	Returns:
+    """ Import the data used by SuperPlot.
+
+    Arguments:
+    datafile - Name of chain file
+    infofile - Name of info file
+
+    Returns:
     label -- Dictionary with chain's labels.
-    data -- Dictionary with chain.    
-	
-	"""
-	
-	data = open_chain(datafile)
-	info = read_info(infofile)
-	label = label_chain(data, info)
-	
-	return label, data
-	
+    data -- Dictionary with chain.
+
+    """
+
+    data = open_chain(datafile)
+    info = read_info(infofile)
+    label = label_chain(data, info)
+
+    return label, data
+
 
 def open_chain(filename):
     """ Open a text file or serialised data. If opening a text file, serialise data for future plots.
@@ -66,12 +67,13 @@ def open_chain(filename):
         try:
             pickle.dump(data, serialf)
         except:
-            memoryerror
+            raise MemoryError
         serialf.close()
 
     print 'Success: returning chain.'
     return data
-	
+
+
 def open_data_file(filename):
     """ Open a text file and return dictonary of numpy arrays of data.
 
@@ -120,7 +122,8 @@ def open_data_file(filename):
         row += 1
 
     return data
-	
+
+
 def read_info(filename):
     """ Read labels from a SuperBayeS style info file. """
     label = {}
@@ -134,11 +137,11 @@ def read_info(filename):
         if line.startswith('lab'):
             string = line.strip().split('=')[::-1][0]
             index = int(
-                re.findall(
-                    re.escape('lab') +
-                    "(.*)" +
-                    re.escape('='),
-                    line)[0])
+                    re.findall(
+                            re.escape('lab') +
+                            "(.*)" +
+                            re.escape('='),
+                            line)[0])
 
             # Correct index - SuperBayeS info files begin at 1, and ignore
             # posterior weight and ChiSq in positions 0 and 1 of the chain.
@@ -153,7 +156,8 @@ def read_info(filename):
     label[1] = '$\chi^2$'
 
     return label
-	
+
+
 def label_chain(data, info):
     """ Match labels to the data.
     i) Check if labels match data. 
@@ -161,7 +165,7 @@ def label_chain(data, info):
 
     Arguments:
     data -- Data chain, to match arguments with.
-	info -- Loaded contents of info file
+    info -- Loaded contents of info file
 
     Return:
     label -- Dictonary of labels, indexed with the same

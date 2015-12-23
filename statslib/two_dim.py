@@ -8,114 +8,107 @@
 # and calculating the 2D stats for a particular pair of variables.
 
 # External modules.
-import numpy as np
 from pylab import *
 from scipy import stats
 from collections import namedtuple
 from scipy.optimize import bisect
+import point
+
 
 def posterior_pdf(paramx, paramy, posterior, nbins=50, bin_limits=None):
-    """ Histograms the chosen parameters to obtain two-dimensional PDF.
+    """ 
+    Histograms the chosen parameters to obtain two-dimensional PDF.
+    
+    .. Warnings::
+        Outliers sometimes mess up bins. So you might want to \
+        specify the bin limits.
 
-    Arguments:
-    paramx -- Data column of parameter x.
-    paramy -- Data column of parameter y.
-    posterior -- Data column of posterior weight.
-    nbins -- Number of bins for histogram.
-    bin_limits -- Bin limits for histogram.
+    :param paramx: Data column of parameter x.
+    :param paramy: Data column of parameter y.
+    :param posterior: Data column of posterior weight.
+    :param nbins: Number of bins for histogram.
+    :param bin_limits: Bin limits for histogram.
 
     Returns named tuple: pdf, centerx, centery ** TODO goodify **
     """
-    # Data type to return
-    posteriorpdf = namedtuple(
-        "posteriorpdf_2D",
-        ("pdf", "centerx", "centery"))
-        
-    # Outliers sometimes mess up bins. So you might want to
-    # specify the bin ranges.
+
     # 2D Histogram the data - pdf is a matrix.
-    pdf, bin_edgesx, bin_edgesy = np.histogram2d(
-        paramx, paramy, nbins,
-        range=bin_limits, weights=posterior)
+    pdf, bin_edges_x, bin_edges_y = np.histogram2d(
+                                        paramx, 
+                                        paramy, 
+                                        nbins,
+                                        range=bin_limits, 
+                                        weights=posterior)
+            
     # Normalize the pdf, so that its maximum value is one.
     # NB will later also normalize so that area is one.
     pdf = pdf / pdf.max()
-    # Find centres of bins.
-    centerx = (bin_edgesx[:-1] + bin_edgesx[1:]) * 0.5
-    centery = (bin_edgesy[:-1] + bin_edgesy[1:]) * 0.5
     
-    # NOTE centerx and centery don't seem to be used,
-    # maybe this should just return the pdf?
-    return posteriorpdf(pdf, centerx, centery)
-    
-def profile_like(paramx, paramy, chisq, nbins, bin_limits=None):
-    """ Maximizes the chisquared to obtain two-dimensional profile likelihood.
+    # Find centres of bins
+    bin_centers_x = 0.5 * (bin_edges_x[:-1] + bin_edges_x[1:]) 
+    bin_centers_y = 0.5 * (bin_edges_y[:-1] + bin_edges_y[1:])
 
-    Arguments:
-    paramx -- Data column of parameter x.
-    paramy -- Data column of parameter y.
-    chisq -- Data column of chisq.
-    nbins -- Number of bins for histogram.
-    bin_limits -- Bin limits for histogram.
+    # Data type to return
+    posteriorpdf = namedtuple(
+            "posteriorpdf_2D",
+            ("pdf", "bin_centers_x", "bin_centers_y"))
+    return posteriorpdf(pdf, bin_centers_x, bin_centers_y)
+
+
+def profile_like(paramx, paramy, chi_sq, nbins, bin_limits=None):
+    """ 
+    Maximizes the chi_squared to obtain two-dimensional profile likelihood.
+
+    :param paramx: Data column of parameter x.
+    :param paramy: Data column of parameter y.
+    :param chi_sq: Data column of chi_sq.
+    :param nbins: Number of bins for histogram.
+    :param bin_limits: Bin limits for histogram.
     
-    Returns named tuple: profchisq, proflike, centerx, centery
+    Returns named tuple: profchi_sq, proflike, centerx, centery
     ** TODO goodify **
     """
-    # Data type to return
-    profilelike = namedtuple(
-        "profilelike_2D",
-        ("profchisql", "proflike", "centerx", "centery"))
-        
-    # Bin the data - digitialize will return a column vector
-    # containing the bin number for each point in the chain.
-    # NB, we discard the pdf.
-    pdf, bin_edgesx, bin_edgesy = np.histogram2d(
-        paramx, paramy, nbins,
-        range=bin_limits, weights=None)
-    bin_numbersx = np.digitize(paramx, bin_edgesx)
-    bin_numbersy = np.digitize(paramy, bin_edgesy)
+
+    # Bin the data to find bin edges. NB we discard the count
+    _, bin_edges_x, bin_edges_y = np.histogram2d(
+                                    paramx, 
+                                    paramy, 
+                                    nbins,
+                                    range=bin_limits,
+                                    weights=None)
+     
+    # Find bin number for each point in the chain                             
+    bin_numbers_x = np.digitize(paramx, bin_edges_x)
+    bin_numbers_y = np.digitize(paramy, bin_edges_y)
     
-    # Subract one from the bin numbers, so that bin numbers,
-    # initially (0, nbins+1) because numpy uses extra bins for outliers,
-    # match array indices (0, nbins-1).
-    
-    # First deal with outliers.
-    for i in range(bin_numbersx.size):
-        if bin_numbersx[i] == 0:
-            bin_numbersx[i] = 1
-        if bin_numbersx[i] == nbins + 1:
-            bin_numbersx[i] = nbins
-        if bin_numbersy[i] == 0:
-            bin_numbersy[i] = 1
-        if bin_numbersy[i] == nbins + 1:
-            bin_numbersy[i] = nbins
-    
-    # Now subtract one.
-    bin_numbersx = bin_numbersx - 1
-    bin_numbersy = bin_numbersy - 1
+    # Shift bin numbers to account for outliers
+    shift = lambda bin_number: point.shift(bin_number, nbins)
+    bin_numbers_x = map(shift, bin_numbers_x)
+    bin_numbers_y = map(shift, bin_numbers_y)
     
     # Initialize the profiled chi-squared to something massive.
-    profchisq = np.zeros((nbins, nbins)) + 1e90
-    
-    # Min the chi-squared in each bin.
-    for i in range(chisq.size):
-        # If the chi-squared is less than the current chi-squared.
-        if chisq[i] < profchisq[bin_numbersx[i], bin_numbersy[i]]:
-            profchisq[bin_numbersx[i], bin_numbersy[i]] = chisq[i]
-    
-    # Now exponentiate to obtain likelihood, and normalize.
-    profchisq = profchisq - profchisq.min()
-    proflike = np.exp(- profchisq * 0.5)
-    
-    # Find centres of bins.
-    centerx = (bin_edgesx[:-1] + bin_edgesx[1:]) * 0.5
-    centery = (bin_edgesy[:-1] + bin_edgesy[1:]) * 0.5
-    
-    # NOTE profchisql, centerx and centery don't seem to be used,
-    # maybe this should just return the proflike?
-    return profilelike(profchisq, proflike, centerx, centery)
-    
-    
+    prof_chi_sq = np.zeros((nbins, nbins)) + 1e90
+
+    # Minimize the chi-squared in each bin.
+    for index in range(chi_sq.size):
+        bin_numbers = (bin_numbers_x[index], bin_numbers_y[index])
+        if chi_sq[index] < prof_chi_sq[bin_numbers]:
+            prof_chi_sq[bin_numbers] = chi_sq[index]
+
+    # Now exponentiate to obtain likelihood and normalize
+    prof_chi_sq = prof_chi_sq - prof_chi_sq.min()
+    prof_like = np.exp(- 0.5 * prof_chi_sq)
+
+    # Find centres of bins
+    bin_center_x = 0.5 * (bin_edges_x[:-1] + bin_edges_x[1:])
+    bin_center_y = 0.5 * (bin_edges_y[:-1] + bin_edges_y[1:])
+
+    profile_data = namedtuple(
+            "profilelike_2D",
+            ("prof_chi_sq", "prof_like", "bin_center_x", "bin_center_y"))
+    return profile_data(prof_chi_sq, prof_like, bin_center_x, bin_center_y)
+
+
 def critical_density(pdf, alpha):
     r""" 
     Calculate "critical density" from marginalised pdf.
@@ -149,61 +142,45 @@ def critical_density(pdf, alpha):
     :returns: Critical density for probability alpha
     :rtype: Float
     """
-    
+
     # Normalize posterior PDF so that integral is one, if it wasn't already
     pdf = pdf / pdf.sum()
-            
+
     # Minimize difference between amount of probability contained above
-    # a particular density and that desired 
-    prob_contained = lambda density: ma.masked_where(pdf < density, pdf).sum()
+    # a particular density and that desired
     prob_desired = 1. - alpha
-    delta_prob = lambda density: prob_contained(density) - prob_desired
-    
+
+    def prob_contained(density): return ma.masked_where(pdf < density, pdf).sum()
+
+    def delta_prob(density): return prob_contained(density) - prob_desired
+
     # Critical density cannot be greater than maximum posterior PDF and must
     # be greater than 0. The function delta_probability is monotonic on that 
     # interval. Find critical density by bisection.
     try:
-        critical_density = bisect(delta_prob, 0., pdf.max())
+        crit_density = bisect(delta_prob, 0., pdf.max())
     except Exception as error:
         warnings.warn("Cannot bisect posterior PDF for critical density")
         raise error
-        
-    return critical_density
-    
-def delta_pl(alpha=np.array([0.05, 0.32])):
-    """ Use confidence levels to calculate DeltaPL.
+
+    return crit_density
+
+
+def critical_prof_like(alpha):
+    """ 
+    Use confidence levels to calculate :math:`\Delta \mathcal{L}`
     
     This is used to plot two dimensional confidence intervals.
 
-    Arguments:
-    alpha -- Confidence levels.
+    :param alpha: Confidence level desired
 
-    Returns: deltaPL
+    Returns: critical_prof_like
     
     ** TODO goodify comment **
     """
-    # First invert the alphas to delta chi-squareds with inverse
-    # cumalative chi-squared distribution with 2 dof.
-    deltachisq = stats.chi2.ppf(1 - alpha, 2)
+    # First invert alpha to a delta chi-squared with inverse
+    # cumalative chi-squared distribution with two degrees of freedom.
+    critical_chi_sq = stats.chi2.ppf(1. - alpha, 2)
+    critical_prof_like = np.exp(- 0.5 * critical_chi_sq )
 
-    # Convert these into PL values.
-    delta_pl = np.exp(- deltachisq / 2)
-
-    # That's all we need! - we will simply plot contours of
-    # deltaPL.
-    return delta_pl
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
+    return critical_prof_like

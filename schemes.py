@@ -3,7 +3,6 @@
 
 # External modules.
 import sys
-import numpy as NP
 from pylab import get_cmap
 import yaml
 

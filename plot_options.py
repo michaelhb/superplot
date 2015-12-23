@@ -12,7 +12,7 @@ TODO: This module should also do a reasonable amount of validation
 """
 from collections import namedtuple
 import yaml
-import numpy as NP
+import numpy as np
 
 plot_options = namedtuple("plot_options", (
     # Data
@@ -51,9 +51,9 @@ with open("config.yml") as cfile:
 # possible to directly specify the types in the YAML file,
 # but that might confuse users / be messy.
 if _defaults["alpha"] is not None:
-    _defaults["alpha"] = NP.array(_defaults["alpha"])
+    _defaults["alpha"] = np.array(_defaults["alpha"])
 if _defaults["plot_limits"] is not None:
-    _defaults["plot_limits"] = NP.array(_defaults["plot_limits"])
+    _defaults["plot_limits"] = np.array(_defaults["plot_limits"])
 if _defaults["size"] is not None:
     _defaults["size"] = tuple(_defaults["size"])
     

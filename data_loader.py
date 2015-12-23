@@ -9,7 +9,7 @@
 # - Opening and processing an info file
 # - Using the info file to label the data
 
-import numpy as NP
+import numpy as np
 import cPickle as pickle
 import os 
 import re
@@ -109,7 +109,7 @@ def open_data_file(filename):
     # Initialise data as dictionary of arrays.
     data = {}
     for key in range(cols):
-        data[key] = NP.zeros(rows)
+        data[key] = np.zeros(rows)
 
     # Populate data - NB we convert from string to float.
     print 'Opening chain...'

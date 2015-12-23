@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import warnings
 
 # SuperPy modules.
-import plot_mod as PM
+import plot_mod as pm
 
 class Plot(object):
     """
@@ -68,10 +68,10 @@ class Plot(object):
         fig = plt.figure(figsize=opt.size)  # Size in inches.
         ax = fig.add_subplot(1, 1, 1)
         
-        PM.plot_ticks(opt.xticks, opt.yticks, ax)
-        PM.plot_labels(opt.xlabel, opt.ylabel, opt.plottitle)
-        PM.plot_limits(ax, opt.plot_limits)
-        PM.appearance(opt.usetex)
+        pm.plot_ticks(opt.xticks, opt.yticks, ax)
+        pm.plot_labels(opt.xlabel, opt.ylabel, opt.plottitle)
+        pm.plot_limits(ax, opt.plot_limits)
+        pm.appearance(opt.usetex)
 
         return fig, ax
         

@@ -14,7 +14,7 @@ import warnings
 
 # External modules.
 import matplotlib.pyplot as plt
-import numpy as NP
+import numpy as np
 from matplotlib import rc
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import MaxNLocator
@@ -156,7 +156,7 @@ def plot_image(xdata, ydata, data, bin_limits, plot_limits, Scheme):
     """
 
     # Flatten bin limits.
-    bin_limits = NP.array(
+    bin_limits = np.array(
         (bin_limits[0][0],
          bin_limits[0][1],
          bin_limits[1][0],
@@ -193,7 +193,7 @@ def plot_contour(xdata, ydata, data, levels, Scheme, bin_limits):
     """
 
     # Flatten bin limits.
-    bin_limits = NP.array(
+    bin_limits = np.array(
         (bin_limits[0][0],
          bin_limits[0][1],
          bin_limits[1][0],
@@ -243,7 +243,7 @@ def plot_filled_contour(
     """
 
     # Flatten bin limits.
-    bin_limits = NP.array(
+    bin_limits = np.array(
         (bin_limits[0][0],
          bin_limits[0][1],
          bin_limits[1][0],
@@ -252,7 +252,7 @@ def plot_filled_contour(
     # We need to ensure levels are in ascending order, and append the list with one.
     # This makes 2 intervals (between 3 values) that will be shown with
     # colours.
-    levels = NP.append(levels, 1.0)
+    levels = np.append(levels, 1.0)
 
     # Filled contours.
     cset = plt.contourf(data.T, levels,
@@ -287,8 +287,8 @@ def plot_band(x, y, width, ax, Scheme):
 
     """
     # Find upper line, and lower line of the shifted data.
-    uy = NP.zeros(len(y))
-    ly = NP.zeros(len(y)) + 1e90
+    uy = np.zeros(len(y))
+    ly = np.zeros(len(y)) + 1e90
     for i in range(len(x)):
         for j in range(len(x)):
             # Find lowest/highest point within width of that point.
@@ -325,7 +325,7 @@ def plot_points(
 
     """
 
-    data = NP.genfromtxt(filename, unpack=True)
+    data = np.genfromtxt(filename, unpack=True)
     plt.plot(
         data[xc][:],
         data[yc][:],

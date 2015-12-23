@@ -8,7 +8,7 @@
 # and calculating the 2D stats for a particular pair of variables.
 
 # External modules.
-import numpy as NP
+import numpy as np
 from pylab import *
 from scipy import stats
 from collections import namedtuple
@@ -34,7 +34,7 @@ def posterior_pdf(paramx, paramy, posterior, nbins=50, bin_limits=None):
     # Outliers sometimes mess up bins. So you might want to
     # specify the bin ranges.
     # 2D Histogram the data - pdf is a matrix.
-    pdf, bin_edgesx, bin_edgesy = NP.histogram2d(
+    pdf, bin_edgesx, bin_edgesy = np.histogram2d(
         paramx, paramy, nbins,
         range=bin_limits, weights=posterior)
     # Normalize the pdf, so that its maximum value is one.
@@ -69,11 +69,11 @@ def profile_like(paramx, paramy, chisq, nbins, bin_limits=None):
     # Bin the data - digitialize will return a column vector
     # containing the bin number for each point in the chain.
     # NB, we discard the pdf.
-    pdf, bin_edgesx, bin_edgesy = NP.histogram2d(
+    pdf, bin_edgesx, bin_edgesy = np.histogram2d(
         paramx, paramy, nbins,
         range=bin_limits, weights=None)
-    bin_numbersx = NP.digitize(paramx, bin_edgesx)
-    bin_numbersy = NP.digitize(paramy, bin_edgesy)
+    bin_numbersx = np.digitize(paramx, bin_edgesx)
+    bin_numbersy = np.digitize(paramy, bin_edgesy)
     
     # Subract one from the bin numbers, so that bin numbers,
     # initially (0, nbins+1) because numpy uses extra bins for outliers,
@@ -95,7 +95,7 @@ def profile_like(paramx, paramy, chisq, nbins, bin_limits=None):
     bin_numbersy = bin_numbersy - 1
     
     # Initialize the profiled chi-squared to something massive.
-    profchisq = NP.zeros((nbins, nbins)) + 1e90
+    profchisq = np.zeros((nbins, nbins)) + 1e90
     
     # Min the chi-squared in each bin.
     for i in range(chisq.size):
@@ -105,7 +105,7 @@ def profile_like(paramx, paramy, chisq, nbins, bin_limits=None):
     
     # Now exponentiate to obtain likelihood, and normalize.
     profchisq = profchisq - profchisq.min()
-    proflike = NP.exp(- profchisq * 0.5)
+    proflike = np.exp(- profchisq * 0.5)
     
     # Find centres of bins.
     centerx = (bin_edgesx[:-1] + bin_edgesx[1:]) * 0.5
@@ -170,7 +170,7 @@ def critical_density(pdf, alpha):
         
     return critical_density
     
-def delta_pl(alpha=NP.array([0.05, 0.32])):
+def delta_pl(alpha=np.array([0.05, 0.32])):
     """ Use confidence levels to calculate DeltaPL.
     
     This is used to plot two dimensional confidence intervals.
@@ -187,7 +187,7 @@ def delta_pl(alpha=NP.array([0.05, 0.32])):
     deltachisq = stats.chi2.ppf(1 - alpha, 2)
 
     # Convert these into PL values.
-    deltaPL = NP.exp(- deltachisq / 2)
+    deltaPL = np.exp(- deltachisq / 2)
 
     # That's all we need! - we will simply plot contours of
     # deltaPL.

@@ -8,7 +8,7 @@
 # and calculating the 1D stats for a particular variable.
 
 # External modules.
-import numpy as NP
+import numpy as np
 from scipy import stats
 from collections import namedtuple
 
@@ -31,9 +31,9 @@ def posterior_pdf(param, posterior, nbins=50, bin_limits=None):
     # Outliers sometimes mess up bins. So you might want to
     # specify the bin ranges.
     # Histogram the data.
-    pdf, bin_edges = NP.histogram(param, nbins,
-                              range=bin_limits,
-                              weights=posterior)
+    pdf, bin_edges = np.histogram(param, nbins,
+                                  range=bin_limits,
+                                  weights=posterior)
     # Normalize the pdf, so that its maximum value is one.
     # NB could normalize so that area is one.
     pdf = pdf / pdf.max()
@@ -63,10 +63,10 @@ def profile_like(param, chisq, nbins=50, bin_limits=None):
     # containing the bin number for each point in the chain.
     # NB that this requires histogramming, even thought we ignore PDF.
 
-    pdf, bin_edges = NP.histogram(param, nbins,
+    pdf, bin_edges = np.histogram(param, nbins,
                                   range=bin_limits,
                                   weights=None)
-    bin_numbers = NP.digitize(param, bin_edges)
+    bin_numbers = np.digitize(param, bin_edges)
     
     # Subract one from the bin numbers, so that bin numbers,
     # initially (0, nbins+1) because numpy uses extra bins for outliers,
@@ -82,7 +82,7 @@ def profile_like(param, chisq, nbins=50, bin_limits=None):
     bin_numbers = bin_numbers - 1
     
     # Initialize the profiled chi-squared to something massive.
-    profchisq = NP.zeros(nbins) + 1e90
+    profchisq = np.zeros(nbins) + 1e90
     
     # Min the chi-squared in each bin.
     # Loop over all the entries in the chain.
@@ -94,14 +94,14 @@ def profile_like(param, chisq, nbins=50, bin_limits=None):
     profchisq = profchisq - profchisq.min()
     
     # This exponential can be problematic.
-    proflike = NP.exp(- profchisq * 0.5)
+    proflike = np.exp(- profchisq * 0.5)
     
     # Find centres of bins.
     bins = (bin_edges[:-1] + bin_edges[1:]) * 0.5
     
     return profilelike(profchisq, proflike, bins)
     
-def credible_regions(pdf, param, alpha=NP.array([0.05, 0.32])):
+def credible_regions(pdf, param, alpha=np.array([0.05, 0.32])):
     """ 
     Calculate one-dimensional credible regions.
     
@@ -128,8 +128,8 @@ def credible_regions(pdf, param, alpha=NP.array([0.05, 0.32])):
     # one.
     pdf = pdf / sum(pdf)
     
-    lowercredibleregion = NP.zeros((alpha.size))
-    uppercredibleregion = NP.zeros((alpha.size))
+    lowercredibleregion = np.zeros((alpha.size))
+    uppercredibleregion = np.zeros((alpha.size))
     
     for j in range(alpha.size):
     
@@ -151,7 +151,7 @@ def credible_regions(pdf, param, alpha=NP.array([0.05, 0.32])):
     
     return credibleregions(lowercredibleregion, uppercredibleregion)
     
-def confidence_intervals(chisq, param, alpha=NP.array([0.05, 0.32])):
+def confidence_intervals(chisq, param, alpha=np.array([0.05, 0.32])):
     """ Calculate one dimensional confidence intervals.
     
     Arguments:
@@ -184,7 +184,7 @@ def confidence_intervals(chisq, param, alpha=NP.array([0.05, 0.32])):
     deltachisq = stats.chi2.ppf(1 - alpha, 1)
 
     # Initialize the PL regions to everything outside - zeros.
-    regions = NP.zeros((alpha.size, chisq.size))
+    regions = np.zeros((alpha.size, chisq.size))
     
     # Now find regions of binned parameter that have
     # delta chi2 < delta chi2|alpha.
@@ -210,7 +210,7 @@ def confidence_intervals(chisq, param, alpha=NP.array([0.05, 0.32])):
     # Let's mutiply the 1/Nones with the bin centers, to see where the PL
     # regions actually are.
     
-    confint = NP.zeros((alpha.size, chisq.size))
+    confint = np.zeros((alpha.size, chisq.size))
     
     for i in range(alpha.size):
         confint[i, :] = regions[i, :] * param

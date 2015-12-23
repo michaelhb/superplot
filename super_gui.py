@@ -11,8 +11,8 @@
 #########################################################################
 
 #  SuperPy modules.
-import data_loader as DL
-import plotlib.plots as Plots
+import data_loader
+import plotlib.plots as plots
 from plot_options import plot_options, default
 
 # External modules.
@@ -134,7 +134,7 @@ class GUIControl:
         # Using an ordered dict means the order in which classes
         # are listed in plot_types will be preserved in the GUI.
         self.plots = OrderedDict()
-        for plot in Plots.plot_types:
+        for plot in plots.plot_types:
             self.plots[plot.description] = plot
         
         #######################################################################
@@ -512,13 +512,13 @@ class GUIControl:
         # So that figure is correct size for saving - showing a figure changes
         # its size...
         self.fig.set_size_inches(default("size"))
-        Plots.SavePlot(name)
+        plots.save_plot(name)
     
 def main():
     datafile = open_file_gui()
     infofile = open_file_gui()
     
-    labels, data = DL.load(infofile, datafile)
+    labels, data = data_loader.load(infofile, datafile)
     bcb = GUIControl(labels, data)
     gtk.main()
     return

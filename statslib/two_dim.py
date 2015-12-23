@@ -187,11 +187,11 @@ def delta_pl(alpha=np.array([0.05, 0.32])):
     deltachisq = stats.chi2.ppf(1 - alpha, 2)
 
     # Convert these into PL values.
-    deltaPL = np.exp(- deltachisq / 2)
+    delta_pl = np.exp(- deltachisq / 2)
 
     # That's all we need! - we will simply plot contours of
     # deltaPL.
-    return deltaPL
+    return delta_pl
 
 
 

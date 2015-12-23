@@ -4,7 +4,7 @@ Abstract base classes for plots.
 
 # External modules.
 from abc import ABCMeta, abstractmethod
-import numpy as NP
+import numpy as np
 import matplotlib.pyplot as plt
 import warnings
 
@@ -27,13 +27,13 @@ class Plot(object):
         # no way for a plot to mess things up for other plots
         
         # Unpack posterior weight and chisq
-        self.posterior = NP.array(data[0])
-        self.chisq = NP.array(data[1])
+        self.posterior = np.array(data[0])
+        self.chisq = np.array(data[1])
         
         # Unpack x, y and z axis data
-        self.xdata = NP.array(data[plot_options.xindex])
-        self.ydata = NP.array(data[plot_options.yindex])
-        self.zdata = NP.array(data[plot_options.zindex])
+        self.xdata = np.array(data[plot_options.xindex])
+        self.ydata = np.array(data[plot_options.yindex])
+        self.zdata = np.array(data[plot_options.zindex])
         
         # Apply log scaling to data if required.
         
@@ -42,17 +42,17 @@ class Plot(object):
         warnings.filterwarnings('error')
         if plot_options.logx:
             try:
-                self.xdata = NP.log10(self.xdata)
+                self.xdata = np.log10(self.xdata)
             except RuntimeWarning:
                 print "x-data not logged: probably logging a negative."
         if plot_options.logy:
             try:
-                self.ydata = NP.log10(self.ydata)
+                self.ydata = np.log10(self.ydata)
             except RuntimeWarning:
                 print "y-data not logged: probably logging a negative."
         if plot_options.logz:
             try:
-                self.zdata = NP.log10(self.zdata)
+                self.zdata = np.log10(self.zdata)
             except RuntimeWarning:
                 print "z-data not logged: probably logging a negative."
                 
@@ -93,7 +93,7 @@ class OneDimPlot(Plot):
         
         # If the user didn't specify bin or plot limits,
         # we find the extent of the data and use that to set them.
-        extent = NP.zeros((4))
+        extent = np.zeros((4))
         extent[0] = min(self.xdata)
         extent[1] = max(self.xdata)
         extent[2] = 0
@@ -124,7 +124,7 @@ class TwoDimPlot(Plot):
         
         # If the user didn't specify bin or plot limits,
         # we find the extent of the data and use that to set them.
-        extent = NP.zeros((4))
+        extent = np.zeros((4))
         extent[0] = min(self.xdata)
         extent[1] = max(self.xdata)
         extent[2] = min(self.ydata)

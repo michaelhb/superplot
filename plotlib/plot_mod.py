@@ -20,7 +20,7 @@ from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import MaxNLocator
 from pylab import *
 
-def plot_data(x, y, Scheme):
+def plot_data(x, y, scheme):
     """ Plot a point with a particular color scheme.
 
     Arguments:
@@ -32,10 +32,10 @@ def plot_data(x, y, Scheme):
     plt.plot(
         x,
         y,
-        Scheme.Symbol,
-        color=Scheme.Colour,
-        label=Scheme.Label,
-        ms=Scheme.Size)
+        scheme.Symbol,
+        color=scheme.Colour,
+        label=scheme.Label,
+        ms=scheme.Size)
         
 def appearance(usetex):
     """ Specify the plots appearance, with e.g. font types etc.
@@ -142,7 +142,7 @@ def plot_labels(xlabel, ylabel, plottitle=''):
     plt.title(plottitle)
 
 
-def plot_image(xdata, ydata, data, bin_limits, plot_limits, Scheme):
+def plot_image(xdata, ydata, data, bin_limits, plot_limits, scheme):
     """ Plot data as an image.
 
     Arguments:
@@ -169,8 +169,8 @@ def plot_image(xdata, ydata, data, bin_limits, plot_limits, Scheme):
     # Interpolating perhaps misleads, if you don't want it set
     # interpolation='nearest'. NB that imshow is annoying - it reads y,x
     # rather than x,y so we take transpose.
-    plt.im = plt.imshow(data.T, cmap=Scheme.ColourMap, extent=bin_limits,
-                        interpolation='bilinear', label=Scheme.Label,
+    plt.im = plt.imshow(data.T, cmap=scheme.ColourMap, extent=bin_limits,
+                        interpolation='bilinear', label=scheme.Label,
                         origin='lower', aspect=aspect)
     # Plot a colour bar.
     cb = plt.colorbar(plt.im, orientation='horizontal', shrink=0.5)
@@ -178,10 +178,10 @@ def plot_image(xdata, ydata, data, bin_limits, plot_limits, Scheme):
     cb.locator = MaxNLocator(4)
     cb.update_ticks()
     # Colour bar label.
-    cb.ax.set_xlabel(Scheme.ColourBarTitle)
+    cb.ax.set_xlabel(scheme.ColourBarTitle)
 
 
-def plot_contour(xdata, ydata, data, levels, Scheme, bin_limits):
+def plot_contour(xdata, ydata, data, levels, scheme, bin_limits):
     """ Make unfilled contours for a plot.
     Arguments:
     xdata -- x-axis data.
@@ -204,7 +204,7 @@ def plot_contour(xdata, ydata, data, levels, Scheme, bin_limits):
         data.T,
         levels,
         linewidths=2,
-        colors=Scheme.Colour,
+        colors=scheme.Colour,
         hold='on',
         extent=bin_limits,
         interpolation='bilinear',
@@ -215,7 +215,7 @@ def plot_contour(xdata, ydata, data, levels, Scheme, bin_limits):
 
     # Set the contour labels - they will show labels.
     fmt = {}
-    for i, s in zip(cset.levels, Scheme.LevelNames):
+    for i, s in zip(cset.levels, scheme.LevelNames):
         fmt[i] = s
 
     # Plot inline labels on contours.
@@ -227,7 +227,7 @@ def plot_filled_contour(
         ydata,
         data,
         levels,
-        Scheme,
+        scheme,
         bin_limits):
     """ Make filled contours for a plot.
 
@@ -256,24 +256,24 @@ def plot_filled_contour(
 
     # Filled contours.
     cset = plt.contourf(data.T, levels,
-                        colors=Scheme.Colours,
+                        colors=scheme.Colours,
                         hold='on', extent=bin_limits,
                         interpolation='bilinear', origin=None,
                         alpha=0.7)
 
     # Plot a proxy for the legend - plot spurious data outside plot limits,
     # with legend entry matching colours of filled contours.
-    for i, value in enumerate(Scheme.Colours):
+    for i, value in enumerate(scheme.Colours):
         plt.plot(-1.5 * abs(min(xdata)),
                  1.5 * abs(max(ydata)),
                  's',
-                 color=Scheme.Colours[i],
-                 label=Scheme.LevelNames[i],
+                 color=scheme.Colours[i],
+                 label=scheme.LevelNames[i],
                  alpha=0.7,
                  ms=15)
 
 
-def plot_band(x, y, width, ax, Scheme):
+def plot_band(x, y, width, ax, scheme):
     """ Plot a band around a line.
     This is for a theoretical error. We find the largest and smallest
     y within +/width of the value of x, and fill between these largest and smallest
@@ -299,10 +299,10 @@ def plot_band(x, y, width, ax, Scheme):
                     uy[i] = y[j]
 
     # Finally plot.
-    ax.fill_between(x, ly, uy, where=None, facecolor=Scheme.Colour, alpha=0.7)
+    ax.fill_between(x, ly, uy, where=None, facecolor=scheme.Colour, alpha=0.7)
     # Proxy for legend.
-    plt.plot(-1, -1, 's', color=Scheme.Colour,
-             label=Scheme.Label, alpha=0.7, ms=15)
+    plt.plot(-1, -1, 's', color=scheme.Colour,
+             label=scheme.Label, alpha=0.7, ms=15)
 
 def plot_points(
         filename,

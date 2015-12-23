@@ -269,7 +269,7 @@ class GUIControl:
         self.gridbox.attach(tplottitle, 0, 1, 9, 10, xoptions=gtk.FILL)
         # Text box to alter title.
         self.plottitle = gtk.Entry()
-        self.plottitle.set_text(default("plottitle"))
+        self.plottitle.set_text(default("plot_title"))
         self.gridbox.attach(self.plottitle, 1, 2, 9, 10, xoptions=gtk.FILL)
 
         # Legend title.
@@ -464,16 +464,16 @@ class GUIControl:
             xticks = default("xticks"),
             yticks = default("yticks"),
             
-            tau = default("Tau"),
+            tau = default("tau"),
             alpha = default("alpha"),
             
             size = default("size"),            
             xlabel = self.labels[self.xindex],
             ylabel = self.labels[self.yindex],
             zlabel = self.labels[self.zindex],
-            plottitle = self.plottitle.get_text(),
-            legtitle = self.legtitle.get_text(),
-            usetex = default("usetex")
+            plot_title = self.plottitle.get_text(),
+            leg_title = self.legtitle.get_text(),
+            use_tex = default("use_tex")
         )
         
         # Fetch the class for the selected plot type

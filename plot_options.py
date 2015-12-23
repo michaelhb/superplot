@@ -38,14 +38,14 @@ plot_options = namedtuple("plot_options", (
     "xlabel",       # Label for x axis
     "ylabel",       # Label for y axis
     "zlabel",       # Label for z axis
-    "plottitle",    # Title of plot
-    "legtitle",     # Plot legend
-    "usetex"        # Use LaTeX to draw text - "all", "math", or "none".
+    "plot_title",    # Title of plot
+    "leg_title",     # Plot legend
+    "use_tex"        # Use LaTeX to draw text - "all", "math", or "none".
     ))
     
 # Store a dictionary of default options from config.yml
 with open("config.yml") as cfile:
-    _defaults = yaml.load(cfile)["PlotOptions"]
+    _defaults = yaml.load(cfile)["plot_options"]
     
 # Fix the types of a few options. It would also be
 # possible to directly specify the types in the YAML file,
@@ -73,7 +73,7 @@ def default(option):
     try:
         return _defaults[option]
     except KeyError:
-        print "PlotOptions: No default specified for option: {}".format(option)
+        print "plot_options: No default specified for option: {}".format(option)
         raise
     
     

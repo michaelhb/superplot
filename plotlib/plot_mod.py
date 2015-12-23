@@ -37,13 +37,13 @@ def plot_data(x, y, scheme):
         label=scheme.label,
         ms=scheme.size)
         
-def appearance(usetex):
+def appearance(use_tex):
     """ Specify the plots appearance, with e.g. font types etc.
     
     Arguments:
-    usetex -- whether to use LaTeX. "all", "math", or "none".
+    use_tex -- whether to use LaTeX. "all", "math", or "none".
     """
-    assert usetex in ["all", "math", "none"]
+    assert use_tex in ["all", "math", "none"]
     
     # If the user wants Tex, we first check if the 
     # 'latex' shell command is available (as this is
@@ -51,11 +51,14 @@ def appearance(usetex):
     # If it isn't, we issue a warning and fall back to
     # mathtext. Otherwise we enable Tex for either 
     # math only or all text as specified.
-    if usetex != "none":
+    if use_tex == "none":
+        rc('text', usetex=False)
+    else:
         # Check if LaTeX is available.
         try:
             subprocess.call(["latex", "-version"])
         except OSError as e:
+            rc('text', usetex=False)
             if e.errno == os.errno.ENOENT:
                 warnings.warn(
                     "Cannot use LaTeX fonts. "
@@ -67,7 +70,7 @@ def appearance(usetex):
             # Enable LaTeX
             rc('text', usetex=True)
             
-            if usetex == "all":
+            if use_tex == "all":
                 # Enable LaTeX for all text, set font
                 rc('font',
                    **{'family': 'serif',
@@ -127,7 +130,7 @@ def plot_ticks(xticks, yticks, ax):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
 
 
-def plot_labels(xlabel, ylabel, plottitle=''):
+def plot_labels(xlabel, ylabel, plot_title=''):
     """ Plot axis labels.
 
     Arguments:
@@ -139,7 +142,7 @@ def plot_labels(xlabel, ylabel, plottitle=''):
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     # Plot title.
-    plt.title(plottitle)
+    plt.title(plot_title)
 
 
 def plot_image(xdata, ydata, data, bin_limits, plot_limits, scheme):

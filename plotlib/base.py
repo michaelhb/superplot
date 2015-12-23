@@ -69,9 +69,9 @@ class Plot(object):
         ax = fig.add_subplot(1, 1, 1)
         
         pm.plot_ticks(opt.xticks, opt.yticks, ax)
-        pm.plot_labels(opt.xlabel, opt.ylabel, opt.plottitle)
+        pm.plot_labels(opt.xlabel, opt.ylabel, opt.plot_title)
         pm.plot_limits(ax, opt.plot_limits)
-        pm.appearance(opt.usetex)
+        pm.appearance(opt.use_tex)
 
         return fig, ax
         

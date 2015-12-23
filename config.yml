@@ -59,7 +59,7 @@ schemes:
         label: 'Theory Error'
         
 #########################################################################
-PlotOptions:
+plot_options:
     # Technical plot options.       
     dof: 10
     alpha: [0.05, 0.32] # Values of alpha, in ascending order.
@@ -74,19 +74,19 @@ PlotOptions:
     xticks: 5 # Numbers of ticks.
     yticks: 5
     
-    plottitle: 'Fowlie (2014)'
+    plot_title: 'Fowlie (2014)'
 
     # Size in inches.
     size: [8, 8]
 
     # For theoretical error on delta chi-squared plots.
-    Tau: 2
+    tau: 2
     
     # Whether to use LaTeX.
     # - all: use LaTeX for math and text
     # - math: use LaTeX for math only
     # - none: do not use LaTeX at all
-    usetex: 'all'
+    use_tex: 'all'
 
 
 

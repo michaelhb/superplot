@@ -95,7 +95,7 @@ class OneDimStandard(OneDimPlot):
             pm.plot_data(confint[i, :], [1] * int(opt.nbins), schemes.conf_intervals[i])
             
         # Add plot legend
-        pm.legend(opt.legtitle)
+        pm.legend(opt.leg_title)
         
         return fig
             
@@ -149,7 +149,7 @@ class OneDimChiSq(OneDimPlot):
             pm.plot_band(x, profchisq, opt.tau, ax, schemes.tau_band)
                      
         # Add plot legend
-        pm.legend(opt.legtitle)
+        pm.legend(opt.leg_title)
         
         # Override y axis label!
         plt.ylabel(schemes.prof_chi_sq.label)
@@ -196,7 +196,7 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
             bin_limits=opt.bin_limits)
                      
         # Add legend
-        pm.legend(opt.legtitle)
+        pm.legend(opt.leg_title)
         
         return fig
                      
@@ -238,7 +238,7 @@ class TwoDimPlotFilledPL(TwoDimPlot):
             bin_limits=opt.bin_limits)
                      
         # Add legend
-        pm.legend(opt.legtitle)
+        pm.legend(opt.leg_title)
                      
         return fig
                      
@@ -290,7 +290,7 @@ class TwoDimPlotPDF(TwoDimPlot):
             bin_limits=opt.bin_limits)
                      
         # Add legend
-        pm.legend(opt.legtitle)
+        pm.legend(opt.leg_title)
                      
         return fig
                      
@@ -339,7 +339,7 @@ class TwoDimPlotPL(TwoDimPlot):
             bin_limits=opt.bin_limits)
             
         # Add legend
-        pm.legend(opt.legtitle)
+        pm.legend(opt.leg_title)
         
         return fig
             
@@ -421,7 +421,7 @@ class Scatter(TwoDimPlot):
             bin_limits=opt.bin_limits)
 
         # Add legend
-        pm.legend(opt.legtitle)
+        pm.legend(opt.leg_title)
         
         return fig
             

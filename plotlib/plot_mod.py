@@ -241,7 +241,7 @@ def plot_filled_contour(
     for name, color in zip(scheme.level_names, scheme.colours):
         plt.plot(x_outside,
                  y_outside,
-                 'square',
+                 's',
                  color=color,
                  label=name,
                  alpha=0.7,
@@ -278,7 +278,7 @@ def plot_band(x_data, y_data, width, ax, scheme):
     ax.fill_between(x_data, lower_y, upper_y, where=None, facecolor=scheme.colour, alpha=0.7)
     
     # Proxy for legend
-    plt.plot(-1, -1, 'square', 
+    plt.plot(-1, -1, 's',
             color=scheme.colour,
             label=scheme.label, 
             alpha=0.7, 

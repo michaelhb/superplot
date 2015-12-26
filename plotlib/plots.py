@@ -137,8 +137,7 @@ class OneDimChiSq(OneDimPlot):
                             
             # Plot a proxy for the legend - plot spurious data outside plot limits,
             # with legend entry matching colours of filled regions.
-            plt.plot(-1, -1, 'square',
-                     color=facecolor, label=name, alpha=0.7, ms=15)
+            plt.plot(-1, -1, 's', color=facecolor, label=name, alpha=0.7, ms=15)
 
         if opt.tau is not None:
             # Plot the theory error as a band around the usual line

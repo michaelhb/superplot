@@ -82,14 +82,6 @@ plot_options:
 
     # For theoretical error on delta chi-squared plots.
     tau: 2
-    
-    #TODO this is now redundant - my apologies, I didn't
-    # know about the mplstyle sheets before
-    # Whether to use LaTeX.
-    # - all: use LaTeX for math and text
-    # - math: use LaTeX for math only
-    # - none: do not use LaTeX at all
-    use_tex: 'all'
 
 
 

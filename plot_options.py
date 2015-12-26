@@ -39,8 +39,7 @@ plot_options = namedtuple("plot_options", (
     "ylabel",  # Label for y axis
     "zlabel",  # Label for z axis
     "plot_title",  # Title of plot
-    "leg_title",  # Plot legend
-    "use_tex"  # Use LaTeX to draw text - "all", "math", or "none".
+    "leg_title"  # Plot legend
 ))
 
 # Store a dictionary of default options from config.yml

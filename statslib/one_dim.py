@@ -1,11 +1,10 @@
-#########################################################################
-#                                                                       #
-#    1 D    S t a t s                                                   #
-#                                                                       #
-#########################################################################
-
-# This module contains all the functions for analysing a chain (*.txt file)
-# and calculating the 1D stats for a particular variable.
+"""
+=====================================
+One Dimensional Statistical Functions
+=====================================
+This module contains all the functions for analysing a chain (*.txt file)
+and calculating the 1D stats for a particular variable.
+"""
 
 # External modules.
 import numpy as np
@@ -16,7 +15,7 @@ import warnings
 
 
 def posterior_pdf(parameter, posterior, nbins=50, bin_limits=None):
-    """ 
+    r"""
     Weighted histogram of data for posterior PDF.
     
     .. Warnings:
@@ -27,17 +26,16 @@ def posterior_pdf(parameter, posterior, nbins=50, bin_limits=None):
         Posterior PDF normalized such that maximum value is one.
 
     :param parameter: Data column of parameter of interest
-    :type parameter:
+    :type parameter: numpy.ndarray
     :param posterior: Data column of posterior weight, same length as data
-    :type posterior:
+    :type posterior: numpy.ndarray
     :param nbins: Number of bins for histogram
     :type nbins: integer
-    :bin_limits: Bin limits for histogram
-    :type bin_limits:
+    :param bin_limits: Bin limits for histogram
+    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
     
-    :returns: pdf - posterior PDF - and bin_centers - centers of \
-    bins for probability distribution
-    :rtype: named tuple
+    :returns: Posterior pdf and centers of bins for probability distribution.
+    :rtype: named tuple (pdf: numpy.ndarray, bin_centers: numpy.ndarray)
     """
     
     # Histogram the data
@@ -58,28 +56,28 @@ def posterior_pdf(parameter, posterior, nbins=50, bin_limits=None):
 
 
 def prof_data(parameter, chi_sq, nbins=50, bin_limits=None):
-    """ 
+    r"""
     Maximizes the likelihood in each bin to obtain the profile likelihood and
     profile chi-squared.
     
-    .. Warnings:
+    .. Warning::
         Outliers sometimes mess up bins. So you might want to specify the bin \
         ranges.
         
-    .. Warnings:
+    .. Warning::
         Profile likelihood is normalized such that maximum value is one.
 
     :param parameter: Data column of parameter of interest
-    :type parameter:
+    :type parameter: numpy.ndarray
     :param chi_sq: Data column of chi-squared, same length as data
-    :type posterior:
+    :type chi_sq: numpy.ndarray
     :param nbins: Number of bins for histogram
     :type nbins: integer
-    :bin_limits: Bin limits for histogram
-    :type bin_limits:
+    :param bin_limits: Bin limits for histogram
+    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
     
-    :returns:
-    :rtype: named tuple
+    :returns: Profile chi squared, profile likelihood, and bin centers.
+    :rtype: named tuple (prof_chi_sq: numpy.ndarray, prof_like: numpy.ndarray, bin_centers: numpy.ndarray)
     """
 
     # Bin the data to find bins, but ignore count itself
@@ -124,15 +122,18 @@ def credible_region(pdf, bin_centers, alpha, region):
     Calculate one-dimensional credible region. Find :math:`a` such that
     
     .. math::
-        \int_{-\infnty}^{a} p(x) dx = 1 - \alpha / 2
+        \int_{-\infinty}^{a} p(x) dx = 1 - \alpha / 2
     
     :param pdf: Data column of marginalised posterior PDF
+    :type pdf: numpy.ndarray
     :param bin_centers: Data column of parameter at bin centers
+    :type bin_centers: numpy.ndarray
     :param alpha: Probability level
-    :region: Upper of lower interval
+    :type alpha: float
+    :param region: Interval - must be "upper" or "lower"
     :type region: string
     
-    :returns: Bin center of edge of credible region
+    :returns: Bin center of edge of credible region.
     :rtype: float
     """
 
@@ -171,11 +172,14 @@ def conf_interval(chi_sq, bin_centers, alpha):
         confidence interval.
     
     :param chi_sq: Data column of profiled chi-squared
+    :type chi_sq: numpy.ndarray
     :param bin_centers: Data column of parameter at bin centers
+    :type bin_centers: numpy.ndarray
     :param alpha: Probability level
-    
-    Returns named tuple:
-    deltachisq, confint ** TODO goodify **
+    :type alpha: float
+
+    :returns: Confidence interval.
+    :rtype: numpy.ndarray
     """
     # Invert alpha to a delta chi-squared with a
     # inverse cumalative chi-squared distribution with 

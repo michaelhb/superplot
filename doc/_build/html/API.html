@@ -102,7 +102,11 @@ match array indices (0, nbins - 1).</p>
 </table>
 </dd></dl>
 
-<span class="target" id="module-statslib.one_dim"></span><dl class="function">
+<span class="target" id="module-statslib.one_dim"></span><div class="section" id="one-dimensional-statistical-functions">
+<h2>One Dimensional Statistical Functions<a class="headerlink" href="#one-dimensional-statistical-functions" title="Permalink to this headline">¶</a></h2>
+<p>This module contains all the functions for analysing a chain (<a href="#id1"><span class="problematic" id="id2">*</span></a>.txt file)
+and calculating the 1D stats for a particular variable.</p>
+<dl class="function">
 <dt id="statslib.one_dim.conf_interval">
 <code class="descclassname">statslib.one_dim.</code><code class="descname">conf_interval</code><span class="sig-paren">(</span><em>chi_sq</em>, <em>bin_centers</em>, <em>alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/one_dim.html#conf_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.one_dim.conf_interval" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate one dimensional confidence interval.</p>
@@ -116,17 +120,21 @@ confidence interval.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>chi_sq</strong> &#8211; Data column of profiled chi-squared</li>
-<li><strong>bin_centers</strong> &#8211; Data column of parameter at bin centers</li>
-<li><strong>alpha</strong> &#8211; Probability level</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>chi_sq</strong> (<em>numpy.ndarray</em>) &#8211; Data column of profiled chi-squared</li>
+<li><strong>bin_centers</strong> (<em>numpy.ndarray</em>) &#8211; Data column of parameter at bin centers</li>
+<li><strong>alpha</strong> (<em>float</em>) &#8211; Probability level</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Confidence interval.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.ndarray</p>
 </td>
 </tr>
 </tbody>
 </table>
-<p>Returns named tuple:
-deltachisq, confint ** TODO goodify **</p>
 </dd></dl>
 
 <dl class="function">
@@ -134,25 +142,23 @@ deltachisq, confint ** TODO goodify **</p>
 <code class="descclassname">statslib.one_dim.</code><code class="descname">credible_region</code><span class="sig-paren">(</span><em>pdf</em>, <em>bin_centers</em>, <em>alpha</em>, <em>region</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/one_dim.html#credible_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.one_dim.credible_region" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate one-dimensional credible region. Find <span class="math">\(a\)</span> such that</p>
 <div class="math">
-\[\int_{-\infnty}^{a} p(x) dx = 1 - \alpha / 2\]</div>
+\[\int_{-\infinty}^{a} p(x) dx = 1 - \alpha / 2\]</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pdf</strong> &#8211; Data column of marginalised posterior PDF</li>
-<li><strong>bin_centers</strong> &#8211; Data column of parameter at bin centers</li>
-<li><strong>alpha</strong> &#8211; Probability level</li>
+<li><strong>pdf</strong> (<em>numpy.ndarray</em>) &#8211; Data column of marginalised posterior PDF</li>
+<li><strong>bin_centers</strong> (<em>numpy.ndarray</em>) &#8211; Data column of parameter at bin centers</li>
+<li><strong>alpha</strong> (<em>float</em>) &#8211; Probability level</li>
+<li><strong>region</strong> (<em>string</em>) &#8211; Interval - must be &#8220;upper&#8221; or &#8220;lower&#8221;</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Region:</th><td class="field-body"><p class="first">Upper of lower interval</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Bin center of edge of credible region.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Bin center of edge of credible region</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
 </td>
 </tr>
 </tbody>
@@ -168,19 +174,17 @@ deltachisq, confint ** TODO goodify **</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>parameter</strong> &#8211; Data column of parameter of interest</li>
-<li><strong>posterior</strong> &#8211; Data column of posterior weight, same length as data</li>
+<li><strong>parameter</strong> (<em>numpy.ndarray</em>) &#8211; Data column of parameter of interest</li>
+<li><strong>posterior</strong> (<em>numpy.ndarray</em>) &#8211; Data column of posterior weight, same length as data</li>
 <li><strong>nbins</strong> (<em>integer</em>) &#8211; Number of bins for histogram</li>
+<li><strong>bin_limits</strong> (<em>list [[xmin,xmax],[ymin,ymax]]</em>) &#8211; Bin limits for histogram</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Bin_limits:</th><td class="field-body"><p class="first">Bin limits for histogram</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Posterior pdf and centers of bins for probability distribution.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">pdf - posterior PDF - and bin_centers - centers of     bins for probability distribution</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">named tuple</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">named tuple (pdf: numpy.ndarray, bin_centers: numpy.ndarray)</p>
 </td>
 </tr>
 </tbody>
@@ -192,30 +196,37 @@ deltachisq, confint ** TODO goodify **</p>
 <code class="descclassname">statslib.one_dim.</code><code class="descname">prof_data</code><span class="sig-paren">(</span><em>parameter</em>, <em>chi_sq</em>, <em>nbins=50</em>, <em>bin_limits=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/one_dim.html#prof_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.one_dim.prof_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximizes the likelihood in each bin to obtain the profile likelihood and
 profile chi-squared.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Outliers sometimes mess up bins. So you might want to specify the bin ranges.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Profile likelihood is normalized such that maximum value is one.</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>parameter</strong> &#8211; Data column of parameter of interest</li>
-<li><strong>chi_sq</strong> &#8211; Data column of chi-squared, same length as data</li>
+<li><strong>parameter</strong> (<em>numpy.ndarray</em>) &#8211; Data column of parameter of interest</li>
+<li><strong>chi_sq</strong> (<em>numpy.ndarray</em>) &#8211; Data column of chi-squared, same length as data</li>
 <li><strong>nbins</strong> (<em>integer</em>) &#8211; Number of bins for histogram</li>
+<li><strong>bin_limits</strong> (<em>list [[xmin,xmax],[ymin,ymax]]</em>) &#8211; Bin limits for histogram</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Bin_limits:</th><td class="field-body"><p class="first">Bin limits for histogram</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Profile chi squared, profile likelihood, and bin centers.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">named tuple</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">named tuple (prof_chi_sq: numpy.ndarray, prof_like: numpy.ndarray, bin_centers: numpy.ndarray)</p>
 </td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
+</div>
 </div>
 <div class="section" id="plotlib">
 <h1>plotlib<a class="headerlink" href="#plotlib" title="Permalink to this headline">¶</a></h1>
@@ -294,7 +305,10 @@ data &#8211; Dictionary of chain indexed with integers.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">super_gui</a></li>
-<li><a class="reference internal" href="#module-statslib.point">statslib</a></li>
+<li><a class="reference internal" href="#module-statslib.point">statslib</a><ul>
+<li><a class="reference internal" href="#one-dimensional-statistical-functions">One Dimensional Statistical Functions</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#plotlib">plotlib</a></li>
 <li><a class="reference internal" href="#module-data_loader">data_loader</a></li>
 <li><a class="reference internal" href="#plot-options">plot_options</a></li>

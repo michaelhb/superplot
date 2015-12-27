@@ -39,14 +39,13 @@
           <div class="body" role="main">
             
   <h1>Source code for statslib.one_dim</h1><div class="highlight"><pre>
-<span class="c">#########################################################################</span>
-<span class="c">#                                                                       #</span>
-<span class="c">#    1 D    S t a t s                                                   #</span>
-<span class="c">#                                                                       #</span>
-<span class="c">#########################################################################</span>
-
-<span class="c"># This module contains all the functions for analysing a chain (*.txt file)</span>
-<span class="c"># and calculating the 1D stats for a particular variable.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">=====================================</span>
+<span class="sd">One Dimensional Statistical Functions</span>
+<span class="sd">=====================================</span>
+<span class="sd">This module contains all the functions for analysing a chain (*.txt file)</span>
+<span class="sd">and calculating the 1D stats for a particular variable.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c"># External modules.</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
@@ -57,7 +56,7 @@
 
 
 <div class="viewcode-block" id="posterior_pdf"><a class="viewcode-back" href="../../API.html#statslib.one_dim.posterior_pdf">[docs]</a><span class="k">def</span> <span class="nf">posterior_pdf</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">posterior</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">bin_limits</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; </span>
+    <span class="sd">r&quot;&quot;&quot;</span>
 <span class="sd">    Weighted histogram of data for posterior PDF.</span>
 <span class="sd">    </span>
 <span class="sd">    .. Warnings:</span>
@@ -68,17 +67,16 @@
 <span class="sd">        Posterior PDF normalized such that maximum value is one.</span>
 
 <span class="sd">    :param parameter: Data column of parameter of interest</span>
-<span class="sd">    :type parameter:</span>
+<span class="sd">    :type parameter: numpy.ndarray</span>
 <span class="sd">    :param posterior: Data column of posterior weight, same length as data</span>
-<span class="sd">    :type posterior:</span>
+<span class="sd">    :type posterior: numpy.ndarray</span>
 <span class="sd">    :param nbins: Number of bins for histogram</span>
 <span class="sd">    :type nbins: integer</span>
-<span class="sd">    :bin_limits: Bin limits for histogram</span>
-<span class="sd">    :type bin_limits:</span>
+<span class="sd">    :param bin_limits: Bin limits for histogram</span>
+<span class="sd">    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]</span>
 <span class="sd">    </span>
-<span class="sd">    :returns: pdf - posterior PDF - and bin_centers - centers of \</span>
-<span class="sd">    bins for probability distribution</span>
-<span class="sd">    :rtype: named tuple</span>
+<span class="sd">    :returns: Posterior pdf and centers of bins for probability distribution.</span>
+<span class="sd">    :rtype: named tuple (pdf: numpy.ndarray, bin_centers: numpy.ndarray)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="c"># Histogram the data</span>
@@ -99,28 +97,28 @@
 
 
 <div class="viewcode-block" id="prof_data"><a class="viewcode-back" href="../../API.html#statslib.one_dim.prof_data">[docs]</a><span class="k">def</span> <span class="nf">prof_data</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">chi_sq</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">bin_limits</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; </span>
+    <span class="sd">r&quot;&quot;&quot;</span>
 <span class="sd">    Maximizes the likelihood in each bin to obtain the profile likelihood and</span>
 <span class="sd">    profile chi-squared.</span>
 <span class="sd">    </span>
-<span class="sd">    .. Warnings:</span>
+<span class="sd">    .. Warning::</span>
 <span class="sd">        Outliers sometimes mess up bins. So you might want to specify the bin \</span>
 <span class="sd">        ranges.</span>
 <span class="sd">        </span>
-<span class="sd">    .. Warnings:</span>
+<span class="sd">    .. Warning::</span>
 <span class="sd">        Profile likelihood is normalized such that maximum value is one.</span>
 
 <span class="sd">    :param parameter: Data column of parameter of interest</span>
-<span class="sd">    :type parameter:</span>
+<span class="sd">    :type parameter: numpy.ndarray</span>
 <span class="sd">    :param chi_sq: Data column of chi-squared, same length as data</span>
-<span class="sd">    :type posterior:</span>
+<span class="sd">    :type chi_sq: numpy.ndarray</span>
 <span class="sd">    :param nbins: Number of bins for histogram</span>
 <span class="sd">    :type nbins: integer</span>
-<span class="sd">    :bin_limits: Bin limits for histogram</span>
-<span class="sd">    :type bin_limits:</span>
+<span class="sd">    :param bin_limits: Bin limits for histogram</span>
+<span class="sd">    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]</span>
 <span class="sd">    </span>
-<span class="sd">    :returns:</span>
-<span class="sd">    :rtype: named tuple</span>
+<span class="sd">    :returns: Profile chi squared, profile likelihood, and bin centers.</span>
+<span class="sd">    :rtype: named tuple (prof_chi_sq: numpy.ndarray, prof_like: numpy.ndarray, bin_centers: numpy.ndarray)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c"># Bin the data to find bins, but ignore count itself</span>
@@ -165,15 +163,18 @@
 <span class="sd">    Calculate one-dimensional credible region. Find :math:`a` such that</span>
 <span class="sd">    </span>
 <span class="sd">    .. math::</span>
-<span class="sd">        \int_{-\infnty}^{a} p(x) dx = 1 - \alpha / 2</span>
+<span class="sd">        \int_{-\infinty}^{a} p(x) dx = 1 - \alpha / 2</span>
 <span class="sd">    </span>
 <span class="sd">    :param pdf: Data column of marginalised posterior PDF</span>
+<span class="sd">    :type pdf: numpy.ndarray</span>
 <span class="sd">    :param bin_centers: Data column of parameter at bin centers</span>
+<span class="sd">    :type bin_centers: numpy.ndarray</span>
 <span class="sd">    :param alpha: Probability level</span>
-<span class="sd">    :region: Upper of lower interval</span>
+<span class="sd">    :type alpha: float</span>
+<span class="sd">    :param region: Interval - must be &quot;upper&quot; or &quot;lower&quot;</span>
 <span class="sd">    :type region: string</span>
 <span class="sd">    </span>
-<span class="sd">    :returns: Bin center of edge of credible region</span>
+<span class="sd">    :returns: Bin center of edge of credible region.</span>
 <span class="sd">    :rtype: float</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -212,11 +213,14 @@
 <span class="sd">        confidence interval.</span>
 <span class="sd">    </span>
 <span class="sd">    :param chi_sq: Data column of profiled chi-squared</span>
+<span class="sd">    :type chi_sq: numpy.ndarray</span>
 <span class="sd">    :param bin_centers: Data column of parameter at bin centers</span>
+<span class="sd">    :type bin_centers: numpy.ndarray</span>
 <span class="sd">    :param alpha: Probability level</span>
-<span class="sd">    </span>
-<span class="sd">    Returns named tuple:</span>
-<span class="sd">    deltachisq, confint ** TODO goodify **</span>
+<span class="sd">    :type alpha: float</span>
+
+<span class="sd">    :returns: Confidence interval.</span>
+<span class="sd">    :rtype: numpy.ndarray</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Invert alpha to a delta chi-squared with a</span>
     <span class="c"># inverse cumalative chi-squared distribution with </span>

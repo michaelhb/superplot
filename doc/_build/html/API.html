@@ -261,10 +261,7 @@ fraction of the total posterior PDF. This is in fact the &#8220;densest&#8221; r
 of the posterior PDF. There is, therefore, a &#8220;critical density&#8221; of
 posterior PDF, above which a point is inside a credible region. I.e. this
 function returns <span class="math">\(p_\text{critical}\)</span> such that</p>
-<dl class="docutils">
-<dt>math::</dt>
-<dd>int_{p &gt; <a href="#id5"><span class="problematic" id="id6">p_</span></a>text{critical}} p(x, y) dx dy = 1. - alpha</dd>
-</dl>
+<p><span class="math">\(\int_{p &gt; p_\text{critical}} p(x, y) dx dy = 1. - \alpha\)</span></p>
 <p>The critical density is used to calculate two-dimensional credible regions.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -285,14 +282,14 @@ equals 1.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>pdf</strong> (<em>numpy.ndarray</em>) &#8211; Marginalised two-dimensional posterior PDF</li>
-<li><strong>alpha</strong> (<em>Float</em>) &#8211; Credible region contains <span class="math">\(1 - \alpha\)</span> of probability</li>
+<li><strong>alpha</strong> (<em>float</em>) &#8211; Credible region contains <span class="math">\(1 - \alpha\)</span> of probability</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Critical density for probability alpha</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Float</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
 </td>
 </tr>
 </tbody>
@@ -308,34 +305,45 @@ equals 1.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>alpha</strong> &#8211; Confidence level desired</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>alpha</strong> (<em>float</em>) &#8211; Confidence level desired</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><span class="math">\(\Delta \mathcal{L}\)</span></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.float64</td>
 </tr>
 </tbody>
 </table>
-<p>Returns: critical_prof_like</p>
-<p>** TODO goodify comment **</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="statslib.two_dim.posterior_pdf">
 <code class="descclassname">statslib.two_dim.</code><code class="descname">posterior_pdf</code><span class="sig-paren">(</span><em>paramx</em>, <em>paramy</em>, <em>posterior</em>, <em>nbins=50</em>, <em>bin_limits=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/two_dim.html#posterior_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.two_dim.posterior_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Histograms the chosen parameters to obtain two-dimensional PDF.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Outliers sometimes mess up bins. So you might want to specify the bin limits.</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>paramx</strong> &#8211; Data column of parameter x.</li>
-<li><strong>paramy</strong> &#8211; Data column of parameter y.</li>
-<li><strong>posterior</strong> &#8211; Data column of posterior weight.</li>
-<li><strong>nbins</strong> &#8211; Number of bins for histogram.</li>
-<li><strong>bin_limits</strong> &#8211; Bin limits for histogram.</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>paramx</strong> (<em>numpy.ndarray</em>) &#8211; Data column of parameter x</li>
+<li><strong>paramy</strong> (<em>numpy.ndarray</em>) &#8211; Data column of parameter y</li>
+<li><strong>posterior</strong> (<em>numpy.ndarray</em>) &#8211; Data column of posterior weight</li>
+<li><strong>nbins</strong> (<em>integer</em>) &#8211; Number of bins for histogram</li>
+<li><strong>bin_limits</strong> (<em>list [[xmin,xmax],[ymin,ymax]]</em>) &#8211; Bin limits for histogram</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Posterior pdf, x and y bin centers</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">named tuple (pdf: numpy.ndarray, bin_centers_x: numpy.ndarray, bin_centers_y: numpy.ndarray)</p>
 </td>
 </tr>
 </tbody>
 </table>
-<p>Returns named tuple: pdf, centerx, centery ** TODO goodify **</p>
 </dd></dl>
 
 <dl class="function">
@@ -346,19 +354,23 @@ equals 1.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>paramx</strong> &#8211; Data column of parameter x.</li>
-<li><strong>paramy</strong> &#8211; Data column of parameter y.</li>
-<li><strong>chi_sq</strong> &#8211; Data column of chi_sq.</li>
-<li><strong>nbins</strong> &#8211; Number of bins for histogram.</li>
-<li><strong>bin_limits</strong> &#8211; Bin limits for histogram.</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>paramx</strong> (<em>numpy.ndarray</em>) &#8211; Data column of parameter x.</li>
+<li><strong>paramy</strong> (<em>numpy.ndarray</em>) &#8211; Data column of parameter y.</li>
+<li><strong>chi_sq</strong> (<em>numpy.ndarray</em>) &#8211; Data column of chi_sq.</li>
+<li><strong>nbins</strong> (<em>integer</em>) &#8211; Number of bins for histogram.</li>
+<li><strong>bin_limits</strong> (<em>list [[xmin,xmax],[ymin,ymax]]</em>) &#8211; Bin limits for histogram.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Profile chi squared, profile likelihood, x and y bin centers</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">named tuple (        profchi_sq: numpy.ndarray,         prof_like: numpy.ndarray,         bin_center_x: numpy.ndarray,         bin_center_y: numpy.ndarray)</p>
 </td>
 </tr>
 </tbody>
 </table>
-<p>Returns named tuple: profchi_sq, proflike, centerx, centery
-** TODO goodify **</p>
 </dd></dl>
 
 </div>

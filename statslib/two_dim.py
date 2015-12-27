@@ -15,20 +15,27 @@ import point
 
 
 def posterior_pdf(paramx, paramy, posterior, nbins=50, bin_limits=None):
-    """ 
+    r"""
     Histograms the chosen parameters to obtain two-dimensional PDF.
     
-    .. Warnings::
+    .. Warning::
         Outliers sometimes mess up bins. So you might want to \
         specify the bin limits.
 
-    :param paramx: Data column of parameter x.
-    :param paramy: Data column of parameter y.
-    :param posterior: Data column of posterior weight.
-    :param nbins: Number of bins for histogram.
-    :param bin_limits: Bin limits for histogram.
+    :param paramx: Data column of parameter x
+    :type paramx: numpy.ndarray
+    :param paramy: Data column of parameter y
+    :type paramy: numpy.ndarray
+    :param posterior: Data column of posterior weight
+    :type posterior: numpy.ndarray
+    :param nbins: Number of bins for histogram
+    :type nbins: integer
+    :param bin_limits: Bin limits for histogram
+    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
 
-    Returns named tuple: pdf, centerx, centery ** TODO goodify **
+    :returns: Posterior pdf, x and y bin centers
+    :rtype: named tuple (pdf: numpy.ndarray, bin_centers_x: \
+        numpy.ndarray, bin_centers_y: numpy.ndarray)
     """
 
     # 2D Histogram the data - pdf is a matrix.
@@ -59,13 +66,22 @@ def profile_like(paramx, paramy, chi_sq, nbins, bin_limits=None):
     Maximizes the chi_squared to obtain two-dimensional profile likelihood.
 
     :param paramx: Data column of parameter x.
+    :type paramx: numpy.ndarray
     :param paramy: Data column of parameter y.
+    :type paramy: numpy.ndarray
     :param chi_sq: Data column of chi_sq.
+    :type chi_sq: numpy.ndarray
     :param nbins: Number of bins for histogram.
+    :type nbins: integer
     :param bin_limits: Bin limits for histogram.
-    
-    Returns named tuple: profchi_sq, proflike, centerx, centery
-    ** TODO goodify **
+    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+
+    :returns: Profile chi squared, profile likelihood, x and y bin centers
+    :rtype: named tuple (\
+        profchi_sq: numpy.ndarray, \
+        prof_like: numpy.ndarray, \
+        bin_center_x: numpy.ndarray, \
+        bin_center_y: numpy.ndarray)
     """
 
     # Bin the data to find bin edges. NB we discard the count
@@ -118,8 +134,7 @@ def critical_density(pdf, alpha):
     posterior PDF, above which a point is inside a credible region. I.e. this
     function returns :math:`p_\text{critical}` such that
     
-    math::
-        \int_{p > p_\text{critical}} p(x, y) dx dy = 1. - \alpha
+    :math:`\int_{p > p_\text{critical}} p(x, y) dx dy = 1. - \alpha`
     
     The critical density is used to calculate two-dimensional credible regions.
     
@@ -136,10 +151,10 @@ def critical_density(pdf, alpha):
     :param pdf: Marginalised two-dimensional posterior PDF
     :type pdf: numpy.ndarray
     :param alpha: Credible region contains :math:`1 - \alpha` of probability
-    :type alpha: Float
+    :type alpha: float
     
     :returns: Critical density for probability alpha
-    :rtype: Float
+    :rtype: float
     """
 
     # Normalize posterior PDF so that integral is one, if it wasn't already
@@ -172,10 +187,10 @@ def critical_prof_like(alpha):
     This is used to plot two dimensional confidence intervals.
 
     :param alpha: Confidence level desired
+    :type alpha: float
 
-    Returns: critical_prof_like
-    
-    ** TODO goodify comment **
+    :returns: :math:`\Delta \mathcal{L}`
+    :rtype: numpy.float64
     """
     # First invert alpha to a delta chi-squared with inverse
     # cumalative chi-squared distribution with two degrees of freedom.

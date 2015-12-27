@@ -56,20 +56,27 @@
 
 
 <div class="viewcode-block" id="posterior_pdf"><a class="viewcode-back" href="../../API.html#statslib.two_dim.posterior_pdf">[docs]</a><span class="k">def</span> <span class="nf">posterior_pdf</span><span class="p">(</span><span class="n">paramx</span><span class="p">,</span> <span class="n">paramy</span><span class="p">,</span> <span class="n">posterior</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">bin_limits</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; </span>
+    <span class="sd">r&quot;&quot;&quot;</span>
 <span class="sd">    Histograms the chosen parameters to obtain two-dimensional PDF.</span>
 <span class="sd">    </span>
-<span class="sd">    .. Warnings::</span>
+<span class="sd">    .. Warning::</span>
 <span class="sd">        Outliers sometimes mess up bins. So you might want to \</span>
 <span class="sd">        specify the bin limits.</span>
 
-<span class="sd">    :param paramx: Data column of parameter x.</span>
-<span class="sd">    :param paramy: Data column of parameter y.</span>
-<span class="sd">    :param posterior: Data column of posterior weight.</span>
-<span class="sd">    :param nbins: Number of bins for histogram.</span>
-<span class="sd">    :param bin_limits: Bin limits for histogram.</span>
+<span class="sd">    :param paramx: Data column of parameter x</span>
+<span class="sd">    :type paramx: numpy.ndarray</span>
+<span class="sd">    :param paramy: Data column of parameter y</span>
+<span class="sd">    :type paramy: numpy.ndarray</span>
+<span class="sd">    :param posterior: Data column of posterior weight</span>
+<span class="sd">    :type posterior: numpy.ndarray</span>
+<span class="sd">    :param nbins: Number of bins for histogram</span>
+<span class="sd">    :type nbins: integer</span>
+<span class="sd">    :param bin_limits: Bin limits for histogram</span>
+<span class="sd">    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]</span>
 
-<span class="sd">    Returns named tuple: pdf, centerx, centery ** TODO goodify **</span>
+<span class="sd">    :returns: Posterior pdf, x and y bin centers</span>
+<span class="sd">    :rtype: named tuple (pdf: numpy.ndarray, bin_centers_x: \</span>
+<span class="sd">        numpy.ndarray, bin_centers_y: numpy.ndarray)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c"># 2D Histogram the data - pdf is a matrix.</span>
@@ -100,13 +107,22 @@
 <span class="sd">    Maximizes the chi_squared to obtain two-dimensional profile likelihood.</span>
 
 <span class="sd">    :param paramx: Data column of parameter x.</span>
+<span class="sd">    :type paramx: numpy.ndarray</span>
 <span class="sd">    :param paramy: Data column of parameter y.</span>
+<span class="sd">    :type paramy: numpy.ndarray</span>
 <span class="sd">    :param chi_sq: Data column of chi_sq.</span>
+<span class="sd">    :type chi_sq: numpy.ndarray</span>
 <span class="sd">    :param nbins: Number of bins for histogram.</span>
+<span class="sd">    :type nbins: integer</span>
 <span class="sd">    :param bin_limits: Bin limits for histogram.</span>
-<span class="sd">    </span>
-<span class="sd">    Returns named tuple: profchi_sq, proflike, centerx, centery</span>
-<span class="sd">    ** TODO goodify **</span>
+<span class="sd">    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]</span>
+
+<span class="sd">    :returns: Profile chi squared, profile likelihood, x and y bin centers</span>
+<span class="sd">    :rtype: named tuple (\</span>
+<span class="sd">        profchi_sq: numpy.ndarray, \</span>
+<span class="sd">        prof_like: numpy.ndarray, \</span>
+<span class="sd">        bin_center_x: numpy.ndarray, \</span>
+<span class="sd">        bin_center_y: numpy.ndarray)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c"># Bin the data to find bin edges. NB we discard the count</span>
@@ -159,8 +175,7 @@
 <span class="sd">    posterior PDF, above which a point is inside a credible region. I.e. this</span>
 <span class="sd">    function returns :math:`p_\text{critical}` such that</span>
 <span class="sd">    </span>
-<span class="sd">    math::</span>
-<span class="sd">        \int_{p &gt; p_\text{critical}} p(x, y) dx dy = 1. - \alpha</span>
+<span class="sd">    :math:`\int_{p &gt; p_\text{critical}} p(x, y) dx dy = 1. - \alpha`</span>
 <span class="sd">    </span>
 <span class="sd">    The critical density is used to calculate two-dimensional credible regions.</span>
 <span class="sd">    </span>
@@ -177,10 +192,10 @@
 <span class="sd">    :param pdf: Marginalised two-dimensional posterior PDF</span>
 <span class="sd">    :type pdf: numpy.ndarray</span>
 <span class="sd">    :param alpha: Credible region contains :math:`1 - \alpha` of probability</span>
-<span class="sd">    :type alpha: Float</span>
+<span class="sd">    :type alpha: float</span>
 <span class="sd">    </span>
 <span class="sd">    :returns: Critical density for probability alpha</span>
-<span class="sd">    :rtype: Float</span>
+<span class="sd">    :rtype: float</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c"># Normalize posterior PDF so that integral is one, if it wasn&#39;t already</span>
@@ -213,10 +228,10 @@
 <span class="sd">    This is used to plot two dimensional confidence intervals.</span>
 
 <span class="sd">    :param alpha: Confidence level desired</span>
+<span class="sd">    :type alpha: float</span>
 
-<span class="sd">    Returns: critical_prof_like</span>
-<span class="sd">    </span>
-<span class="sd">    ** TODO goodify comment **</span>
+<span class="sd">    :returns: :math:`\Delta \mathcal{L}`</span>
+<span class="sd">    :rtype: numpy.float64</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># First invert alpha to a delta chi-squared with inverse</span>
     <span class="c"># cumalative chi-squared distribution with two degrees of freedom.</span>

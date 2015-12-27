@@ -17,6 +17,7 @@ import statslib.one_dim as one_dim
 from super_gui import open_file_gui
 import data_loader
 
+
 def main():
     # Select chain and info file with a GUI.
     datafile = open_file_gui()
@@ -44,16 +45,25 @@ def main():
             x,
             pw,
             nbins=default("nbins"),
-            bin_limits=default("bin_limits")).bins
-        lowercredibleregion = one_dim.credible_regions(
-            pdf,
-            xc,
-            alpha=default("alpha")).lowercredibleregion
-        uppercredibleregion = one_dim.credible_regions(
-            pdf,
-            xc,
-            alpha=default("alpha")).uppercredibleregion
-        print name, bestfit, postmean, lowercredibleregion[0], uppercredibleregion[0]
+            bin_limits=default("bin_limits")).bin_centers
+
+        try:
+            lowercredibleregion = one_dim.credible_region(
+                pdf,
+                xc,
+                alpha=default("alpha")[0],
+                region="lower")
+        except RuntimeError:
+            lowercredibleregion = 0.0
+        try:
+            uppercredibleregion = one_dim.credible_region(
+                pdf,
+                xc,
+                alpha=default("alpha")[0],
+                region="upper")
+        except RuntimeError:
+            uppercredibleregion = 0.0
+        print name, bestfit, postmean, lowercredibleregion, uppercredibleregion
 
     # Print best-fit information.
     print 'Min ChiSq', data[1].min()

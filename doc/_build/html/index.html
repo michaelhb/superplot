@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to SuperGUI’s documentation! &mdash; SuperGUI 1.0 documentation</title>
+    <title>SuperGUI &mdash; SuperGUI 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -37,8 +37,31 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="welcome-to-supergui-s-documentation">
-<h1>Welcome to SuperGUI&#8217;s documentation!<a class="headerlink" href="#welcome-to-supergui-s-documentation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="supergui">
+<h1>SuperGUI<a class="headerlink" href="#supergui" title="Permalink to this headline">¶</a></h1>
+<p>This is a freestanding version of the plotting software previously in <a class="reference external" href="https://github.com/innisfree/superpy">superpy</a>.</p>
+<p>superplot is a python GUI that plots SuperPy, SuperBayeS (with its information file format) files or generally MultiNest or BAYES-X results. It can calculate and plot:</p>
+<ul class="simple">
+<li>One- and two-dimensional marginalised posterior pdf and credible regions.</li>
+<li>One- and two-dimensional marginalised profile likelihood and confidence intervals.</li>
+<li>Best-fit points.</li>
+<li>Posterior means.</li>
+<li>Three-dimensional scatter plots.</li>
+</ul>
+<div class="section" id="installing">
+<h2>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h2>
+<p>There is, in principle, nothing to install for this program (it is a script), but you might be missing a few required
+python packages, such as numpy, scipy, pylab, matplotlib, pygtk and gtk. These are common packages that should be easy to install on
+any system with a package manager.</p>
+</div>
+<div class="section" id="running">
+<h2>Running<a class="headerlink" href="#running" title="Permalink to this headline">¶</a></h2>
+<p>To start SuperGUI:</p>
+<div class="highlight-python"><div class="highlight"><pre>python SuperGUI.py
+</pre></div>
+</div>
+<p>A GUI window will appear to select a chain. Select e.g. the <cite>.txt</cite> file in the <cite>/examples</cite> sub-directory. A second GUI window will appear to select an information file. Select e.g. the <cite>.info</cite> file in the <cite>/examples</cite> sub-directory. Finally, select the variables and the plot type in the resulting GUI, and click <cite>Make Plot</cite>.</p>
+<p>The buttons etc in the GUI should be self-explanatory. You do not require an <cite>.info</cite> file - if you don&#8217;t have one, press cancel when asked for one, and the chain will be labelled in integers (within the GUI, you can change the axis labels etc anyway).</p>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul class="simple">
@@ -46,12 +69,13 @@
 </div>
 </div>
 <div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
 <li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
 <li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
 </ul>
+</div>
 </div>
 
 
@@ -62,8 +86,12 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Welcome to SuperGUI&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#">SuperGUI</a><ul>
+<li><a class="reference internal" href="#installing">Installing</a></li>
+<li><a class="reference internal" href="#running">Running</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>

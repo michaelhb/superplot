@@ -1,0 +1,272 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>data_loader &mdash; SuperGUI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="SuperGUI 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for data_loader</h1><div class="highlight"><pre>
+<span class="c">##########################################################################</span>
+<span class="c">#                                                                        #</span>
+<span class="c">#     D a ta L o a d e r                                                 #</span>
+<span class="c">#                                                                        #</span>
+<span class="c">##########################################################################</span>
+
+<span class="c"># Code for:</span>
+<span class="c"># - Opening and processing a data file</span>
+<span class="c"># - Opening and processing an info file</span>
+<span class="c"># - Using the info file to label the data</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cPickle</span> <span class="kn">as</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../API.html#data_loader.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">infofile</span><span class="p">,</span> <span class="n">datafile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Import the data used by SuperPlot.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">    datafile - Name of chain file</span>
+<span class="sd">    infofile - Name of info file</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    label -- Dictionary with chain&#39;s labels.</span>
+<span class="sd">    data -- Dictionary with chain.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">open_chain</span><span class="p">(</span><span class="n">datafile</span><span class="p">)</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">read_info</span><span class="p">(</span><span class="n">infofile</span><span class="p">)</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">label_chain</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">label</span><span class="p">,</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="open_chain"><a class="viewcode-back" href="../API.html#data_loader.open_chain">[docs]</a><span class="k">def</span> <span class="nf">open_chain</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Open a text file or serialised data. If opening a text file, serialise data for future plots.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">    filename -- Name of chain file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    data -- Dictionary of chain indexed with integers.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># If serialised data, open it. Else open a data file and serialise data too,</span>
+    <span class="c"># with the same name but with the sl suffix.</span>
+    <span class="n">name</span><span class="p">,</span> <span class="n">extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s">&#39;pkl&#39;</span> <span class="ow">in</span> <span class="n">extension</span><span class="p">:</span>
+        <span class="c"># Open the data from serialised data.</span>
+        <span class="k">print</span> <span class="s">&#39;Opening chain...&#39;</span>
+        <span class="n">serialf</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">serialf</span><span class="p">)</span>
+        <span class="n">serialf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Open the *txt file.</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">open_data_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="c"># Serialize the data for quicker future reading.</span>
+        <span class="k">print</span> <span class="s">&#39;Dumping chain...&#39;</span>
+        <span class="n">serialf</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;.pkl&#39;</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span>
+        <span class="c"># Try to catch memory errors.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">serialf</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">MemoryError</span>
+        <span class="n">serialf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">print</span> <span class="s">&#39;Success: returning chain.&#39;</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="open_data_file"><a class="viewcode-back" href="../API.html#data_loader.open_data_file">[docs]</a><span class="k">def</span> <span class="nf">open_data_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Open a text file and return dictonary of numpy arrays of data.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">    filename -- Name of chain file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    data -- Dictionary of chain indexed with integers.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Find size of text file.</span>
+
+    <span class="c"># Find number of columns</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+
+    <span class="c"># Try quick approximate method that might fail for number of rows.</span>
+
+    <span class="c"># Find total length of file with seek.</span>
+    <span class="n">dataf</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
+    <span class="n">dataf</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c"># Go to final line.</span>
+    <span class="n">datalen</span> <span class="o">=</span> <span class="n">dataf</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>  <span class="c"># Read position.</span>
+    <span class="n">dataf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c"># Find length of a single row.</span>
+    <span class="n">rowlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readline</span><span class="p">())</span>
+
+    <span class="c"># If rows are equal in length, rows = datalen / rowlen.</span>
+    <span class="k">if</span> <span class="n">datalen</span> <span class="o">%</span> <span class="n">rowlen</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c"># Quick method.</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">datalen</span> <span class="o">/</span> <span class="n">rowlen</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Slow method.</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span>
+
+    <span class="c"># Initialise data as dictionary of arrays.</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+
+    <span class="c"># Populate data - NB we convert from string to float.</span>
+    <span class="k">print</span> <span class="s">&#39;Opening chain...&#39;</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()):</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="read_info"><a class="viewcode-back" href="../API.html#data_loader.read_info">[docs]</a><span class="k">def</span> <span class="nf">read_info</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Read labels from a SuperBayeS style info file. &quot;&quot;&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">label</span>
+
+    <span class="n">info</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+        <span class="c"># Look for labX=string.</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;lab&#39;</span><span class="p">):</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+                            <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s">&#39;lab&#39;</span><span class="p">)</span> <span class="o">+</span>
+                            <span class="s">&quot;(.*)&quot;</span> <span class="o">+</span>
+                            <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">),</span>
+                            <span class="n">line</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="c"># Correct index - SuperBayeS info files begin at 1, and ignore</span>
+            <span class="c"># posterior weight and ChiSq in positions 0 and 1 of the chain.</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">label</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">string</span>
+
+    <span class="n">info</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c"># Add posterior weight and ChiSq.</span>
+    <span class="n">label</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;$p_i$&#39;</span>
+    <span class="n">label</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;$\chi^2$&#39;</span>
+
+    <span class="k">return</span> <span class="n">label</span></div>
+
+
+<div class="viewcode-block" id="label_chain"><a class="viewcode-back" href="../API.html#data_loader.label_chain">[docs]</a><span class="k">def</span> <span class="nf">label_chain</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Match labels to the data.</span>
+<span class="sd">    i) Check if labels match data. </span>
+<span class="sd">    ii) If they don&#39;t, use data indicies.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">    data -- Data chain, to match arguments with.</span>
+<span class="sd">    info -- Loaded contents of info file</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">    label -- Dictonary of labels, indexed with the same</span>
+<span class="sd">    indicies as the data chain.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="n">info</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&quot;Warning: length of info file did not match chain.&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Missing labels are integers.&quot;</span>
+        <span class="c"># Label all unlabelled columns with integers.</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">label</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">label</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>  <span class="c"># NB convert integer index to string</span>
+
+    <span class="k">return</span> <span class="n">label</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Andrew Fowlie, Michael Bardsley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

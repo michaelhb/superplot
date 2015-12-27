@@ -1,0 +1,352 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>super_gui &mdash; SuperGUI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="SuperGUI 1.0 documentation" href="index.html" />
+    <link rel="prev" title="SuperGUI" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="super-gui">
+<h1>super_gui<a class="headerlink" href="#super-gui" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="module-statslib.point">
+<span id="statslib"></span><h1>statslib<a class="headerlink" href="#module-statslib.point" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="statslib.point.best_fit">
+<code class="descclassname">statslib.point.</code><code class="descname">best_fit</code><span class="sig-paren">(</span><em>chisq</em>, <em>param</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/point.html#best_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.point.best_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the best-fit.</p>
+<p>Arguments:
+chisq &#8211; Data column of chi-squared.
+param &#8211; Data column of parameter.</p>
+<p>Returns:
+bestfit &#8211; The best-fit point.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="statslib.point.p_value">
+<code class="descclassname">statslib.point.</code><code class="descname">p_value</code><span class="sig-paren">(</span><em>chisq</em>, <em>dof</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/point.html#p_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.point.p_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the pvalue.</p>
+<p>Arguments:
+chisq &#8211; Data column of chi-squared.
+dof &#8211; Number of degrees of freedom.</p>
+<p>Returns:
+pvalue &#8211; A p-value for the given chisq, dof.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="statslib.point.posterior_mean">
+<code class="descclassname">statslib.point.</code><code class="descname">posterior_mean</code><span class="sig-paren">(</span><em>posterior</em>, <em>param</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/point.html#posterior_mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.point.posterior_mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the posterior mean.</p>
+<p>Arguments:
+posterior &#8211; Data column of posterior weight.
+param &#8211; Data column of parameter.</p>
+<p>Returns:
+postmean - The posterior mean.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="statslib.point.shift">
+<code class="descclassname">statslib.point.</code><code class="descname">shift</code><span class="sig-paren">(</span><em>bin_number</em>, <em>nbins</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/point.html#shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.point.shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify bin numbers so that bin numbers,
+initially (0, nbins + 1) because numpy uses extra bins for outliers,
+match array indices (0, nbins - 1).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bin_number</strong> (<em>integer</em>) &#8211; A bin number</li>
+<li><strong>nbins</strong> (<em>integer</em>) &#8211; Total number of bins</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Shifted bin number</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">integer</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-statslib.one_dim"></span><dl class="function">
+<dt id="statslib.one_dim.conf_interval">
+<code class="descclassname">statslib.one_dim.</code><code class="descname">conf_interval</code><span class="sig-paren">(</span><em>chi_sq</em>, <em>bin_centers</em>, <em>alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/one_dim.html#conf_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.one_dim.conf_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate one dimensional confidence interval.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Confidence intervals are are not contiguous. 
+We have to specify whether each bin is inside or outside of a 
+confidence interval.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>chi_sq</strong> &#8211; Data column of profiled chi-squared</li>
+<li><strong>bin_centers</strong> &#8211; Data column of parameter at bin centers</li>
+<li><strong>alpha</strong> &#8211; Probability level</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns named tuple:
+deltachisq, confint ** TODO goodify **</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="statslib.one_dim.credible_region">
+<code class="descclassname">statslib.one_dim.</code><code class="descname">credible_region</code><span class="sig-paren">(</span><em>pdf</em>, <em>bin_centers</em>, <em>alpha</em>, <em>region</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/one_dim.html#credible_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.one_dim.credible_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate one-dimensional credible region. Find <span class="math">\(a\)</span> such that</p>
+<div class="math">
+\[\int_{-\infnty}^{a} p(x) dx = 1 - \alpha / 2\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>pdf</strong> &#8211; Data column of marginalised posterior PDF</li>
+<li><strong>bin_centers</strong> &#8211; Data column of parameter at bin centers</li>
+<li><strong>alpha</strong> &#8211; Probability level</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Region:</th><td class="field-body"><p class="first">Upper of lower interval</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Bin center of edge of credible region</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="statslib.one_dim.posterior_pdf">
+<code class="descclassname">statslib.one_dim.</code><code class="descname">posterior_pdf</code><span class="sig-paren">(</span><em>parameter</em>, <em>posterior</em>, <em>nbins=50</em>, <em>bin_limits=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/one_dim.html#posterior_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.one_dim.posterior_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weighted histogram of data for posterior PDF.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>parameter</strong> &#8211; Data column of parameter of interest</li>
+<li><strong>posterior</strong> &#8211; Data column of posterior weight, same length as data</li>
+<li><strong>nbins</strong> (<em>integer</em>) &#8211; Number of bins for histogram</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Bin_limits:</th><td class="field-body"><p class="first">Bin limits for histogram</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">pdf - posterior PDF - and bin_centers - centers of     bins for probability distribution</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">named tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="statslib.one_dim.prof_data">
+<code class="descclassname">statslib.one_dim.</code><code class="descname">prof_data</code><span class="sig-paren">(</span><em>parameter</em>, <em>chi_sq</em>, <em>nbins=50</em>, <em>bin_limits=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/one_dim.html#prof_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.one_dim.prof_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximizes the likelihood in each bin to obtain the profile likelihood and
+profile chi-squared.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>parameter</strong> &#8211; Data column of parameter of interest</li>
+<li><strong>chi_sq</strong> &#8211; Data column of chi-squared, same length as data</li>
+<li><strong>nbins</strong> (<em>integer</em>) &#8211; Number of bins for histogram</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Bin_limits:</th><td class="field-body"><p class="first">Bin limits for histogram</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">named tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="plotlib">
+<h1>plotlib<a class="headerlink" href="#plotlib" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="module-data_loader">
+<span id="data-loader"></span><h1>data_loader<a class="headerlink" href="#module-data_loader" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="data_loader.label_chain">
+<code class="descclassname">data_loader.</code><code class="descname">label_chain</code><span class="sig-paren">(</span><em>data</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data_loader.html#label_chain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data_loader.label_chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Match labels to the data.
+i) Check if labels match data. 
+ii) If they don&#8217;t, use data indicies.</p>
+<p>Arguments:
+data &#8211; Data chain, to match arguments with.
+info &#8211; Loaded contents of info file</p>
+<p>Return:
+label &#8211; Dictonary of labels, indexed with the same
+indicies as the data chain.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="data_loader.load">
+<code class="descclassname">data_loader.</code><code class="descname">load</code><span class="sig-paren">(</span><em>infofile</em>, <em>datafile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data_loader.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data_loader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import the data used by SuperPlot.</p>
+<p>Arguments:
+datafile - Name of chain file
+infofile - Name of info file</p>
+<p>Returns:
+label &#8211; Dictionary with chain&#8217;s labels.
+data &#8211; Dictionary with chain.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="data_loader.open_chain">
+<code class="descclassname">data_loader.</code><code class="descname">open_chain</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data_loader.html#open_chain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data_loader.open_chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open a text file or serialised data. If opening a text file, serialise data for future plots.</p>
+<p>Arguments:
+filename &#8211; Name of chain file.</p>
+<p>Returns:
+data &#8211; Dictionary of chain indexed with integers.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="data_loader.open_data_file">
+<code class="descclassname">data_loader.</code><code class="descname">open_data_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data_loader.html#open_data_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data_loader.open_data_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open a text file and return dictonary of numpy arrays of data.</p>
+<p>Arguments:
+filename &#8211; Name of chain file.</p>
+<p>Returns:
+data &#8211; Dictionary of chain indexed with integers.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="data_loader.read_info">
+<code class="descclassname">data_loader.</code><code class="descname">read_info</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data_loader.html#read_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data_loader.read_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read labels from a SuperBayeS style info file.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="plot-options">
+<h1>plot_options<a class="headerlink" href="#plot-options" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="schemes">
+<h1>schemes<a class="headerlink" href="#schemes" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="summary">
+<h1>summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h1>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">super_gui</a></li>
+<li><a class="reference internal" href="#module-statslib.point">statslib</a></li>
+<li><a class="reference internal" href="#plotlib">plotlib</a></li>
+<li><a class="reference internal" href="#module-data_loader">data_loader</a></li>
+<li><a class="reference internal" href="#plot-options">plot_options</a></li>
+<li><a class="reference internal" href="#schemes">schemes</a></li>
+<li><a class="reference internal" href="#summary">summary</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">SuperGUI</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/API.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Andrew Fowlie, Michael Bardsley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/API.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

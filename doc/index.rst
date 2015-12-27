@@ -5,12 +5,13 @@
 
 .. include:: ../README.rst
 
-Contents:
+API
+===
 
 .. toctree::
    :maxdepth: 2
 
-
+   API.rst
 
 Indices and tables
 ==================

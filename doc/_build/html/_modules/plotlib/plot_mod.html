@@ -1,0 +1,372 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>plotlib.plot_mod &mdash; SuperGUI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="SuperGUI 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plotlib.plot_mod</h1><div class="highlight"><pre>
+<span class="c">##########################################################################</span>
+<span class="c">#                                                                       #</span>
+<span class="c">#     P l o t   M o d                                                   #</span>
+<span class="c">#                                                                       #</span>
+<span class="c">#########################################################################</span>
+
+<span class="c"># General functions for plotting data, defined once so that they can be used/edited</span>
+<span class="c"># in a consistent manner.</span>
+
+<span class="c"># Python modules</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="c"># External modules.</span>
+<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">AutoMinorLocator</span>
+<span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="plot_data"><a class="viewcode-back" href="../../API.html#plotlib.plot_mod.plot_data">[docs]</a><span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">scheme</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Plot a point with a particular color scheme.</span>
+
+<span class="sd">    :param x: Data to be plotted on x-axis</span>
+<span class="sd">    :param y: Data to be plotted on y-axis</span>
+<span class="sd">    :param scheme: Object containing plot options</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="n">y</span><span class="p">,</span>
+        <span class="n">scheme</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">scheme</span><span class="o">.</span><span class="n">colour</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="n">scheme</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+        <span class="n">ms</span><span class="o">=</span><span class="n">scheme</span><span class="o">.</span><span class="n">size</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="appearance"><a class="viewcode-back" href="../../API.html#plotlib.plot_mod.appearance">[docs]</a><span class="k">def</span> <span class="nf">appearance</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Specify the plot&#39;s appearance, with e.g. font types etc.</span>
+<span class="sd">    from an mplstyle file.</span>
+<span class="sd">    </span>
+<span class="sd">    .. Warning: If the user wants LaTeX, we first check if the &#39;latex&#39; \</span>
+<span class="sd">        shell command is available (as this is what matplotlib uses to \</span>
+<span class="sd">        interface with LaTeX). If it isn&#39;t, we issue a warning and fall \</span>
+<span class="sd">        back to mathtext. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s">&quot;./default.mplstyle&quot;</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">rcParams</span><span class="p">[</span><span class="s">&quot;text.usetex&quot;</span><span class="p">]:</span>
+        <span class="c"># Check if LaTeX is available</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;latex&quot;</span><span class="p">,</span> <span class="s">&quot;-version&quot;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">rc</span><span class="p">(</span><span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="n">usetex</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s">&quot;Cannot find `latex` command. &quot;</span>
+                    <span class="s">&quot;Using matplotlib&#39;s mathtext.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="legend"><a class="viewcode-back" href="../../API.html#plotlib.plot_mod.legend">[docs]</a><span class="k">def</span> <span class="nf">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Turn on the legend.</span>
+<span class="sd">    </span>
+<span class="sd">    .. Warning::</span>
+<span class="sd">        Legend properties specfied in by mplstyle, but could be</span>
+<span class="sd">        overridden here.</span>
+<span class="sd">    </span>
+<span class="sd">    :param title: Title of legend</span>
+<span class="sd">    :type title: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;size&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">},</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="plot_limits"><a class="viewcode-back" href="../../API.html#plotlib.plot_mod.plot_limits">[docs]</a><span class="k">def</span> <span class="nf">plot_limits</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    If specified plot limits, set them.</span>
+
+<span class="sd">    :param ax: Axis object</span>
+<span class="sd">    :param plot_limits: Array of plot limits in order xmin, xmax, ymin, ymax</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">limits</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">limits</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span></div>
+
+
+<div class="viewcode-block" id="plot_ticks"><a class="viewcode-back" href="../../API.html#plotlib.plot_mod.plot_ticks">[docs]</a><span class="k">def</span> <span class="nf">plot_ticks</span><span class="p">(</span><span class="n">xticks</span><span class="p">,</span> <span class="n">yticks</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Set the numbers of ticks on the axis.</span>
+
+<span class="sd">    :param ax: Axis object</span>
+<span class="sd">    :param xticks: Number of required major x ticks</span>
+<span class="sd">    :param yticks: Number of required major y ticks</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Set major x, y ticks</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MaxNLocator</span><span class="p">(</span><span class="n">xticks</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MaxNLocator</span><span class="p">(</span><span class="n">yticks</span><span class="p">))</span>
+    <span class="c"># Auto minor x and y ticks</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">AutoMinorLocator</span><span class="p">())</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">AutoMinorLocator</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="plot_labels"><a class="viewcode-back" href="../../API.html#plotlib.plot_mod.plot_labels">[docs]</a><span class="k">def</span> <span class="nf">plot_labels</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">plot_title</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Plot axis labels.</span>
+
+<span class="sd">    :param xlabel: Label for x-axis</span>
+<span class="sd">    :param ylabel: Label for y-axis</span>
+<span class="sd">    :param plot_title: Title appearing above plot</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">plot_title</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_image"><a class="viewcode-back" href="../../API.html#plotlib.plot_mod.plot_image">[docs]</a><span class="k">def</span> <span class="nf">plot_image</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">bin_limits</span><span class="p">,</span> <span class="n">plot_limits</span><span class="p">,</span> <span class="n">scheme</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Plot data as an image.</span>
+<span class="sd">    </span>
+<span class="sd">    .. Warning::</span>
+<span class="sd">        Interpolating perhaps misleads. If you don&#39;t want it set</span>
+<span class="sd">        interpolation=&#39;nearest&#39;. </span>
+<span class="sd">        </span>
+<span class="sd">    :param data: x-, y- and z-data</span>
+<span class="sd">    :param bin_limits: Bin limits</span>
+<span class="sd">    :param plot_limits: Plot limits</span>
+<span class="sd">    :param scheme: Object containing appearance options, colours etc</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Flatten bin limits</span>
+    <span class="n">bin_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">bin_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+             <span class="n">bin_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+             <span class="n">bin_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+             <span class="n">bin_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="c"># Set the aspect so that resulting figure is a square</span>
+    <span class="n">aspect</span> <span class="o">=</span> <span class="p">(</span><span class="n">plot_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">plot_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">plot_limits</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">plot_limits</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="c"># imshow is annoying - it reads (y, x) rather than (x, y) so we take </span>
+    <span class="c"># transpose.</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">im</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> 
+                        <span class="n">cmap</span><span class="o">=</span><span class="n">scheme</span><span class="o">.</span><span class="n">colour_map</span><span class="p">,</span> 
+                        <span class="n">extent</span><span class="o">=</span><span class="n">bin_limits</span><span class="p">,</span>
+                        <span class="n">interpolation</span><span class="o">=</span><span class="s">&#39;bilinear&#39;</span><span class="p">,</span> 
+                        <span class="n">label</span><span class="o">=</span><span class="n">scheme</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                        <span class="n">origin</span><span class="o">=</span><span class="s">&#39;lower&#39;</span><span class="p">,</span> 
+                        <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">)</span>
+    <span class="c"># Plot a colour bar</span>
+    <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">im</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="c"># Set reasonable number of ticks</span>
+    <span class="n">cb</span><span class="o">.</span><span class="n">locator</span> <span class="o">=</span> <span class="n">MaxNLocator</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">cb</span><span class="o">.</span><span class="n">update_ticks</span><span class="p">()</span>
+    <span class="c"># Colour bar label</span>
+    <span class="n">cb</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">scheme</span><span class="o">.</span><span class="n">colour_bar_title</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_contour"><a class="viewcode-back" href="../../API.html#plotlib.plot_mod.plot_contour">[docs]</a><span class="k">def</span> <span class="nf">plot_contour</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">levels</span><span class="p">,</span> <span class="n">scheme</span><span class="p">,</span> <span class="n">bin_limits</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Make unfilled contours for a plot.</span>
+
+<span class="sd">    :param xdata: x-axis data</span>
+<span class="sd">    :param ydata: y-axis data</span>
+<span class="sd">    :param data: Data to be contoured</span>
+<span class="sd">    :param levels: Levels at which to draw contours</span>
+<span class="sd">    :param scheme: Object containing appearance options, colours etc</span>
+<span class="sd">    :param bin_limits: Bin limits</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Flatten bin limits.</span>
+    <span class="n">bin_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">bin_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+             <span class="n">bin_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+             <span class="n">bin_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+             <span class="n">bin_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="c"># Make the contours of the levels.</span>
+    <span class="n">cset</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+            <span class="n">levels</span><span class="p">,</span>
+            <span class="n">colors</span><span class="o">=</span><span class="n">scheme</span><span class="o">.</span><span class="n">colour</span><span class="p">,</span>
+            <span class="n">hold</span><span class="o">=</span><span class="s">&#39;on&#39;</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="n">bin_limits</span><span class="p">,</span>
+            <span class="n">interpolation</span><span class="o">=</span><span class="s">&#39;bilinear&#39;</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">linestyles</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;--&#39;</span><span class="p">,</span> <span class="s">&#39;-&#39;</span><span class="p">])</span>
+
+    <span class="c"># Set the contour labels - they will show labels</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cset</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span> <span class="n">scheme</span><span class="o">.</span><span class="n">level_names</span><span class="p">))</span>
+
+    <span class="c"># Plot inline labels on contours.</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">cset</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="s">&#39;on&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_filled_contour"><a class="viewcode-back" href="../../API.html#plotlib.plot_mod.plot_filled_contour">[docs]</a><span class="k">def</span> <span class="nf">plot_filled_contour</span><span class="p">(</span>
+        <span class="n">xdata</span><span class="p">,</span>
+        <span class="n">ydata</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">levels</span><span class="p">,</span>
+        <span class="n">scheme</span><span class="p">,</span>
+        <span class="n">bin_limits</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Make filled contours for a plot.</span>
+
+<span class="sd">    :param xdata: x-axis data</span>
+<span class="sd">    :param ydata: y-axis data</span>
+<span class="sd">    :param data: Data to be contoured</span>
+<span class="sd">    :param levels: Levels at which to draw contours</span>
+<span class="sd">    :param names: Labels for the contour levels</span>
+<span class="sd">    :param scheme: Object containing appearance options, colours etc</span>
+<span class="sd">    :param bin_limits: Bin limits</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Flatten bin limits</span>
+    <span class="n">bin_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">bin_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+             <span class="n">bin_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+             <span class="n">bin_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+             <span class="n">bin_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="c"># We need to ensure levels are in ascending order, and append the </span>
+    <span class="c"># list with one. This makes n intervals (between n + 1 values) that will </span>
+    <span class="c"># be shown with colours.</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">levels</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+
+    <span class="c"># Filled contours.</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> 
+                 <span class="n">levels</span><span class="p">,</span>
+                 <span class="n">colors</span><span class="o">=</span><span class="n">scheme</span><span class="o">.</span><span class="n">colours</span><span class="p">,</span>
+                 <span class="n">hold</span><span class="o">=</span><span class="s">&#39;on&#39;</span><span class="p">,</span> 
+                 <span class="n">extent</span><span class="o">=</span><span class="n">bin_limits</span><span class="p">,</span>
+                 <span class="n">interpolation</span><span class="o">=</span><span class="s">&#39;bilinear&#39;</span><span class="p">,</span> 
+                 <span class="n">origin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+    <span class="c"># Plot a proxy for the legend - plot spurious data outside bin limits,</span>
+    <span class="c"># with legend entry matching colours of filled contours.</span>
+    <span class="n">x_outside</span> <span class="o">=</span> <span class="mf">1E1</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">bin_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">y_outside</span> <span class="o">=</span> <span class="mf">1E1</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">bin_limits</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">scheme</span><span class="o">.</span><span class="n">level_names</span><span class="p">,</span> <span class="n">scheme</span><span class="o">.</span><span class="n">colours</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_outside</span><span class="p">,</span>
+                 <span class="n">y_outside</span><span class="p">,</span>
+                 <span class="s">&#39;s&#39;</span><span class="p">,</span>
+                 <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                 <span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                 <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+                 <span class="n">ms</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_band"><a class="viewcode-back" href="../../API.html#plotlib.plot_mod.plot_band">[docs]</a><span class="k">def</span> <span class="nf">plot_band</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">scheme</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Plot a band around a line.</span>
+<span class="sd">    </span>
+<span class="sd">    This is typically for a theoretical error. Vary x by +/- width</span>
+<span class="sd">    and find the variation in y. Fill between these largest </span>
+<span class="sd">    and smallest y for a given x.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">    :param x_data: x-data to be plotted</span>
+<span class="sd">    :param y_data: y-data to be plotted</span>
+<span class="sd">    :param width: Width of band - it is this width on the left and right hand-side</span>
+<span class="sd">    :param ax: An axis object to plot the band on</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># For a given x, find largest/smallest y within x \pm width</span>
+    <span class="n">upper_y</span> <span class="o">=</span> <span class="n">lower_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_data</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x_data</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">x_prime</span><span class="p">,</span> <span class="n">y_prime</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x_prime</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">width</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">y_prime</span> <span class="o">&lt;</span> <span class="n">lower_y</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
+                    <span class="n">lower_y</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_prime</span>
+                <span class="k">elif</span> <span class="n">y_prime</span> <span class="o">&gt;</span> <span class="n">upper_y</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
+                    <span class="n">upper_y</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_prime</span>
+
+    <span class="c"># Finally plot</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">lower_y</span><span class="p">,</span> <span class="n">upper_y</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">scheme</span><span class="o">.</span><span class="n">colour</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    
+    <span class="c"># Proxy for legend</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">scheme</span><span class="o">.</span><span class="n">colour</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">scheme</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> 
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> 
+            <span class="n">ms</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Andrew Fowlie, Michael Bardsley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>plot_options &mdash; SuperGUI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="SuperGUI 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plot_options</h1><div class="highlight"><pre>
+<span class="c">#########################################################################</span>
+<span class="c">#                                                                       #</span>
+<span class="c">#    P l o t O p t i o n s                                              #</span>
+<span class="c">#                                                                       #</span>
+<span class="c">#########################################################################</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A named tuple to represent the plot options as selected in the UI.</span>
+<span class="sd">Also loads default values from config.yml and makes them available.</span>
+
+<span class="sd">TODO: This module should also do a reasonable amount of validation</span>
+<span class="sd">      of config variables.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="n">plot_options</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;plot_options&quot;</span><span class="p">,</span> <span class="p">(</span>
+    <span class="c"># Data</span>
+    <span class="s">&quot;xindex&quot;</span><span class="p">,</span>  <span class="c"># Index of x axis data</span>
+    <span class="s">&quot;yindex&quot;</span><span class="p">,</span>  <span class="c"># Index of y axis data</span>
+    <span class="s">&quot;zindex&quot;</span><span class="p">,</span>  <span class="c"># Index of z axis data</span>
+    <span class="s">&quot;logx&quot;</span><span class="p">,</span>  <span class="c"># Apply log scale to xdata</span>
+    <span class="s">&quot;logy&quot;</span><span class="p">,</span>  <span class="c"># Apply log scale to ydata</span>
+    <span class="s">&quot;logz&quot;</span><span class="p">,</span>  <span class="c"># Apply log scale to zdata</span>
+
+    <span class="c"># Limits, bins, ticks</span>
+    <span class="s">&quot;plot_limits&quot;</span><span class="p">,</span>  <span class="c"># Plot limits [xmin, xmax, ymin, ymax]</span>
+    <span class="s">&quot;bin_limits&quot;</span><span class="p">,</span>  <span class="c"># Bin limits [[xmin, xmax], [ymin, ymax]]</span>
+    <span class="s">&quot;nbins&quot;</span><span class="p">,</span>  <span class="c"># Number of bins</span>
+    <span class="s">&quot;xticks&quot;</span><span class="p">,</span>  <span class="c"># Number of x ticks</span>
+    <span class="s">&quot;yticks&quot;</span><span class="p">,</span>  <span class="c"># Number of y ticks</span>
+
+    <span class="s">&quot;alpha&quot;</span><span class="p">,</span>  <span class="c"># Values of alpha in asc. order [float, float]</span>
+    <span class="s">&quot;tau&quot;</span><span class="p">,</span>  <span class="c"># Theoretical error width on delta chi-squared plots.</span>
+
+    <span class="c"># Size and labels</span>
+    <span class="s">&quot;size&quot;</span><span class="p">,</span>  <span class="c"># Size in inches [x, y]</span>
+    <span class="s">&quot;xlabel&quot;</span><span class="p">,</span>  <span class="c"># Label for x axis</span>
+    <span class="s">&quot;ylabel&quot;</span><span class="p">,</span>  <span class="c"># Label for y axis</span>
+    <span class="s">&quot;zlabel&quot;</span><span class="p">,</span>  <span class="c"># Label for z axis</span>
+    <span class="s">&quot;plot_title&quot;</span><span class="p">,</span>  <span class="c"># Title of plot</span>
+    <span class="s">&quot;leg_title&quot;</span>  <span class="c"># Plot legend</span>
+<span class="p">))</span>
+
+<span class="c"># Store a dictionary of default options from config.yml</span>
+<span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="s">&quot;config.yml&quot;</span>
+<span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfile</span><span class="p">:</span>
+    <span class="n">_defaults</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cfile</span><span class="p">)[</span><span class="s">&quot;plot_options&quot;</span><span class="p">]</span>
+
+<span class="c"># Fix the types of a few options. It would also be</span>
+<span class="c"># possible to directly specify the types in the YAML file,</span>
+<span class="c"># but that might confuse users / be messy.</span>
+<span class="k">if</span> <span class="n">_defaults</span><span class="p">[</span><span class="s">&quot;alpha&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">_defaults</span><span class="p">[</span><span class="s">&quot;alpha&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_defaults</span><span class="p">[</span><span class="s">&quot;alpha&quot;</span><span class="p">])</span>
+<span class="k">if</span> <span class="n">_defaults</span><span class="p">[</span><span class="s">&quot;plot_limits&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">_defaults</span><span class="p">[</span><span class="s">&quot;plot_limits&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_defaults</span><span class="p">[</span><span class="s">&quot;plot_limits&quot;</span><span class="p">])</span>
+<span class="k">if</span> <span class="n">_defaults</span><span class="p">[</span><span class="s">&quot;size&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">_defaults</span><span class="p">[</span><span class="s">&quot;size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_defaults</span><span class="p">[</span><span class="s">&quot;size&quot;</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="default"><a class="viewcode-back" href="../API.html#plot_options.default">[docs]</a><span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="n">option</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve the default value of a plot option.</span>
+<span class="sd">    </span>
+<span class="sd">    Arguments:</span>
+<span class="sd">    option - the name of the option</span>
+<span class="sd">    </span>
+<span class="sd">    Returns: </span>
+<span class="sd">    - default value of option</span>
+<span class="sd">    </span>
+<span class="sd">    If no default is available, prints an error message and raises</span>
+<span class="sd">    a KeyError.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_defaults</span><span class="p">[</span><span class="n">option</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;plot_options: No default specified for option: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Andrew Fowlie, Michael Bardsley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -38,8 +38,29 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="super-gui">
-<h1>super_gui<a class="headerlink" href="#super-gui" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-super_gui">
+<span id="super-gui"></span><h1>super_gui<a class="headerlink" href="#module-super_gui" title="Permalink to this headline">¶</a></h1>
+<p>G U I   P l o t t i n g</p>
+<p>Run this GUI interactively to look at your results.
+Project: SuperPlot.
+Author: Andrew Fowlie, KBFI, Tallinn.
+Version: 1.1.</p>
+<dl class="function">
+<dt id="super_gui.open_file_gui">
+<code class="descclassname">super_gui.</code><code class="descname">open_file_gui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/super_gui.html#open_file_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#super_gui.open_file_gui" title="Permalink to this definition">¶</a></dt>
+<dd><p>GUI for opening a file with a file browser.</p>
+<p>Return:
+filename &#8211; Name of file selected with GUI.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="super_gui.save_file_gui">
+<code class="descclassname">super_gui.</code><code class="descname">save_file_gui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/super_gui.html#save_file_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#super_gui.save_file_gui" title="Permalink to this definition">¶</a></dt>
+<dd><p>GUI for saving a file with a file browser.</p>
+<p>Return:
+filename &#8211; Name of file selected with GUI.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-statslib.point">
 <span id="statslib"></span><h1>statslib<a class="headerlink" href="#module-statslib.point" title="Permalink to this headline">¶</a></h1>
@@ -227,9 +248,415 @@ profile chi-squared.</p>
 </dd></dl>
 
 </div>
+<span class="target" id="module-statslib.two_dim"></span><div class="section" id="two-dimensional-statistical-functions">
+<h2>Two Dimensional Statistical Functions<a class="headerlink" href="#two-dimensional-statistical-functions" title="Permalink to this headline">¶</a></h2>
+<p>This module contains all the functions for analysing a chain (<a href="#id3"><span class="problematic" id="id4">*</span></a>.txt file)
+and calculating the 2D stats for a particular pair of variables.</p>
+<dl class="function">
+<dt id="statslib.two_dim.critical_density">
+<code class="descclassname">statslib.two_dim.</code><code class="descname">critical_density</code><span class="sig-paren">(</span><em>pdf</em>, <em>alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/two_dim.html#critical_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.two_dim.critical_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate &#8220;critical density&#8221; from marginalised pdf.</p>
+<p>Credible regions are the smallest regions that contain a given 
+fraction of the total posterior PDF. This is in fact the &#8220;densest&#8221; region
+of the posterior PDF. There is, therefore, a &#8220;critical density&#8221; of
+posterior PDF, above which a point is inside a credible region. I.e. this
+function returns <span class="math">\(p_\text{critical}\)</span> such that</p>
+<dl class="docutils">
+<dt>math::</dt>
+<dd>int_{p &gt; <a href="#id5"><span class="problematic" id="id6">p_</span></a>text{critical}} p(x, y) dx dy = 1. - alpha</dd>
+</dl>
+<p>The critical density is used to calculate two-dimensional credible regions.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">One-dimensional credible regions do not use a critical density.</p>
 </div>
-<div class="section" id="plotlib">
-<h1>plotlib<a class="headerlink" href="#plotlib" title="Permalink to this headline">¶</a></h1>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The critical density is not invariant under reparameterisations.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Critical density is normalized such that integrated posterior PDF
+equals 1.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>pdf</strong> (<em>numpy.ndarray</em>) &#8211; Marginalised two-dimensional posterior PDF</li>
+<li><strong>alpha</strong> (<em>Float</em>) &#8211; Credible region contains <span class="math">\(1 - \alpha\)</span> of probability</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Critical density for probability alpha</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="statslib.two_dim.critical_prof_like">
+<code class="descclassname">statslib.two_dim.</code><code class="descname">critical_prof_like</code><span class="sig-paren">(</span><em>alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/two_dim.html#critical_prof_like"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.two_dim.critical_prof_like" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use confidence levels to calculate <span class="math">\(\Delta \mathcal{L}\)</span></p>
+<p>This is used to plot two dimensional confidence intervals.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>alpha</strong> &#8211; Confidence level desired</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: critical_prof_like</p>
+<p>** TODO goodify comment **</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="statslib.two_dim.posterior_pdf">
+<code class="descclassname">statslib.two_dim.</code><code class="descname">posterior_pdf</code><span class="sig-paren">(</span><em>paramx</em>, <em>paramy</em>, <em>posterior</em>, <em>nbins=50</em>, <em>bin_limits=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/two_dim.html#posterior_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.two_dim.posterior_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Histograms the chosen parameters to obtain two-dimensional PDF.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>paramx</strong> &#8211; Data column of parameter x.</li>
+<li><strong>paramy</strong> &#8211; Data column of parameter y.</li>
+<li><strong>posterior</strong> &#8211; Data column of posterior weight.</li>
+<li><strong>nbins</strong> &#8211; Number of bins for histogram.</li>
+<li><strong>bin_limits</strong> &#8211; Bin limits for histogram.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns named tuple: pdf, centerx, centery ** TODO goodify **</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="statslib.two_dim.profile_like">
+<code class="descclassname">statslib.two_dim.</code><code class="descname">profile_like</code><span class="sig-paren">(</span><em>paramx</em>, <em>paramy</em>, <em>chi_sq</em>, <em>nbins</em>, <em>bin_limits=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/statslib/two_dim.html#profile_like"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#statslib.two_dim.profile_like" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximizes the chi_squared to obtain two-dimensional profile likelihood.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>paramx</strong> &#8211; Data column of parameter x.</li>
+<li><strong>paramy</strong> &#8211; Data column of parameter y.</li>
+<li><strong>chi_sq</strong> &#8211; Data column of chi_sq.</li>
+<li><strong>nbins</strong> &#8211; Number of bins for histogram.</li>
+<li><strong>bin_limits</strong> &#8211; Bin limits for histogram.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns named tuple: profchi_sq, proflike, centerx, centery
+** TODO goodify **</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-plotlib.base">
+<span id="plotlib"></span><h1>plotlib<a class="headerlink" href="#module-plotlib.base" title="Permalink to this headline">¶</a></h1>
+<p>Abstract base classes for plots.</p>
+<dl class="class">
+<dt id="plotlib.base.OneDimPlot">
+<em class="property">class </em><code class="descclassname">plotlib.base.</code><code class="descname">OneDimPlot</code><span class="sig-paren">(</span><em>data</em>, <em>plot_options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/base.html#OneDimPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.base.OneDimPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for one dimensional plot types.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="plotlib.base.Plot">
+<em class="property">class </em><code class="descclassname">plotlib.base.</code><code class="descname">Plot</code><span class="sig-paren">(</span><em>data</em>, <em>plot_options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/base.html#Plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.base.Plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all plot types. Specifies interface for
+creating a plot object, and getting the figure associated
+with it. Does any common preprocessing / init (IE log scaling).</p>
+<dl class="method">
+<dt id="plotlib.base.Plot.figure">
+<code class="descname">figure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/base.html#Plot.figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.base.Plot.figure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the pyplot figure associated with this plot</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="plotlib.base.TwoDimPlot">
+<em class="property">class </em><code class="descclassname">plotlib.base.</code><code class="descname">TwoDimPlot</code><span class="sig-paren">(</span><em>data</em>, <em>plot_options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/base.html#TwoDimPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.base.TwoDimPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for two dimensional plot types (plus the 3D scatter plot
+which is an honorary two dimensional plot for now).</p>
+</dd></dl>
+
+<span class="target" id="module-plotlib.plot_mod"></span><dl class="function">
+<dt id="plotlib.plot_mod.appearance">
+<code class="descclassname">plotlib.plot_mod.</code><code class="descname">appearance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plot_mod.html#appearance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plot_mod.appearance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify the plot&#8217;s appearance, with e.g. font types etc.
+from an mplstyle file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotlib.plot_mod.legend">
+<code class="descclassname">plotlib.plot_mod.</code><code class="descname">legend</code><span class="sig-paren">(</span><em>title=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plot_mod.html#legend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plot_mod.legend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn on the legend.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Legend properties specfied in by mplstyle, but could be
+overridden here.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> (<em>string</em>) &#8211; Title of legend</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotlib.plot_mod.plot_band">
+<code class="descclassname">plotlib.plot_mod.</code><code class="descname">plot_band</code><span class="sig-paren">(</span><em>x_data</em>, <em>y_data</em>, <em>width</em>, <em>ax</em>, <em>scheme</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plot_mod.html#plot_band"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plot_mod.plot_band" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a band around a line.</p>
+<p>This is typically for a theoretical error. Vary x by +/- width
+and find the variation in y. Fill between these largest 
+and smallest y for a given x.</p>
+<p>Arguments:
+:param x_data: x-data to be plotted
+:param y_data: y-data to be plotted
+:param width: Width of band - it is this width on the left and right hand-side
+:param ax: An axis object to plot the band on</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotlib.plot_mod.plot_contour">
+<code class="descclassname">plotlib.plot_mod.</code><code class="descname">plot_contour</code><span class="sig-paren">(</span><em>data</em>, <em>levels</em>, <em>scheme</em>, <em>bin_limits</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plot_mod.html#plot_contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plot_mod.plot_contour" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make unfilled contours for a plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xdata</strong> &#8211; x-axis data</li>
+<li><strong>ydata</strong> &#8211; y-axis data</li>
+<li><strong>data</strong> &#8211; Data to be contoured</li>
+<li><strong>levels</strong> &#8211; Levels at which to draw contours</li>
+<li><strong>scheme</strong> &#8211; Object containing appearance options, colours etc</li>
+<li><strong>bin_limits</strong> &#8211; Bin limits</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotlib.plot_mod.plot_data">
+<code class="descclassname">plotlib.plot_mod.</code><code class="descname">plot_data</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>scheme</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plot_mod.html#plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plot_mod.plot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a point with a particular color scheme.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> &#8211; Data to be plotted on x-axis</li>
+<li><strong>y</strong> &#8211; Data to be plotted on y-axis</li>
+<li><strong>scheme</strong> &#8211; Object containing plot options</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotlib.plot_mod.plot_filled_contour">
+<code class="descclassname">plotlib.plot_mod.</code><code class="descname">plot_filled_contour</code><span class="sig-paren">(</span><em>xdata</em>, <em>ydata</em>, <em>data</em>, <em>levels</em>, <em>scheme</em>, <em>bin_limits</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plot_mod.html#plot_filled_contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plot_mod.plot_filled_contour" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make filled contours for a plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xdata</strong> &#8211; x-axis data</li>
+<li><strong>ydata</strong> &#8211; y-axis data</li>
+<li><strong>data</strong> &#8211; Data to be contoured</li>
+<li><strong>levels</strong> &#8211; Levels at which to draw contours</li>
+<li><strong>names</strong> &#8211; Labels for the contour levels</li>
+<li><strong>scheme</strong> &#8211; Object containing appearance options, colours etc</li>
+<li><strong>bin_limits</strong> &#8211; Bin limits</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotlib.plot_mod.plot_image">
+<code class="descclassname">plotlib.plot_mod.</code><code class="descname">plot_image</code><span class="sig-paren">(</span><em>data</em>, <em>bin_limits</em>, <em>plot_limits</em>, <em>scheme</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plot_mod.html#plot_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plot_mod.plot_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot data as an image.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Interpolating perhaps misleads. If you don&#8217;t want it set
+interpolation=&#8217;nearest&#8217;.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> &#8211; x-, y- and z-data</li>
+<li><strong>bin_limits</strong> &#8211; Bin limits</li>
+<li><strong>plot_limits</strong> &#8211; Plot limits</li>
+<li><strong>scheme</strong> &#8211; Object containing appearance options, colours etc</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotlib.plot_mod.plot_labels">
+<code class="descclassname">plotlib.plot_mod.</code><code class="descname">plot_labels</code><span class="sig-paren">(</span><em>xlabel</em>, <em>ylabel</em>, <em>plot_title=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plot_mod.html#plot_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plot_mod.plot_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot axis labels.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xlabel</strong> &#8211; Label for x-axis</li>
+<li><strong>ylabel</strong> &#8211; Label for y-axis</li>
+<li><strong>plot_title</strong> &#8211; Title appearing above plot</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotlib.plot_mod.plot_limits">
+<code class="descclassname">plotlib.plot_mod.</code><code class="descname">plot_limits</code><span class="sig-paren">(</span><em>ax</em>, <em>limits=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plot_mod.html#plot_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plot_mod.plot_limits" title="Permalink to this definition">¶</a></dt>
+<dd><p>If specified plot limits, set them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax</strong> &#8211; Axis object</li>
+<li><strong>plot_limits</strong> &#8211; Array of plot limits in order xmin, xmax, ymin, ymax</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotlib.plot_mod.plot_ticks">
+<code class="descclassname">plotlib.plot_mod.</code><code class="descname">plot_ticks</code><span class="sig-paren">(</span><em>xticks</em>, <em>yticks</em>, <em>ax</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plot_mod.html#plot_ticks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plot_mod.plot_ticks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the numbers of ticks on the axis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax</strong> &#8211; Axis object</li>
+<li><strong>xticks</strong> &#8211; Number of required major x ticks</li>
+<li><strong>yticks</strong> &#8211; Number of required major y ticks</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-plotlib.plots"></span><p>Implementation of plot classes. These inherit from the classes in 
+plotlib.Base and must specify a figure() method which returns 
+a matplotlib figure object.</p>
+<p>Plots should also have a &#8220;description&#8221; attribute with a one line
+description of the type of plot.</p>
+<p>A list of implemented plot classes is at the bottom of this module.
+This is useful for the GUI, which needs to enumerate the available
+plots. So if a new plot type is implemented, it should be added 
+to this list.</p>
+<p>Also includes a function to save the current plot.</p>
+<dl class="class">
+<dt id="plotlib.plots.OneDimChiSq">
+<em class="property">class </em><code class="descclassname">plotlib.plots.</code><code class="descname">OneDimChiSq</code><span class="sig-paren">(</span><em>data</em>, <em>plot_options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plots.html#OneDimChiSq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plots.OneDimChiSq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a one dimensional plot, showing delta-chisq only,
+and excluded regions.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="plotlib.plots.OneDimStandard">
+<em class="property">class </em><code class="descclassname">plotlib.plots.</code><code class="descname">OneDimStandard</code><span class="sig-paren">(</span><em>data</em>, <em>plot_options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plots.html#OneDimStandard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plots.OneDimStandard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a one dimensional plot, showing profile likelihood,
+marginalised posterior, and statistics.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="plotlib.plots.Scatter">
+<em class="property">class </em><code class="descclassname">plotlib.plots.</code><code class="descname">Scatter</code><span class="sig-paren">(</span><em>data</em>, <em>plot_options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plots.html#Scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plots.Scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a three dimensional scatter plot, showing
+best-fit and posterior mean and credible regions and confidence intervals.
+The scattered points are coloured by the zdata.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="plotlib.plots.TwoDimPlotFilledPDF">
+<em class="property">class </em><code class="descclassname">plotlib.plots.</code><code class="descname">TwoDimPlotFilledPDF</code><span class="sig-paren">(</span><em>data</em>, <em>plot_options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plots.html#TwoDimPlotFilledPDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plots.TwoDimPlotFilledPDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a two dimensional plot with filled credible regions only, showing
+best-fit and posterior mean.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="plotlib.plots.TwoDimPlotFilledPL">
+<em class="property">class </em><code class="descclassname">plotlib.plots.</code><code class="descname">TwoDimPlotFilledPL</code><span class="sig-paren">(</span><em>data</em>, <em>plot_options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plots.html#TwoDimPlotFilledPL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plots.TwoDimPlotFilledPL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a two dimensional plot with filled confidence intervals only, showing
+best-fit and posterior mean.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="plotlib.plots.TwoDimPlotPDF">
+<em class="property">class </em><code class="descclassname">plotlib.plots.</code><code class="descname">TwoDimPlotPDF</code><span class="sig-paren">(</span><em>data</em>, <em>plot_options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plots.html#TwoDimPlotPDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plots.TwoDimPlotPDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a two dimensional marginalised posterior plot, showing
+best-fit and posterior mean and credible regions.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="plotlib.plots.TwoDimPlotPL">
+<em class="property">class </em><code class="descclassname">plotlib.plots.</code><code class="descname">TwoDimPlotPL</code><span class="sig-paren">(</span><em>data</em>, <em>plot_options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plots.html#TwoDimPlotPL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plots.TwoDimPlotPL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a two dimensional profile likelihood plot, showing
+best-fit and posterior mean and confidence intervals.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotlib.plots.save_plot">
+<code class="descclassname">plotlib.plots.</code><code class="descname">save_plot</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plotlib/plots.html#save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plotlib.plots.save_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a plot with a descriptive name.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Figure properties specfied in by mplstyle, but could be
+overridden here.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>string</em>) &#8211; Prefix of filename, without extension</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="module-data_loader">
 <span id="data-loader"></span><h1>data_loader<a class="headerlink" href="#module-data_loader" title="Permalink to this headline">¶</a></h1>
@@ -286,14 +713,157 @@ data &#8211; Dictionary of chain indexed with integers.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="plot-options">
-<h1>plot_options<a class="headerlink" href="#plot-options" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-plot_options">
+<span id="plot-options"></span><h1>plot_options<a class="headerlink" href="#module-plot_options" title="Permalink to this headline">¶</a></h1>
+<p>A named tuple to represent the plot options as selected in the UI.
+Also loads default values from config.yml and makes them available.</p>
+<dl class="docutils">
+<dt>TODO: This module should also do a reasonable amount of validation</dt>
+<dd>of config variables.</dd>
+</dl>
+<dl class="function">
+<dt id="plot_options.default">
+<code class="descclassname">plot_options.</code><code class="descname">default</code><span class="sig-paren">(</span><em>option</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot_options.html#default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot_options.default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the default value of a plot option.</p>
+<p>Arguments:
+option - the name of the option</p>
+<p>Returns: 
+- default value of option</p>
+<p>If no default is available, prints an error message and raises
+a KeyError.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="plot_options.plot_options">
+<em class="property">class </em><code class="descclassname">plot_options.</code><code class="descname">plot_options</code><span class="sig-paren">(</span><em>xindex</em>, <em>yindex</em>, <em>zindex</em>, <em>logx</em>, <em>logy</em>, <em>logz</em>, <em>plot_limits</em>, <em>bin_limits</em>, <em>nbins</em>, <em>xticks</em>, <em>yticks</em>, <em>alpha</em>, <em>tau</em>, <em>size</em>, <em>xlabel</em>, <em>ylabel</em>, <em>zlabel</em>, <em>plot_title</em>, <em>leg_title</em><span class="sig-paren">)</span><a class="headerlink" href="#plot_options.plot_options" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="plot_options.plot_options.alpha">
+<code class="descname">alpha</code><a class="headerlink" href="#plot_options.plot_options.alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 11</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.bin_limits">
+<code class="descname">bin_limits</code><a class="headerlink" href="#plot_options.plot_options.bin_limits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 7</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.leg_title">
+<code class="descname">leg_title</code><a class="headerlink" href="#plot_options.plot_options.leg_title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 18</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.logx">
+<code class="descname">logx</code><a class="headerlink" href="#plot_options.plot_options.logx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.logy">
+<code class="descname">logy</code><a class="headerlink" href="#plot_options.plot_options.logy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.logz">
+<code class="descname">logz</code><a class="headerlink" href="#plot_options.plot_options.logz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.nbins">
+<code class="descname">nbins</code><a class="headerlink" href="#plot_options.plot_options.nbins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 8</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.plot_limits">
+<code class="descname">plot_limits</code><a class="headerlink" href="#plot_options.plot_options.plot_limits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 6</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.plot_title">
+<code class="descname">plot_title</code><a class="headerlink" href="#plot_options.plot_options.plot_title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 17</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.size">
+<code class="descname">size</code><a class="headerlink" href="#plot_options.plot_options.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 13</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.tau">
+<code class="descname">tau</code><a class="headerlink" href="#plot_options.plot_options.tau" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 12</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.xindex">
+<code class="descname">xindex</code><a class="headerlink" href="#plot_options.plot_options.xindex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.xlabel">
+<code class="descname">xlabel</code><a class="headerlink" href="#plot_options.plot_options.xlabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 14</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.xticks">
+<code class="descname">xticks</code><a class="headerlink" href="#plot_options.plot_options.xticks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 9</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.yindex">
+<code class="descname">yindex</code><a class="headerlink" href="#plot_options.plot_options.yindex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.ylabel">
+<code class="descname">ylabel</code><a class="headerlink" href="#plot_options.plot_options.ylabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 15</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.yticks">
+<code class="descname">yticks</code><a class="headerlink" href="#plot_options.plot_options.yticks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 10</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.zindex">
+<code class="descname">zindex</code><a class="headerlink" href="#plot_options.plot_options.zindex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="plot_options.plot_options.zlabel">
+<code class="descname">zlabel</code><a class="headerlink" href="#plot_options.plot_options.zlabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 16</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="schemes">
-<h1>schemes<a class="headerlink" href="#schemes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-schemes">
+<span id="schemes"></span><h1>schemes<a class="headerlink" href="#module-schemes" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="schemes.Scheme">
+<em class="property">class </em><code class="descclassname">schemes.</code><code class="descname">Scheme</code><span class="sig-paren">(</span><em>colour=None</em>, <em>symbol=None</em>, <em>label=None</em>, <em>level_names=None</em>, <em>colour_map=None</em>, <em>colour_bar_title=None</em>, <em>size=5</em>, <em>plot_limits=None</em>, <em>colours=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/schemes.html#Scheme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#schemes.Scheme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Holds information for how a piece of data should be plotted.</p>
+</dd></dl>
+
 </div>
-<div class="section" id="summary">
-<h1>summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-summary">
+<span id="summary"></span><h1>summary<a class="headerlink" href="#module-summary" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -307,13 +877,14 @@ data &#8211; Dictionary of chain indexed with integers.</p>
 <li><a class="reference internal" href="#">super_gui</a></li>
 <li><a class="reference internal" href="#module-statslib.point">statslib</a><ul>
 <li><a class="reference internal" href="#one-dimensional-statistical-functions">One Dimensional Statistical Functions</a></li>
+<li><a class="reference internal" href="#two-dimensional-statistical-functions">Two Dimensional Statistical Functions</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#plotlib">plotlib</a></li>
+<li><a class="reference internal" href="#module-plotlib.base">plotlib</a></li>
 <li><a class="reference internal" href="#module-data_loader">data_loader</a></li>
-<li><a class="reference internal" href="#plot-options">plot_options</a></li>
-<li><a class="reference internal" href="#schemes">schemes</a></li>
-<li><a class="reference internal" href="#summary">summary</a></li>
+<li><a class="reference internal" href="#module-plot_options">plot_options</a></li>
+<li><a class="reference internal" href="#module-schemes">schemes</a></li>
+<li><a class="reference internal" href="#module-summary">summary</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>

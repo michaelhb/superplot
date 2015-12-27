@@ -292,5 +292,16 @@ texinfo_documents = [
 import sys
 import mock
 
-MOCK_MODULES = ['matplotlib', 'matplotlib.pyplot', 'numpy', 'scipy']
+MOCK_MODULES = [
+    'matplotlib',
+    'matplotlib.ticker',
+    'matplotlib.pyplot',
+    'matplotlib.pylab',
+    'matplotlib.backends',
+    'matplotlib.backends.backend_gtkagg',
+    'scipy',
+    'scipy.optimize',
+    'scipy.stats',
+    'pylab',
+    'numpy']
 sys.modules.update((mod_name, mock.Mock()) for mod_name in MOCK_MODULES)

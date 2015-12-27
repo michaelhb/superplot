@@ -2,6 +2,7 @@
 # to the GUI and Plot classes.
 
 # External modules.
+import os
 import sys
 from pylab import get_cmap
 import yaml
@@ -48,7 +49,11 @@ class Scheme:
 
 
 # Load config.yml and store contents as private dictionary
-with open("config.yml") as cfile:
+config_path = os.path.join(
+    os.path.split(os.path.abspath(__file__))[0],
+    "config.yml"
+)
+with open(config_path) as cfile:
     _config = yaml.load(cfile)
 
 # For each scheme in the config file, create a Scheme

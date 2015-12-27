@@ -1,0 +1,529 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>plotlib.plots &mdash; SuperGUI 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="SuperGUI 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plotlib.plots</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implementation of plot classes. These inherit from the classes in </span>
+<span class="sd">plotlib.Base and must specify a figure() method which returns </span>
+<span class="sd">a matplotlib figure object.</span>
+
+<span class="sd">Plots should also have a &quot;description&quot; attribute with a one line</span>
+<span class="sd">description of the type of plot.</span>
+
+<span class="sd">A list of implemented plot classes is at the bottom of this module.</span>
+<span class="sd">This is useful for the GUI, which needs to enumerate the available</span>
+<span class="sd">plots. So if a new plot type is implemented, it should be added </span>
+<span class="sd">to this list.</span>
+
+<span class="sd">Also includes a function to save the current plot.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># SuperPy modules.</span>
+<span class="kn">import</span> <span class="nn">schemes</span>
+<span class="kn">import</span> <span class="nn">statslib.one_dim</span> <span class="kn">as</span> <span class="nn">one_dim</span>
+<span class="kn">import</span> <span class="nn">statslib.point</span> <span class="kn">as</span> <span class="nn">stats</span>
+<span class="kn">import</span> <span class="nn">statslib.two_dim</span> <span class="kn">as</span> <span class="nn">two_dim</span>
+<span class="kn">from</span> <span class="nn">base</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">chi2</span>
+
+<span class="c"># External modules.</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">MaxNLocator</span>
+
+
+<div class="viewcode-block" id="save_plot"><a class="viewcode-back" href="../../API.html#plotlib.plots.save_plot">[docs]</a><span class="k">def</span> <span class="nf">save_plot</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Save a plot with a descriptive name.</span>
+<span class="sd">    </span>
+<span class="sd">    .. Warning::</span>
+<span class="sd">        Figure properties specfied in by mplstyle, but could be</span>
+<span class="sd">        overridden here.</span>
+
+<span class="sd">    :param name: Prefix of filename, without extension</span>
+<span class="sd">    :type name: string</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OneDimStandard"><a class="viewcode-back" href="../../API.html#plotlib.plots.OneDimStandard">[docs]</a><span class="k">class</span> <span class="nc">OneDimStandard</span><span class="p">(</span><span class="n">OneDimPlot</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Makes a one dimensional plot, showing profile likelihood,</span>
+<span class="sd">    marginalised posterior, and statistics. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;One-dimensional plot.&quot;</span>
+
+    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_plot</span><span class="p">()</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span>
+
+        <span class="c"># Best-fit point</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span>
+                     <span class="mf">0.02</span><span class="p">,</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">best_fit</span><span class="p">)</span>
+        <span class="c"># Posterior mean </span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span>
+                     <span class="mf">0.02</span><span class="p">,</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">)</span>
+
+        <span class="c"># Posterior PDF</span>
+        <span class="n">pdf_data</span> <span class="o">=</span> <span class="n">one_dim</span><span class="o">.</span><span class="n">posterior_pdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span>
+                                         <span class="n">nbins</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">nbins</span><span class="p">,</span>
+                                         <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">pdf_data</span><span class="o">.</span><span class="n">bin_centers</span><span class="p">,</span> <span class="n">pdf_data</span><span class="o">.</span><span class="n">pdf</span><span class="p">,</span> <span class="n">schemes</span><span class="o">.</span><span class="n">posterior</span><span class="p">)</span>
+
+        <span class="c"># Profile likelihood</span>
+        <span class="n">prof_data</span> <span class="o">=</span> <span class="n">one_dim</span><span class="o">.</span><span class="n">prof_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> 
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span>
+                                      <span class="n">nbins</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">nbins</span><span class="p">,</span> 
+                                      <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">prof_data</span><span class="o">.</span><span class="n">bin_centers</span><span class="p">,</span> <span class="n">prof_data</span><span class="o">.</span><span class="n">prof_like</span><span class="p">,</span> <span class="n">schemes</span><span class="o">.</span><span class="n">prof_like</span><span class="p">)</span>
+
+        <span class="c"># Credible region</span>
+        <span class="n">lower_credible_region</span> <span class="o">=</span> <span class="p">[</span><span class="n">one_dim</span><span class="o">.</span><span class="n">credible_region</span><span class="p">(</span><span class="n">pdf_data</span><span class="o">.</span><span class="n">pdf</span><span class="p">,</span> <span class="n">pdf_data</span><span class="o">.</span><span class="n">bin_centers</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">aa</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s">&quot;lower&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">alpha</span><span class="p">]</span>
+        <span class="n">upper_credible_region</span> <span class="o">=</span> <span class="p">[</span><span class="n">one_dim</span><span class="o">.</span><span class="n">credible_region</span><span class="p">(</span><span class="n">pdf_data</span><span class="o">.</span><span class="n">pdf</span><span class="p">,</span> <span class="n">pdf_data</span><span class="o">.</span><span class="n">bin_centers</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">aa</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s">&quot;upper&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">alpha</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lower_credible_region</span><span class="p">,</span> <span class="n">upper_credible_region</span><span class="p">,</span> <span class="n">schemes</span><span class="o">.</span><span class="n">credible_regions</span><span class="p">):</span>
+            <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">([</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">],</span> <span class="n">scheme</span><span class="p">)</span>
+            
+        <span class="c"># Confidence interval</span>
+        <span class="n">conf_intervals</span> <span class="o">=</span> <span class="p">[</span><span class="n">one_dim</span><span class="o">.</span><span class="n">conf_interval</span><span class="p">(</span><span class="n">prof_data</span><span class="o">.</span><span class="n">prof_chi_sq</span><span class="p">,</span> <span class="n">prof_data</span><span class="o">.</span><span class="n">bin_centers</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">aa</span><span class="p">)</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">alpha</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">interval</span><span class="p">,</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">conf_intervals</span><span class="p">,</span> <span class="n">schemes</span><span class="o">.</span><span class="n">conf_intervals</span><span class="p">):</span>
+            <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.</span><span class="p">]</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">nbins</span><span class="p">),</span> <span class="n">scheme</span><span class="p">)</span>
+
+        <span class="c"># Add plot legend</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">leg_title</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="OneDimChiSq"><a class="viewcode-back" href="../../API.html#plotlib.plots.OneDimChiSq">[docs]</a><span class="k">class</span> <span class="nc">OneDimChiSq</span><span class="p">(</span><span class="n">OneDimPlot</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Makes a one dimensional plot, showing delta-chisq only,</span>
+<span class="sd">    and excluded regions. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;One-dimensional chi-squared plot.&quot;</span>
+
+    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_plot</span><span class="p">()</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span>
+
+        <span class="c"># Data itself.</span>
+        <span class="n">prof_data</span> <span class="o">=</span> <span class="n">one_dim</span><span class="o">.</span><span class="n">prof_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span>
+                                     <span class="n">nbins</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">nbins</span><span class="p">,</span>
+                                     <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">prof_data</span><span class="o">.</span><span class="n">bin_centers</span><span class="p">,</span> <span class="n">prof_data</span><span class="o">.</span><span class="n">prof_chi_sq</span><span class="p">,</span> <span class="n">schemes</span><span class="o">.</span><span class="n">prof_chi_sq</span><span class="p">)</span>
+
+        <span class="c"># Plot the delta chi-squared </span>
+        <span class="c"># TODO what&#39;s this about: between default range, 0 - 10.</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_limits</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">plot_limits</span><span class="p">)</span>
+
+        <span class="c"># Best-fit point</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span> <span class="mf">0.08</span><span class="p">,</span> <span class="n">schemes</span><span class="o">.</span><span class="n">best_fit</span><span class="p">)</span>
+
+        <span class="c"># Confidence intervals as filled regions</span>
+        <span class="n">critical_chi_sq</span> <span class="o">=</span> <span class="p">[</span><span class="n">chi2</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">aa</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">alpha</span><span class="p">]</span>
+  
+
+        <span class="k">for</span> <span class="n">chi_sq</span><span class="p">,</span> <span class="n">facecolor</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">critical_chi_sq</span><span class="p">,</span> <span class="n">schemes</span><span class="o">.</span><span class="n">prof_chi_sq</span><span class="o">.</span><span class="n">colours</span><span class="p">,</span> <span class="n">schemes</span><span class="o">.</span><span class="n">prof_chi_sq</span><span class="o">.</span><span class="n">level_names</span><span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">prof_data</span><span class="o">.</span><span class="n">bin_centers</span><span class="p">,</span>
+                            <span class="mi">0</span><span class="p">,</span>
+                            <span class="mi">10</span><span class="p">,</span>
+                            <span class="n">where</span><span class="o">=</span><span class="n">prof_data</span><span class="o">.</span><span class="n">prof_chi_sq</span> <span class="o">&gt;=</span> <span class="n">chi_sq</span><span class="p">,</span>
+                            <span class="n">facecolor</span><span class="o">=</span><span class="n">facecolor</span><span class="p">,</span>
+                            <span class="n">interpolate</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span>
+                            <span class="p">)</span>
+                            
+            <span class="c"># Plot a proxy for the legend - plot spurious data outside plot limits,</span>
+            <span class="c"># with legend entry matching colours of filled regions.</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">facecolor</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">tau</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># Plot the theory error as a band around the usual line</span>
+            <span class="n">pm</span><span class="o">.</span><span class="n">plot_band</span><span class="p">(</span><span class="n">prof_data</span><span class="o">.</span><span class="n">bin_centers</span><span class="p">,</span> <span class="n">prof_data</span><span class="o">.</span><span class="n">prof_chi_sq</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">tau</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">schemes</span><span class="o">.</span><span class="n">tau_band</span><span class="p">)</span>
+
+        <span class="c"># Add plot legend</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">leg_title</span><span class="p">)</span>
+
+        <span class="c"># Override y-axis label</span>
+        <span class="c">#TODO what is being overridden here?</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">schemes</span><span class="o">.</span><span class="n">prof_chi_sq</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="TwoDimPlotFilledPDF"><a class="viewcode-back" href="../../API.html#plotlib.plots.TwoDimPlotFilledPDF">[docs]</a><span class="k">class</span> <span class="nc">TwoDimPlotFilledPDF</span><span class="p">(</span><span class="n">TwoDimPlot</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Makes a two dimensional plot with filled credible regions only, showing</span>
+<span class="sd">    best-fit and posterior mean. &quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;Two-dimensional posterior pdf, filled contours only.&quot;</span>
+
+    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_plot</span><span class="p">()</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span>
+
+        <span class="c"># Best-fit point</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span> 
+                     <span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">),</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">best_fit</span><span class="p">)</span>
+                     
+        <span class="c"># Posterior mean</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span> 
+                     <span class="n">stats</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">),</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">)</span>
+
+        <span class="c"># Credible regions</span>
+        <span class="n">pdf_data</span> <span class="o">=</span> <span class="n">two_dim</span><span class="o">.</span><span class="n">posterior_pdf</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span>
+                <span class="n">nbins</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">nbins</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+                
+        <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">two_dim</span><span class="o">.</span><span class="n">critical_density</span><span class="p">(</span><span class="n">pdf_data</span><span class="o">.</span><span class="n">pdf</span><span class="p">,</span> <span class="n">aa</span><span class="p">)</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">alpha</span><span class="p">]</span>
+
+        <span class="c"># Make sure pdf is correctly normalised.</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf_data</span><span class="o">.</span><span class="n">pdf</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span> <span class="o">/</span> <span class="n">pdf</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="c"># Plot contours</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_filled_contour</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">,</span>
+                <span class="n">pdf</span><span class="p">,</span>
+                <span class="n">levels</span><span class="p">,</span>
+                <span class="n">schemes</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+
+        <span class="c"># Add legend</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">leg_title</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="TwoDimPlotFilledPL"><a class="viewcode-back" href="../../API.html#plotlib.plots.TwoDimPlotFilledPL">[docs]</a><span class="k">class</span> <span class="nc">TwoDimPlotFilledPL</span><span class="p">(</span><span class="n">TwoDimPlot</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Makes a two dimensional plot with filled confidence intervals only, showing</span>
+<span class="sd">    best-fit and posterior mean. &quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;Two-dimensional profile likelihood, filled contours only.&quot;</span>
+
+    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_plot</span><span class="p">()</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span>
+
+        <span class="c"># Best-fit point</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span> 
+                     <span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">),</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">best_fit</span><span class="p">)</span>
+                     
+        <span class="c"># Posterior mean</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span> 
+                     <span class="n">stats</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">),</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">)</span>
+
+        <span class="n">prof_data</span> <span class="o">=</span> <span class="n">two_dim</span><span class="o">.</span><span class="n">profile_like</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span>
+                <span class="n">nbins</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">nbins</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+
+        <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">two_dim</span><span class="o">.</span><span class="n">critical_prof_like</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">alpha</span><span class="p">]</span>
+
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_filled_contour</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">,</span>
+                <span class="n">prof_data</span><span class="o">.</span><span class="n">prof_like</span><span class="p">,</span>
+                <span class="n">levels</span><span class="p">,</span>
+                <span class="n">schemes</span><span class="o">.</span><span class="n">prof_like</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+
+        <span class="c"># Add legend</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">leg_title</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="TwoDimPlotPDF"><a class="viewcode-back" href="../../API.html#plotlib.plots.TwoDimPlotPDF">[docs]</a><span class="k">class</span> <span class="nc">TwoDimPlotPDF</span><span class="p">(</span><span class="n">TwoDimPlot</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Makes a two dimensional marginalised posterior plot, showing</span>
+<span class="sd">    best-fit and posterior mean and credible regions. &quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;Two-dimensional posterior pdf.&quot;</span>
+
+    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_plot</span><span class="p">()</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span>
+
+        <span class="c"># Best-fit point</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span> 
+                     <span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">),</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">best_fit</span><span class="p">)</span>
+                     
+        <span class="c"># Posterior mean</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span> 
+                     <span class="n">stats</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">),</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">)</span>
+
+        <span class="n">pdf_data</span> <span class="o">=</span> <span class="n">two_dim</span><span class="o">.</span><span class="n">posterior_pdf</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span>
+                <span class="n">nbins</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">nbins</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+                
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_image</span><span class="p">(</span>
+                <span class="n">pdf_data</span><span class="o">.</span><span class="n">pdf</span><span class="p">,</span>
+                <span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">,</span>
+                <span class="n">opt</span><span class="o">.</span><span class="n">plot_limits</span><span class="p">,</span>
+                <span class="n">schemes</span><span class="o">.</span><span class="n">posterior</span><span class="p">)</span>
+
+        <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">two_dim</span><span class="o">.</span><span class="n">critical_density</span><span class="p">(</span><span class="n">pdf_data</span><span class="o">.</span><span class="n">pdf</span><span class="p">,</span> <span class="n">aa</span><span class="p">)</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">alpha</span><span class="p">]</span>
+
+        <span class="c"># Make sure pdf is correctly normalised.</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf_data</span><span class="o">.</span><span class="n">pdf</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span> <span class="o">/</span> <span class="n">pdf</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span>
+                <span class="n">pdf</span><span class="p">,</span>
+                <span class="n">levels</span><span class="p">,</span>
+                <span class="n">schemes</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+
+        <span class="c"># Add legend</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">leg_title</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="TwoDimPlotPL"><a class="viewcode-back" href="../../API.html#plotlib.plots.TwoDimPlotPL">[docs]</a><span class="k">class</span> <span class="nc">TwoDimPlotPL</span><span class="p">(</span><span class="n">TwoDimPlot</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Makes a two dimensional profile likelihood plot, showing</span>
+<span class="sd">    best-fit and posterior mean and confidence intervals. &quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;Two-dimensional profile likelihood.&quot;</span>
+
+    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_plot</span><span class="p">()</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span>
+
+        <span class="c"># Best-fit point</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span> 
+                     <span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">),</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">best_fit</span><span class="p">)</span>
+                     
+        <span class="c"># Posterior mean</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span> 
+                     <span class="n">stats</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">),</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">)</span>
+
+        <span class="n">prof_data</span> <span class="o">=</span> <span class="n">two_dim</span><span class="o">.</span><span class="n">profile_like</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span>
+                <span class="n">nbins</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">nbins</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+                
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_image</span><span class="p">(</span>
+                <span class="n">prof_data</span><span class="o">.</span><span class="n">prof_like</span><span class="p">,</span>
+                <span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">,</span>
+                <span class="n">opt</span><span class="o">.</span><span class="n">plot_limits</span><span class="p">,</span>
+                <span class="n">schemes</span><span class="o">.</span><span class="n">prof_like</span><span class="p">)</span>
+
+        <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">two_dim</span><span class="o">.</span><span class="n">critical_prof_like</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">alpha</span><span class="p">]</span>
+
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span>
+                <span class="n">prof_data</span><span class="o">.</span><span class="n">prof_like</span><span class="p">,</span>
+                <span class="n">levels</span><span class="p">,</span>
+                <span class="n">schemes</span><span class="o">.</span><span class="n">prof_like</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+
+        <span class="c"># Add legend</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">leg_title</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="Scatter"><a class="viewcode-back" href="../../API.html#plotlib.plots.Scatter">[docs]</a><span class="k">class</span> <span class="nc">Scatter</span><span class="p">(</span><span class="n">TwoDimPlot</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Makes a three dimensional scatter plot, showing</span>
+<span class="sd">    best-fit and posterior mean and credible regions and confidence intervals.</span>
+<span class="sd">    The scattered points are coloured by the zdata. &quot;&quot;&quot;</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;Three-dimensional scatter plot.&quot;</span>
+
+    <span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_plot</span><span class="p">()</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_options</span>
+
+        <span class="c"># Best-fit point</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span> 
+                     <span class="n">stats</span><span class="o">.</span><span class="n">best_fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">),</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">best_fit</span><span class="p">)</span>
+                     
+        <span class="c"># Posterior mean</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">),</span> 
+                     <span class="n">stats</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">),</span> 
+                     <span class="n">schemes</span><span class="o">.</span><span class="n">posterior_mean</span><span class="p">)</span>
+
+        <span class="c"># Plot scatter of points.</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">,</span>
+                <span class="n">s</span><span class="o">=</span><span class="n">schemes</span><span class="o">.</span><span class="n">scatter</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                <span class="n">c</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">zdata</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="n">schemes</span><span class="o">.</span><span class="n">scatter</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="n">schemes</span><span class="o">.</span><span class="n">scatter</span><span class="o">.</span><span class="n">colour_map</span><span class="p">,</span>
+                <span class="n">norm</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                <span class="n">vmin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                <span class="n">vmax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                <span class="n">linewidths</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                <span class="n">verts</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+        <span class="c"># Plot a colour bar</span>
+        <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="c"># Colour bar label</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">zlabel</span><span class="p">)</span>
+        <span class="c"># Set reasonable number of ticks</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">locator</span> <span class="o">=</span> <span class="n">MaxNLocator</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">update_ticks</span><span class="p">()</span>
+
+        <span class="c"># Credible regions      </span>
+        <span class="n">pdf_data</span> <span class="o">=</span> <span class="n">two_dim</span><span class="o">.</span><span class="n">posterior_pdf</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span>
+                <span class="n">nbins</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">nbins</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+                
+        <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">two_dim</span><span class="o">.</span><span class="n">critical_density</span><span class="p">(</span><span class="n">pdf_data</span><span class="o">.</span><span class="n">pdf</span><span class="p">,</span> <span class="n">aa</span><span class="p">)</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">alpha</span><span class="p">]</span>
+
+        <span class="c"># Make sure pdf is correctly normalised</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf_data</span><span class="o">.</span><span class="n">pdf</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span> <span class="o">/</span> <span class="n">pdf</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span>
+                <span class="n">pdf</span><span class="p">,</span>
+                <span class="n">levels</span><span class="p">,</span>
+                <span class="n">schemes</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+                
+        
+        <span class="c"># Confidence interval        </span>
+        <span class="n">prof_data</span> <span class="o">=</span> <span class="n">two_dim</span><span class="o">.</span><span class="n">profile_like</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ydata</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">chisq</span><span class="p">,</span>
+                <span class="n">nbins</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">nbins</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+                
+
+        <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">two_dim</span><span class="o">.</span><span class="n">critical_prof_like</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">alpha</span><span class="p">]</span>
+
+        <span class="n">pm</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span>
+                <span class="n">prof_data</span><span class="o">.</span><span class="n">prof_like</span><span class="p">,</span>
+                <span class="n">levels</span><span class="p">,</span>
+                <span class="n">schemes</span><span class="o">.</span><span class="n">prof_like</span><span class="p">,</span>
+                <span class="n">bin_limits</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>        
+
+        <span class="c"># Add legend</span>
+        <span class="n">pm</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">leg_title</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<span class="n">plot_types</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">OneDimStandard</span><span class="p">,</span>
+    <span class="n">OneDimChiSq</span><span class="p">,</span>
+    <span class="n">TwoDimPlotFilledPDF</span><span class="p">,</span>
+    <span class="n">TwoDimPlotFilledPL</span><span class="p">,</span>
+    <span class="n">TwoDimPlotPDF</span><span class="p">,</span>
+    <span class="n">TwoDimPlotPL</span><span class="p">,</span>
+    <span class="n">Scatter</span>
+<span class="p">]</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Andrew Fowlie, Michael Bardsley.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

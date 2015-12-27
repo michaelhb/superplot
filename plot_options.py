@@ -10,6 +10,7 @@ Also loads default values from config.yml and makes them available.
 TODO: This module should also do a reasonable amount of validation
       of config variables.
 """
+import os
 from collections import namedtuple
 import yaml
 import numpy as np
@@ -43,7 +44,11 @@ plot_options = namedtuple("plot_options", (
 ))
 
 # Store a dictionary of default options from config.yml
-with open("config.yml") as cfile:
+config_path = os.path.join(
+    os.path.split(os.path.abspath(__file__))[0],
+    "config.yml"
+)
+with open(config_path) as cfile:
     _defaults = yaml.load(cfile)["plot_options"]
 
 # Fix the types of a few options. It would also be

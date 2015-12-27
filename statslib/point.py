@@ -1,10 +1,9 @@
-#########################################################################
-#                                                                       #
-#    P o i n t S t a t s                                                #
-#                                                                       #
-#########################################################################
-
-# Statistical functions that return a single data point
+"""
+===========================
+Point Statistical Functions
+===========================
+This module contains statistical functions that return a single data point.
+"""
 
 import numpy as np
 
@@ -38,13 +37,13 @@ def shift(bin_number, nbins):
 def posterior_mean(posterior, param):
     """ Calculate the posterior mean.
 
-    Arguments:
-    posterior -- Data column of posterior weight.
-    param -- Data column of parameter.
+    :param posterior: Data column of posterior weight
+    :type posterior: numpy.ndarray
+    :param param: Data column of parameter of interest
+    :type param: numpy.ndarray
 
-    Returns:
-    postmean - The posterior mean.
-
+    :returns: Posterior mean
+    :rtype: numpy.float64
     """
     # Calculate posterior mean - dot product weights with parameter
     # values and normalize.
@@ -55,13 +54,13 @@ def posterior_mean(posterior, param):
 def best_fit(chisq, param):
     """ Calculate the best-fit.
 
-    Arguments:
-    chisq -- Data column of chi-squared.
-    param -- Data column of parameter.
+    :param chisq: Data column of chi-squared
+    :type chisq: numpy.ndarray
+    :param param: Data column of parameter of interest
+    :type param: numpy.ndarray
 
-    Returns:
-    bestfit -- The best-fit point.
-
+    :returns: The best-fit point
+    :rtype: numpy.float64
     """
     # Calculate the best-fit - find the point that corresponds
     # to the smallest chi-squared.
@@ -70,15 +69,15 @@ def best_fit(chisq, param):
 
 
 def p_value(chisq, dof):
-    """ Calculate the pvalue.
+    """ Calculate the p-value.
 
-    Arguments:
-    chisq -- Data column of chi-squared.
-    dof -- Number of degrees of freedom.
+    :param chisq: Data column of chi-squared
+    :type chisq: numpy.ndarray
+    :param dof: Number of degrees of freedom
+    :type dof: integer
 
-    Returns:
-    pvalue -- A p-value for the given chisq, dof.
-
+    :returns: A p-value for the given chisq, dof
+    :rtype: numpy.float64
     """
     from scipy import stats
     # Find the associated p-value. The survival function, sf,

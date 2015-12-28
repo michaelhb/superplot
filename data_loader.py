@@ -24,14 +24,14 @@ def load(infofile, datafile):
     :rtype: dict (labels), dict (chain)
     """
 
-    data = open_chain(datafile)
-    info = read_info(infofile)
-    label = label_chain(data, info)
+    data = _open_chain(datafile)
+    info = _read_info(infofile)
+    label = _label_chain(data, info)
 
     return label, data
 
 
-def open_chain(filename):
+def _open_chain(filename):
     """ Open a text file or serialised data.
     If opening a text file, serialise data for future plots.
 
@@ -54,7 +54,7 @@ def open_chain(filename):
 
     else:
         # Open the *txt file.
-        data = open_data_file(filename)
+        data = _open_data_file(filename)
 
         # Serialize the data for quicker future reading.
         print 'Dumping chain...'
@@ -70,7 +70,7 @@ def open_chain(filename):
     return data
 
 
-def open_data_file(filename):
+def _open_data_file(filename):
     """ Open a text file and return dictonary of numpy arrays of data.
 
     :param filename: Name of chain file.
@@ -119,7 +119,7 @@ def open_data_file(filename):
     return data
 
 
-def read_info(filename):
+def _read_info(filename):
     """ Read labels from a SuperBayeS style info file.
 
     :param filename: Name of info file
@@ -160,7 +160,7 @@ def read_info(filename):
     return label
 
 
-def label_chain(data, info):
+def _label_chain(data, info):
     r""" Match labels to the data.
 
     * Check if labels match data.

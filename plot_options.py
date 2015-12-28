@@ -1,11 +1,6 @@
-#########################################################################
-#                                                                       #
-#    P l o t O p t i o n s                                              #
-#                                                                       #
-#########################################################################
 """
-A named tuple to represent the plot options as selected in the UI.
-Also loads default values from config.yml and makes them available.
+This module provides a named tuple plot_options to represent the options as
+selected in the UI. Also loads default values from config.yml and makes them available.
 
 TODO: This module should also do a reasonable amount of validation
       of config variables.

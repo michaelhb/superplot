@@ -307,3 +307,22 @@ MOCK_MODULES = [
     'pylab',
     'numpy']
 sys.modules.update((mod_name, mock.Mock()) for mod_name in MOCK_MODULES)
+
+
+def no_namedtuple_attrib_docstring(app, what, name,
+                                   obj, options, lines):
+    """
+    By default, autodoc generates some useuless clutter
+    for namedtuples - this suppresses said clutter.
+    """
+    if any('Alias for field number' in line for line in lines):
+        # This is a namedtuple with a useless docstring,
+        # in-place purge all of the lines.
+        del lines[:]
+
+
+def setup(app):
+    app.connect(
+        'autodoc-process-docstring',
+        no_namedtuple_attrib_docstring,
+    )

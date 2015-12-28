@@ -43,6 +43,7 @@ plot_options = namedtuple("plot_options", (
     "leg_title"  # Plot legend
 ))
 
+
 # Store a dictionary of default options from config.yml
 config_path = os.path.join(
     os.path.split(os.path.abspath(__file__))[0],
@@ -65,15 +66,14 @@ if _defaults["size"] is not None:
 def default(option):
     """
     Retrieve the default value of a plot option.
-    
-    Arguments:
-    option - the name of the option
-    
-    Returns: 
-    - default value of option
-    
+
     If no default is available, prints an error message and raises
     a KeyError.
+
+    :param option: Name of the option
+    :type option: string
+
+    :returns: Default value of specified option.
     """
     try:
         return _defaults[option]

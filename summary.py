@@ -1,8 +1,8 @@
-#########################################################################
-#                                                                       #
-#    S u m m a r y                                                      #
-#                                                                       #
-#########################################################################
+"""
+A stand-alone script to print summary statistics about a data file.
+Runs without arguments - GUI dialogs are used to select the
+chain and info files.
+"""
 
 # External modules.
 

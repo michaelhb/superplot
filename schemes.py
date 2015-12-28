@@ -1,5 +1,10 @@
-# A module to load the data in config.yml and make it available
-# to the GUI and Plot classes.
+"""
+This module contains the Scheme class, which is used to hold information
+about how individual elements should appear in a plot.
+
+Schemes are defined in config.yml. On import, this module loads each Scheme
+and attaches it as a module attribute with the defined name.
+"""
 
 # External modules.
 import os
@@ -9,7 +14,28 @@ import yaml
 
 
 class Scheme:
-    """ Holds information for how a piece of data should be plotted. """
+    r"""
+    Holds information for how a piece of data should be plotted.
+    All parameters are optional - Schemes can specify any subset of the
+    available attributes.
+
+    :param colour: Colour for a line / point.
+    :type colour: string
+    :param symbol: Indicates point style e.g. cirlce 'o' or line style e.g '--'.
+    :type symbol: string
+    :param label: Label for legend.
+    :type label: string
+    :param level_names: List of contour level names, i.e. for confidence regions.
+    :type level_names: list
+    :param colour_map: Colour map for 2D plots. Must be the name of a matplotlib colour map.
+    :type colour_map: string
+    :param colour_bar_title: Title for colour bar.
+    :type colour_bar_title: string
+    :param size: Size of points.
+    :type size: integer
+    :param colours: List of colours to be iterated, for, e.g., filled contours.
+    :type colours: list
+    """
 
     def __init__(
             self,
@@ -20,23 +46,8 @@ class Scheme:
             colour_map=None,
             colour_bar_title=None,
             size=5,
-            plot_limits=None,
             colours=None):
-        """
-        Define an appearance scheme.
 
-        Arguments:
-        Colour -- Colour for a line/point.
-        Symbol -- Indicates point style e.g. cirlce 'o' or line style e.g '--'.
-        Label -- Label for legend.
-        LevelNames -- List of contour level names, i.e. for confidence regions
-        ColourMap -- Colour map for 2D plots.
-        ColourBarTitle - Title for colour bar.
-        Size -- Size of points.
-        plot_limits -- Axes limits.
-        Colours -- List of colours to be iterated, for, e.g., filled contours.
-
-        """
         self.colour = colour
         self.symbol = symbol
         self.label = label
@@ -44,7 +55,6 @@ class Scheme:
         self.colour_map = get_cmap(colour_map)
         self.colour_bar_title = colour_bar_title
         self.size = size
-        self.plot_limits = plot_limits
         self.colours = colours
 
 

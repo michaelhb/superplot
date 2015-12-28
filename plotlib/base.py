@@ -1,5 +1,8 @@
 """
-Abstract base classes for plots.
+============
+plotlib.base
+============
+This module contains abstract base classes, used to implement Plots.
 """
 
 # External modules.
@@ -14,9 +17,14 @@ import plot_mod as pm
 
 class Plot(object):
     """
-    Base class for all plot types. Specifies interface for
+    Abstract base class for all plot types. Specifies interface for
     creating a plot object, and getting the figure associated
     with it. Does any common preprocessing / init (IE log scaling).
+
+    :param data: Data dictionary loaded from chain file by :py:mod:`data_loader`
+    :type data: dict
+    :param plot_options: :py:data:`plot_options.plot_options` configuration tuple.
+    :type plot_options: namedtuple
     """
 
     __metaclass__ = ABCMeta
@@ -80,13 +88,16 @@ class Plot(object):
 
     @abstractmethod
     def figure(self):
-        """ Return the pyplot figure associated with this plot """
+        """
+        Abstract method - return the pyplot figure associated with this plot.
+        """
         pass
 
 
 class OneDimPlot(Plot):
     """
-    Base class for one dimensional plot types.
+    Abstract base class for one dimensional plot types. \
+    Handles initialization tasks common to one dimensional plots.
     """
     __metaclass__ = ABCMeta
 
@@ -117,8 +128,10 @@ class OneDimPlot(Plot):
 
 class TwoDimPlot(Plot):
     """
-    Base class for two dimensional plot types (plus the 3D scatter plot
-    which is an honorary two dimensional plot for now).
+    Abstract vase class for two dimensional plot types \
+    (plus the 3D scatter plot which is an honorary two \
+    dimensional plot for now). Handles initialization tasks \
+    common to these plot types.
     """
     __metaclass__ = ABCMeta
 

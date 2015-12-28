@@ -4,8 +4,6 @@
 #                                                                       #
 #########################################################################
 
-# TODO this is broken!
-
 # External modules.
 
 # SuperPy modules.

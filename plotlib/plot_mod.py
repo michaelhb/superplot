@@ -1,11 +1,10 @@
-##########################################################################
-#                                                                       #
-#     P l o t   M o d                                                   #
-#                                                                       #
-#########################################################################
-
-# General functions for plotting data, defined once so that they can be used/edited
-# in a consistent manner.
+"""
+================
+plotlib.plot_mod
+================
+General functions for plotting data, defined once so that they can be used/edited
+in a consistent manner.
+"""
 
 # Python modules
 import subprocess
@@ -20,8 +19,11 @@ def plot_data(x, y, scheme):
     Plot a point with a particular color scheme.
 
     :param x: Data to be plotted on x-axis
+    :type x: numpy.ndarray
     :param y: Data to be plotted on y-axis
-    :param scheme: Object containing plot options
+    :type y: numpy.ndarray
+    :param scheme: Object containing plot appearance options
+    :type scheme: :py:class:`schemes.Scheme`
 
     """
     plt.plot(
@@ -35,7 +37,8 @@ def plot_data(x, y, scheme):
 def appearance():
     """ 
     Specify the plot's appearance, with e.g. font types etc.
-    from an mplstyle file.
+    from an mplstyle file. Currently this file must be placed in the
+    application root directory and named 'default.mplstyle'.
     
     .. Warning: If the user wants LaTeX, we first check if the 'latex' \
         shell command is available (as this is what matplotlib uses to \
@@ -74,7 +77,9 @@ def plot_limits(ax, limits=None):
     If specified plot limits, set them.
 
     :param ax: Axis object
-    :param plot_limits: Array of plot limits in order xmin, xmax, ymin, ymax
+    :type ax: matplotlib.axes.Axes
+    :param plot_limits: Plot limits
+    :type plot_limits: list [xmin,xmax,ymin,ymax]
     """
     if limits is not None:
         ax.set_xlim([limits[0], limits[1]])
@@ -86,8 +91,11 @@ def plot_ticks(xticks, yticks, ax):
     Set the numbers of ticks on the axis.
 
     :param ax: Axis object
+    :type ax: matplotlib.axes.Axes
     :param xticks: Number of required major x ticks
+    :type xticks: integer
     :param yticks: Number of required major y ticks
+    :type yticks: integer
 
     """
     # Set major x, y ticks
@@ -103,8 +111,11 @@ def plot_labels(xlabel, ylabel, plot_title=None):
     Plot axis labels.
 
     :param xlabel: Label for x-axis
+    :type xlabel: string
     :param ylabel: Label for y-axis
+    :type ylabel: string
     :param plot_title: Title appearing above plot
+    :type plot_title: string
 
     """
     plt.xlabel(xlabel)
@@ -121,9 +132,13 @@ def plot_image(data, bin_limits, plot_limits, scheme):
         interpolation='nearest'. 
         
     :param data: x-, y- and z-data
+    :type data: numpy.ndarray
     :param bin_limits: Bin limits
+    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
     :param plot_limits: Plot limits
+    :type plot_limits: list [xmin,xmax,ymin,ymax]
     :param scheme: Object containing appearance options, colours etc
+    :type scheme: :py:class:`schemes.Scheme`
     """
 
     # Flatten bin limits
@@ -158,12 +173,14 @@ def plot_contour(data, levels, scheme, bin_limits):
     """ 
     Make unfilled contours for a plot.
 
-    :param xdata: x-axis data
-    :param ydata: y-axis data
     :param data: Data to be contoured
+    :type data: numpy.ndarray
     :param levels: Levels at which to draw contours
+    :type levels: list [float,]
     :param scheme: Object containing appearance options, colours etc
+    :type scheme: :py:class:`schemes.Scheme`
     :param bin_limits: Bin limits
+    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
     """
 
     # Flatten bin limits.
@@ -192,8 +209,6 @@ def plot_contour(data, levels, scheme, bin_limits):
 
 
 def plot_filled_contour(
-        xdata,
-        ydata,
         data,
         levels,
         scheme,
@@ -201,14 +216,14 @@ def plot_filled_contour(
     """ 
     Make filled contours for a plot.
 
-    :param xdata: x-axis data
-    :param ydata: y-axis data
     :param data: Data to be contoured
+    :type data: numpy.ndarray
     :param levels: Levels at which to draw contours
-    :param names: Labels for the contour levels
+    :type levels: list [float,]
     :param scheme: Object containing appearance options, colours etc
+    :type scheme: :py:class:`schemes.Scheme`
     :param bin_limits: Bin limits
-
+    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
     """
 
     # Flatten bin limits
@@ -249,19 +264,21 @@ def plot_filled_contour(
 
 
 def plot_band(x_data, y_data, width, ax, scheme):
-    """ 
+    r"""
     Plot a band around a line.
     
     This is typically for a theoretical error. Vary x by +/- width
     and find the variation in y. Fill between these largest 
     and smallest y for a given x.
 
-    Arguments:
     :param x_data: x-data to be plotted
+    :type x_data: numpy.ndarray
     :param y_data: y-data to be plotted
-    :param width: Width of band - it is this width on the left and right hand-side
+    :type y_data: numpy.ndarray
+    :param width: Width of band - width on the left and right hand-side
+    :type width: integer
     :param ax: An axis object to plot the band on
-
+    :type ax: matplotlib.axes.Axes
     """
 
     # For a given x, find largest/smallest y within x \pm width

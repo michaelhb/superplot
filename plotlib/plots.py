@@ -1,15 +1,19 @@
 """
+=============
+plotlib.plots
+=============
+
 Implementation of plot classes. These inherit from the classes in 
-plotlib.Base and must specify a figure() method which returns 
+plotlib.base and must specify a figure() method which returns
 a matplotlib figure object.
 
 Plots should also have a "description" attribute with a one line
 description of the type of plot.
 
-A list of implemented plot classes is at the bottom of this module.
-This is useful for the GUI, which needs to enumerate the available
-plots. So if a new plot type is implemented, it should be added 
-to this list.
+A list of implemented plot classes :py:data:`plotlib.plots.plot_types`
+is found at the bottom of this module. This is useful for the GUI,
+which needs to enumerate the available plots. So if a new plot type
+is implemented, it should be added to this list.
 
 Also includes a function to save the current plot.
 """
@@ -189,8 +193,6 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
 
         # Plot contours
         pm.plot_filled_contour(
-                self.xdata,
-                self.ydata,
                 pdf,
                 levels,
                 schemes.posterior,
@@ -232,8 +234,6 @@ class TwoDimPlotFilledPL(TwoDimPlot):
         levels = [two_dim.critical_prof_like(aa) for aa in opt.alpha]
 
         pm.plot_filled_contour(
-                self.xdata,
-                self.ydata,
                 prof_data.prof_like,
                 levels,
                 schemes.prof_like,
@@ -440,3 +440,6 @@ plot_types = [
     TwoDimPlotPL,
     Scatter
 ]
+"""
+List of Plot classes in this module.
+"""

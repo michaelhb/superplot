@@ -31,6 +31,8 @@ plotlib
 .. automodule:: plotlib.plots
     :members:
 
+.. py:attribute:: plotlib.base.plot_types
+
 ===========
 data_loader
 ===========

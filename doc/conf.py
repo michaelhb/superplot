@@ -289,6 +289,8 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
 
+# We have to mock out all third party modules so they aren't
+# included in the docs. Is there a better way to do this?
 import sys
 import mock
 

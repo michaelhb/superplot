@@ -128,7 +128,7 @@ class OneDimPlot(Plot):
 
 class TwoDimPlot(Plot):
     """
-    Abstract vase class for two dimensional plot types \
+    Abstract base class for two dimensional plot types \
     (plus the 3D scatter plot which is an honorary two \
     dimensional plot for now). Handles initialization tasks \
     common to these plot types.

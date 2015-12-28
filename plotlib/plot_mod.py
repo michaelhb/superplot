@@ -78,8 +78,8 @@ def plot_limits(ax, limits=None):
 
     :param ax: Axis object
     :type ax: matplotlib.axes.Axes
-    :param plot_limits: Plot limits
-    :type plot_limits: list [xmin,xmax,ymin,ymax]
+    :param limits: Plot limits
+    :type limits: list [xmin,xmax,ymin,ymax]
     """
     if limits is not None:
         ax.set_xlim([limits[0], limits[1]])
@@ -279,6 +279,8 @@ def plot_band(x_data, y_data, width, ax, scheme):
     :type width: integer
     :param ax: An axis object to plot the band on
     :type ax: matplotlib.axes.Axes
+    :param scheme: Object containing appearance options, colours etc
+    :type scheme: :py:class:`schemes.Scheme`
     """
 
     # For a given x, find largest/smallest y within x \pm width

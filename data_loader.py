@@ -1,13 +1,10 @@
-##########################################################################
-#                                                                        #
-#     D a ta L o a d e r                                                 #
-#                                                                        #
-##########################################################################
+r"""
+This module contains code for:
 
-# Code for:
-# - Opening and processing a data file
-# - Opening and processing an info file
-# - Using the info file to label the data
+* Opening and processing a data file.
+* Opening and processing an info file.
+* Using the info file to label the data.
+"""
 
 import numpy as np
 import cPickle as pickle
@@ -18,14 +15,13 @@ import re
 def load(infofile, datafile):
     """ Import the data used by SuperPlot.
 
-    Arguments:
-    datafile - Name of chain file
-    infofile - Name of info file
+    :param datafile: Name of chain file
+    :type datafile: string
+    :param infofile: Name of info file
+    :type infofile: string
 
-    Returns:
-    label -- Dictionary with chain's labels.
-    data -- Dictionary with chain.
-
+    :returns: Dictionary with chain's labels, and dictionary with chain.
+    :rtype: dict (labels), dict (chain)
     """
 
     data = open_chain(datafile)
@@ -36,14 +32,14 @@ def load(infofile, datafile):
 
 
 def open_chain(filename):
-    """ Open a text file or serialised data. If opening a text file, serialise data for future plots.
+    """ Open a text file or serialised data.
+    If opening a text file, serialise data for future plots.
 
-    Arguments:
-    filename -- Name of chain file.
+    :param filename: Name of chain file
+    :type filename: string
 
-    Returns:
-    data -- Dictionary of chain indexed with integers.
-
+    :returns: Dictionary of chain indexed with integers.
+    :rtype: dict
     """
     # If serialised data, open it. Else open a data file and serialise data too,
     # with the same name but with the sl suffix.
@@ -77,12 +73,11 @@ def open_chain(filename):
 def open_data_file(filename):
     """ Open a text file and return dictonary of numpy arrays of data.
 
-    Arguments:
-    filename -- Name of chain file.
+    :param filename: Name of chain file.
+    :type filename: string
 
-    Returns:
-    data -- Dictionary of chain indexed with integers.
-
+    :returns: Dictionary of chain indexed with integers.
+    :rtype: dict
     """
     # Find size of text file.
 
@@ -125,7 +120,14 @@ def open_data_file(filename):
 
 
 def read_info(filename):
-    """ Read labels from a SuperBayeS style info file. """
+    """ Read labels from a SuperBayeS style info file.
+
+    :param filename: Name of info file
+    :type filename: string
+
+    :returns: Diction of labels indexed with integers
+    :rtype: dict
+    """
     label = {}
 
     if filename is None:
@@ -159,18 +161,19 @@ def read_info(filename):
 
 
 def label_chain(data, info):
-    """ Match labels to the data.
-    i) Check if labels match data. 
-    ii) If they don't, use data indicies.
+    r""" Match labels to the data.
 
-    Arguments:
-    data -- Data chain, to match arguments with.
-    info -- Loaded contents of info file
+    * Check if labels match data.
+    * If they don't, use data indicies.
 
-    Return:
-    label -- Dictonary of labels, indexed with the same
-    indicies as the data chain.
+    :param data: Data chain, to match arguments with.
+    :type data: dict
+    :param info: Loaded contents of info file.
+    :type info: dict
 
+    :returns: Dictonary of labels, indexed with the same \
+        indicies as the data chain.
+    :rtype: dict
     """
 
     label = info

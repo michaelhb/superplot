@@ -1,17 +1,8 @@
-#########################################################################
-#                                                                       #
-""" G U I   P l o t t i n g
-
-    Run this GUI interactively to look at your results.
-    Project: SuperPlot.
-    Author: Andrew Fowlie, KBFI, Tallinn.
-    Version: 1.1.
 """
-#                                                                       #
-#########################################################################
+This module provides the superplot GUI.
+"""
 
 # External modules.
-
 # Uncomment to select /GTK/GTKAgg/GTKCairo
 # from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
@@ -34,9 +25,8 @@ pygtk.require('2.0')
 def open_file_gui():
     """ GUI for opening a file with a file browser.
 
-    Return:
-    filename -- Name of file selected with GUI.
-
+    :returns: Name of file selected with GUI.
+    :rtype: string
     """
     # Select the file from a dialog box.
     dialog = gtk.FileChooserDialog("Open..",
@@ -72,9 +62,8 @@ def open_file_gui():
 def save_file_gui():
     """ GUI for saving a file with a file browser.
 
-    Return:
-    filename -- Name of file selected with GUI.
-
+    :returns: Name of file selected with GUI.
+    :rtype: string
     """
     # Select the file from a dialog box.
     dialog = gtk.FileChooserDialog("Open..",
@@ -108,22 +97,26 @@ def save_file_gui():
     return filename
 
 
-#########################################################################
-
-# This class is a box to select the graph options, and a button to make a
-# graph.
-
 class GUIControl:
+    """
+    Main GUI element for superplot. Presents controls for selecting plot options,
+    creating a plot, and saving a plot.
+
+    :param labels: Chain label dictionary.
+    :type labels: dict
+    :param data: Chain data dictionary.
+    :type data: dict
+    :param xindex: Default x-data index.
+    :type xindex: integer
+    :param yindex: Default y-data index.
+    :type yindex: integer
+    :param zindex: Default z-data index.
+    :type zindex: integer
+    :param default_plot_type: Default plot type index.
+    :type default_plot_type: integer
+
+    """
     def __init__(self, labels, data, xindex=2, yindex=3, zindex=4, default_plot_type=0):
-        """ Initialise GUI.
-
-        Arguments:
-        labels -- List of data labels.
-        data -- Data itself.
-        dx, dy, dz -- Indexes of default data to be plotted on x, y, z axis.
-        default_plot_type -- Default plot type.
-
-        """
 
         # Import data and labels as local variables, etc.
         self.data = data
@@ -193,13 +186,13 @@ class GUIControl:
             self.x.append_text(data_name)
         self.x.set_wrap_width(5)  # Make box wider for long lists.
         self.gridbox.attach(self.x, 1, 2, 1, 2, xoptions=gtk.FILL)
-        self.x.connect('changed', self.cx)
+        self.x.connect('changed', self._cx)
 
         # Text box to alter x-axis label.
         self.xtext = gtk.Entry()
         self.xtext.set_text(self.labels[self.xindex])
         self.gridbox.attach(self.xtext, 1, 2, 2, 3, xoptions=gtk.FILL)
-        self.xtext.connect("changed", self.cxtext)
+        self.xtext.connect("changed", self._cxtext)
 
         # Set default plot variable.
         self.x.set_active(self.xindex)
@@ -219,13 +212,13 @@ class GUIControl:
             self.y.append_text(data_name)
         self.y.set_wrap_width(5)  # Make box wider for long lists.
         self.gridbox.attach(self.y, 1, 2, 3, 4, xoptions=gtk.FILL)
-        self.y.connect('changed', self.cy)
+        self.y.connect('changed', self._cy)
 
         # Text box to alter y-axis label.
         self.ytext = gtk.Entry()
         self.ytext.set_text(self.labels[self.yindex])
         self.gridbox.attach(self.ytext, 1, 2, 4, 5, xoptions=gtk.FILL)
-        self.ytext.connect("changed", self.cytext)
+        self.ytext.connect("changed", self._cytext)
 
         # Set default plot variable.
         self.y.set_active(self.yindex)
@@ -245,13 +238,13 @@ class GUIControl:
             self.z.append_text(data_name)
         self.z.set_wrap_width(5)  # Make box wider for long lists.
         self.gridbox.attach(self.z, 1, 2, 5, 6, xoptions=gtk.FILL)
-        self.z.connect('changed', self.cz)
+        self.z.connect('changed', self._cz)
 
         # Text box to alter z-axis label.
         self.ztext = gtk.Entry()
         self.ztext.set_text(self.labels[self.zindex])
         self.gridbox.attach(self.ztext, 1, 2, 6, 7, xoptions=gtk.FILL)
-        self.ztext.connect("changed", self.cztext)
+        self.ztext.connect("changed", self._cztext)
 
         # Set default plot variable.
         self.z.set_active(self.zindex)
@@ -308,7 +301,7 @@ class GUIControl:
         # Text box to alter title.
         self.alimits = gtk.Entry()
         self.gridbox.attach(self.alimits, 1, 2, 12, 13, xoptions=gtk.FILL)
-        self.alimits.connect("changed", self.calimits)
+        self.alimits.connect("changed", self._calimits)
         self.alimits.append_text("")
 
         # Bin limits!
@@ -318,14 +311,14 @@ class GUIControl:
         # Text box to alter title.
         self.blimits = gtk.Entry()
         self.gridbox.attach(self.blimits, 1, 2, 13, 14, xoptions=gtk.FILL)
-        self.blimits.connect("changed", self.cblimits)
+        self.blimits.connect("changed", self._cblimits)
         self.blimits.append_text("")
 
         #######################################################################
 
         # Button to make the plot.
         makeplot = gtk.Button('Make plot.')
-        makeplot.connect("clicked", self.pmakeplot)
+        makeplot.connect("clicked", self._pmakeplot)
         self.gridbox.attach(makeplot, 1, 2, 14, 15, xoptions=gtk.FILL)
 
         #######################################################################
@@ -343,7 +336,7 @@ class GUIControl:
     # rather than the label of the option selected. We find the data key
     # corresponding to that index.
 
-    def cx(self, combobox):
+    def _cx(self, combobox):
         """ Callback function for setting parameter x from combo-box
         and updating the text-box.
 
@@ -354,7 +347,7 @@ class GUIControl:
         self.xindex = self.data.keys()[combobox.get_active()]  # Set variable.
         self.xtext.set_text(self.labels[self.xindex])  # Update text-box.
 
-    def cy(self, combobox):
+    def _cy(self, combobox):
         """ Callback function for setting parameter y from combo-box
         and updating the text-box.
 
@@ -365,7 +358,7 @@ class GUIControl:
         self.yindex = self.data.keys()[combobox.get_active()]
         self.ytext.set_text(self.labels[self.yindex])
 
-    def cz(self, combobox):
+    def _cz(self, combobox):
         """ Callback function for setting parameter z from combo-box
         and updating the text-box.
 
@@ -376,7 +369,7 @@ class GUIControl:
         self.zindex = self.data.keys()[combobox.get_active()]
         self.ztext.set_text(self.labels[self.zindex])
 
-    def cxtext(self, textbox):
+    def _cxtext(self, textbox):
         """ Callback function for changing x label.
 
         Arguments:
@@ -385,7 +378,7 @@ class GUIControl:
         """
         self.labels[self.xindex] = textbox.get_text()
 
-    def cytext(self, textbox):
+    def _cytext(self, textbox):
         """ Callback function for changing y label.
 
         Arguments:
@@ -394,7 +387,7 @@ class GUIControl:
         """
         self.labels[self.yindex] = textbox.get_text()
 
-    def cztext(self, textbox):
+    def _cztext(self, textbox):
         """ Callback function for changing z label.
 
         Arguments:
@@ -403,7 +396,7 @@ class GUIControl:
         """
         self.labels[self.zindex] = textbox.get_text()
 
-    def calimits(self, textbox):
+    def _calimits(self, textbox):
         """ Callback function for setting axis/plot limits.
 
         Arguments:
@@ -421,7 +414,7 @@ class GUIControl:
         # Convert to floats.
         self.plot_limits = [float(i) for i in self.plot_limits if i]
 
-    def cblimits(self, textbox):
+    def _cblimits(self, textbox):
         """ Callback function for setting bin limits.
 
         Arguments:
@@ -445,7 +438,7 @@ class GUIControl:
         except:
             raise IndexError
 
-    def pmakeplot(self, button):
+    def _pmakeplot(self, button):
         """ Callback function for pressing make plot.
         Main action is that it calls a ploting function that returns a figure object,
         that is attached to our window.
@@ -494,13 +487,13 @@ class GUIControl:
 
         # Button to save the plot.
         save_button = gtk.Button('Save plot.')
-        save_button.connect("clicked", self.psave)
+        save_button.connect("clicked", self._psave)
         self.gridbox.attach(save_button, 2, 4, 13, 14)
 
         # Show new buttons etc.
         self.window.show_all()
 
-    def psave(self, button):
+    def _psave(self, button):
         """ Callback function to save a plot via a dialogue box.
         NB differs from toolbox save, because it's figure object, rather
         than image in the canvas box.

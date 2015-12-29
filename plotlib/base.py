@@ -73,8 +73,8 @@ class Plot(object):
         # Private method to set up a new plot.
         # Returns the figure and axes.
         opt = self.plot_options
-        
-        #TODO opt.size is probably redundant as it is set in 
+
+        # TODO opt.size is probably redundant as it is set in
         # mplstyle in apperance
         fig = plt.figure(figsize=opt.size)  # Size in inches.
         ax = fig.add_subplot(1, 1, 1)

@@ -60,11 +60,11 @@ class OneDimStandard(OneDimPlot):
 
         # Best-fit point
         pm.plot_data(stats.best_fit(self.chisq, self.xdata),
-                     0.02, 
+                     0.02,
                      schemes.best_fit)
         # Posterior mean 
         pm.plot_data(stats.posterior_mean(self.posterior, self.xdata),
-                     0.02, 
+                     0.02,
                      schemes.posterior_mean)
 
         # Posterior PDF
@@ -75,20 +75,23 @@ class OneDimStandard(OneDimPlot):
         pm.plot_data(pdf_data.bin_centers, pdf_data.pdf, schemes.posterior)
 
         # Profile likelihood
-        prof_data = one_dim.prof_data(self.xdata, 
+        prof_data = one_dim.prof_data(self.xdata,
                                       self.chisq,
-                                      nbins=opt.nbins, 
+                                      nbins=opt.nbins,
                                       bin_limits=opt.bin_limits)
         pm.plot_data(prof_data.bin_centers, prof_data.prof_like, schemes.prof_like)
 
         # Credible region
-        lower_credible_region = [one_dim.credible_region(pdf_data.pdf, pdf_data.bin_centers, alpha=aa, region="lower") for aa in opt.alpha]
-        upper_credible_region = [one_dim.credible_region(pdf_data.pdf, pdf_data.bin_centers, alpha=aa, region="upper") for aa in opt.alpha]
+        lower_credible_region = [one_dim.credible_region(pdf_data.pdf, pdf_data.bin_centers, alpha=aa, region="lower")
+                                 for aa in opt.alpha]
+        upper_credible_region = [one_dim.credible_region(pdf_data.pdf, pdf_data.bin_centers, alpha=aa, region="upper")
+                                 for aa in opt.alpha]
         for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, schemes.credible_regions):
             pm.plot_data([lower, upper], [1.1, 1.1], scheme)
-            
+
         # Confidence interval
-        conf_intervals = [one_dim.conf_interval(prof_data.prof_chi_sq, prof_data.bin_centers, alpha=aa) for aa in opt.alpha]
+        conf_intervals = [one_dim.conf_interval(prof_data.prof_chi_sq, prof_data.bin_centers, alpha=aa) for aa in
+                          opt.alpha]
         for interval, scheme in zip(conf_intervals, schemes.conf_intervals):
             pm.plot_data(interval, [1.] * int(opt.nbins), scheme)
 
@@ -112,9 +115,9 @@ class OneDimChiSq(OneDimPlot):
 
         # Data itself.
         prof_data = one_dim.prof_data(self.xdata,
-                                     self.chisq,
-                                     nbins=opt.nbins,
-                                     bin_limits=opt.bin_limits)
+                                      self.chisq,
+                                      nbins=opt.nbins,
+                                      bin_limits=opt.bin_limits)
 
         pm.plot_data(prof_data.bin_centers, prof_data.prof_chi_sq, schemes.prof_chi_sq)
 
@@ -127,9 +130,9 @@ class OneDimChiSq(OneDimPlot):
 
         # Confidence intervals as filled regions
         critical_chi_sq = [chi2.ppf(1. - aa, 1) for aa in opt.alpha]
-  
 
-        for chi_sq, facecolor, name in zip(critical_chi_sq, schemes.prof_chi_sq.colours, schemes.prof_chi_sq.level_names):
+        for chi_sq, facecolor, name in zip(critical_chi_sq, schemes.prof_chi_sq.colours,
+                                           schemes.prof_chi_sq.level_names):
             ax.fill_between(prof_data.bin_centers,
                             0,
                             10,
@@ -138,7 +141,7 @@ class OneDimChiSq(OneDimPlot):
                             interpolate=False,
                             alpha=0.7
                             )
-                            
+
             # Plot a proxy for the legend - plot spurious data outside plot limits,
             # with legend entry matching colours of filled regions.
             plt.plot(-1, -1, 's', color=facecolor, label=name, alpha=0.7, ms=15)
@@ -151,7 +154,7 @@ class OneDimChiSq(OneDimPlot):
         pm.legend(opt.leg_title)
 
         # Override y-axis label
-        #TODO what is being overridden here?
+        # TODO what is being overridden here?
         plt.ylabel(schemes.prof_chi_sq.label)
 
         return fig
@@ -168,13 +171,13 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         opt = self.plot_options
 
         # Best-fit point
-        pm.plot_data(stats.best_fit(self.chisq, self.xdata), 
-                     stats.best_fit(self.chisq, self.ydata), 
+        pm.plot_data(stats.best_fit(self.chisq, self.xdata),
+                     stats.best_fit(self.chisq, self.ydata),
                      schemes.best_fit)
-                     
+
         # Posterior mean
-        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata), 
-                     stats.posterior_mean(self.posterior, self.ydata), 
+        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata),
+                     stats.posterior_mean(self.posterior, self.ydata),
                      schemes.posterior_mean)
 
         # Credible regions
@@ -184,7 +187,7 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
                 self.posterior,
                 nbins=opt.nbins,
                 bin_limits=opt.bin_limits)
-                
+
         levels = [two_dim.critical_density(pdf_data.pdf, aa) for aa in opt.alpha]
 
         # Make sure pdf is correctly normalised.
@@ -215,13 +218,13 @@ class TwoDimPlotFilledPL(TwoDimPlot):
         opt = self.plot_options
 
         # Best-fit point
-        pm.plot_data(stats.best_fit(self.chisq, self.xdata), 
-                     stats.best_fit(self.chisq, self.ydata), 
+        pm.plot_data(stats.best_fit(self.chisq, self.xdata),
+                     stats.best_fit(self.chisq, self.ydata),
                      schemes.best_fit)
-                     
+
         # Posterior mean
-        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata), 
-                     stats.posterior_mean(self.posterior, self.ydata), 
+        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata),
+                     stats.posterior_mean(self.posterior, self.ydata),
                      schemes.posterior_mean)
 
         prof_data = two_dim.profile_like(
@@ -256,13 +259,13 @@ class TwoDimPlotPDF(TwoDimPlot):
         opt = self.plot_options
 
         # Best-fit point
-        pm.plot_data(stats.best_fit(self.chisq, self.xdata), 
-                     stats.best_fit(self.chisq, self.ydata), 
+        pm.plot_data(stats.best_fit(self.chisq, self.xdata),
+                     stats.best_fit(self.chisq, self.ydata),
                      schemes.best_fit)
-                     
+
         # Posterior mean
-        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata), 
-                     stats.posterior_mean(self.posterior, self.ydata), 
+        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata),
+                     stats.posterior_mean(self.posterior, self.ydata),
                      schemes.posterior_mean)
 
         pdf_data = two_dim.posterior_pdf(
@@ -271,7 +274,7 @@ class TwoDimPlotPDF(TwoDimPlot):
                 self.posterior,
                 nbins=opt.nbins,
                 bin_limits=opt.bin_limits)
-                
+
         pm.plot_image(
                 pdf_data.pdf,
                 opt.bin_limits,
@@ -307,13 +310,13 @@ class TwoDimPlotPL(TwoDimPlot):
         opt = self.plot_options
 
         # Best-fit point
-        pm.plot_data(stats.best_fit(self.chisq, self.xdata), 
-                     stats.best_fit(self.chisq, self.ydata), 
+        pm.plot_data(stats.best_fit(self.chisq, self.xdata),
+                     stats.best_fit(self.chisq, self.ydata),
                      schemes.best_fit)
-                     
+
         # Posterior mean
-        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata), 
-                     stats.posterior_mean(self.posterior, self.ydata), 
+        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata),
+                     stats.posterior_mean(self.posterior, self.ydata),
                      schemes.posterior_mean)
 
         prof_data = two_dim.profile_like(
@@ -322,7 +325,7 @@ class TwoDimPlotPL(TwoDimPlot):
                 self.chisq,
                 nbins=opt.nbins,
                 bin_limits=opt.bin_limits)
-                
+
         pm.plot_image(
                 prof_data.prof_like,
                 opt.bin_limits,
@@ -355,13 +358,13 @@ class Scatter(TwoDimPlot):
         opt = self.plot_options
 
         # Best-fit point
-        pm.plot_data(stats.best_fit(self.chisq, self.xdata), 
-                     stats.best_fit(self.chisq, self.ydata), 
+        pm.plot_data(stats.best_fit(self.chisq, self.xdata),
+                     stats.best_fit(self.chisq, self.ydata),
                      schemes.best_fit)
-                     
+
         # Posterior mean
-        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata), 
-                     stats.posterior_mean(self.posterior, self.ydata), 
+        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata),
+                     stats.posterior_mean(self.posterior, self.ydata),
                      schemes.posterior_mean)
 
         # Plot scatter of points.
@@ -394,7 +397,7 @@ class Scatter(TwoDimPlot):
                 self.posterior,
                 nbins=opt.nbins,
                 bin_limits=opt.bin_limits)
-                
+
         levels = [two_dim.critical_density(pdf_data.pdf, aa) for aa in opt.alpha]
 
         # Make sure pdf is correctly normalised
@@ -406,8 +409,7 @@ class Scatter(TwoDimPlot):
                 levels,
                 schemes.posterior,
                 bin_limits=opt.bin_limits)
-                
-        
+
         # Confidence interval        
         prof_data = two_dim.profile_like(
                 self.xdata,
@@ -415,7 +417,6 @@ class Scatter(TwoDimPlot):
                 self.chisq,
                 nbins=opt.nbins,
                 bin_limits=opt.bin_limits)
-                
 
         levels = [two_dim.critical_prof_like(aa) for aa in opt.alpha]
 
@@ -423,7 +424,7 @@ class Scatter(TwoDimPlot):
                 prof_data.prof_like,
                 levels,
                 schemes.prof_like,
-                bin_limits=opt.bin_limits)        
+                bin_limits=opt.bin_limits)
 
         # Add legend
         pm.legend(opt.leg_title)

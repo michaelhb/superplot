@@ -97,7 +97,7 @@ def profile_like(paramx, paramy, chi_sq, nbins, bin_limits=None):
     bin_numbers_y = np.digitize(paramy, bin_edges_y)
     
     # Shift bin numbers to account for outliers
-    shift = lambda bin_number: point.shift(bin_number, nbins)
+    def shift(bin_number_): return point.shift(bin_number_, nbins)
     bin_numbers_x = map(shift, bin_numbers_x)
     bin_numbers_y = map(shift, bin_numbers_y)
     
@@ -195,6 +195,6 @@ def critical_prof_like(alpha):
     # First invert alpha to a delta chi-squared with inverse
     # cumalative chi-squared distribution with two degrees of freedom.
     critical_chi_sq = stats.chi2.ppf(1. - alpha, 2)
-    critical_prof_like = np.exp(- 0.5 * critical_chi_sq )
+    _critical_prof_like = np.exp(- 0.5 * critical_chi_sq)
 
-    return critical_prof_like
+    return _critical_prof_like

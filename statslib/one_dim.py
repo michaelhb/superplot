@@ -37,13 +37,13 @@ def posterior_pdf(parameter, posterior, nbins=50, bin_limits=None):
     :returns: Posterior pdf and centers of bins for probability distribution.
     :rtype: named tuple (pdf: numpy.ndarray, bin_centers: numpy.ndarray)
     """
-    
+
     # Histogram the data
-    pdf, bin_edges = np.histogram(parameter, 
+    pdf, bin_edges = np.histogram(parameter,
                                   nbins,
                                   range=bin_limits,
                                   weights=posterior)
-                                  
+
     # Normalize the PDF so that its maximum value is one.
     # NB could normalize so that area is one.
     pdf = pdf / pdf.max()
@@ -81,18 +81,20 @@ def prof_data(parameter, chi_sq, nbins=50, bin_limits=None):
     """
 
     # Bin the data to find bins, but ignore count itself
-    bin_edges = np.histogram(parameter, 
+    bin_edges = np.histogram(parameter,
                              nbins,
                              range=bin_limits
                              )[1]
     # Find centres of bins
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) * 0.5
-                                  
+
     # Find bin number for each point in the chain
     bin_numbers = np.digitize(parameter, bin_edges)
 
     # Shift bin numbers to account for outliers
-    shift = lambda bin_number: point.shift(bin_number, nbins)
+    def shift(_bin_number):
+        return point.shift(_bin_number, nbins)
+
     bin_numbers = map(shift, bin_numbers)
 
     # Initialize the profiled chi-squared to something massive
@@ -109,12 +111,12 @@ def prof_data(parameter, chi_sq, nbins=50, bin_limits=None):
     prof_chi_sq = prof_chi_sq - prof_chi_sq.min()
     prof_like = np.exp(- 0.5 * prof_chi_sq)
 
-    prof_data = namedtuple("prof_data_1D", 
-                              ("prof_chi_sq", 
-                              "prof_like", 
-                              "bin_centers")
-                              )
-    return prof_data(prof_chi_sq, prof_like, bin_centers)
+    _prof_data = namedtuple("prof_data_1D", (
+                                "prof_chi_sq",
+                                "prof_like",
+                                "bin_centers"))
+
+    return _prof_data(prof_chi_sq, prof_like, bin_centers)
 
 
 def credible_region(pdf, bin_centers, alpha, region):
@@ -141,16 +143,16 @@ def credible_region(pdf, bin_centers, alpha, region):
     if region is "lower":
         desired_prob = 0.5 * alpha
     elif region is "upper":
-        desired_prob = 1. - 0.5 * alpha 
+        desired_prob = 1. - 0.5 * alpha
 
-    # Normalize pdf so that area is one
+        # Normalize pdf so that area is one
     pdf = pdf / sum(pdf)
 
     # Integrate until we find desired probability
     for index in range(pdf.size):
         prob = sum(pdf[:index])
         if prob > desired_prob:
-            credible_region = bin_centers[index] 
+            _credible_region = bin_centers[index]
             break
     else:
         raise RuntimeError("Could not find credible region")
@@ -159,7 +161,7 @@ def credible_region(pdf, bin_centers, alpha, region):
     if abs(prob - desired_prob) > 0.01:
         warnings.warn("Increase number of bins")
 
-    return credible_region
+    return _credible_region
 
 
 def conf_interval(chi_sq, bin_centers, alpha):
@@ -185,16 +187,16 @@ def conf_interval(chi_sq, bin_centers, alpha):
     # inverse cumalative chi-squared distribution with 
     # one degree of freedom
     critical_chi_sq = stats.chi2.ppf(1. - alpha, 1)
-   
+
     # Find regions of binned parameter that have
     # delta chi_sq < critical_value
     delta_chi_sq = chi_sq - chi_sq.min()
-    conf_interval = np.zeros(chi_sq.size)
+    _conf_interval = np.zeros(chi_sq.size)
 
-    for index in range(delta_chi_sq .size):
-        if delta_chi_sq [index] < critical_chi_sq:
-            conf_interval[index] = bin_centers[index]
+    for index in range(delta_chi_sq.size):
+        if delta_chi_sq[index] < critical_chi_sq:
+            _conf_interval[index] = bin_centers[index]
         else:
-            conf_interval[index] = None
+            _conf_interval[index] = None
 
-    return conf_interval
+    return _conf_interval

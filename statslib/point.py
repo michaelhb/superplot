@@ -7,6 +7,7 @@ This module contains statistical functions that return a single data point.
 
 import numpy as np
 
+
 def shift(bin_number, nbins):
     """
     Modify bin numbers so that bin numbers,

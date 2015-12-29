@@ -35,30 +35,30 @@ def main():
         bestfit = stats.best_fit(chisq, x)
         postmean = stats.posterior_mean(pw, x)
         pdf = one_dim.posterior_pdf(
-            x,
-            pw,
-            nbins=default("nbins"),
-            bin_limits=default("bin_limits")).pdf
+                x,
+                pw,
+                nbins=default("nbins"),
+                bin_limits=default("bin_limits")).pdf
         xc = one_dim.posterior_pdf(
-            x,
-            pw,
-            nbins=default("nbins"),
-            bin_limits=default("bin_limits")).bin_centers
+                x,
+                pw,
+                nbins=default("nbins"),
+                bin_limits=default("bin_limits")).bin_centers
 
         try:
             lowercredibleregion = one_dim.credible_region(
-                pdf,
-                xc,
-                alpha=default("alpha")[0],
-                region="lower")
+                    pdf,
+                    xc,
+                    alpha=default("alpha")[0],
+                    region="lower")
         except RuntimeError:
             lowercredibleregion = 0.0
         try:
             uppercredibleregion = one_dim.credible_region(
-                pdf,
-                xc,
-                alpha=default("alpha")[0],
-                region="upper")
+                    pdf,
+                    xc,
+                    alpha=default("alpha")[0],
+                    region="upper")
         except RuntimeError:
             uppercredibleregion = 0.0
         print name, bestfit, postmean, lowercredibleregion, uppercredibleregion
@@ -66,6 +66,7 @@ def main():
     # Print best-fit information.
     print 'Min ChiSq', data[1].min()
     print 'p-value', stats.p_value(data[1], default("dof"))
+
 
 if __name__ == "__main__":
     main()

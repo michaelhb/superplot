@@ -19,21 +19,22 @@ def plot_data(x, y, scheme):
     Plot a point with a particular color scheme.
 
     :param x: Data to be plotted on x-axis
-    :type x: numpy.ndarray
+    :type x: numpy.ndarray, numpy.dtype
     :param y: Data to be plotted on y-axis
-    :type y: numpy.ndarray
+    :type y: numpy.ndarray, numpy.dtype
     :param scheme: Object containing plot appearance options
     :type scheme: :py:class:`schemes.Scheme`
 
     """
     plt.plot(
-        x,
-        y,
-        scheme.symbol,
-        color=scheme.colour,
-        label=scheme.label,
-        ms=scheme.size)
-        
+            x,
+            y,
+            scheme.symbol,
+            color=scheme.colour,
+            label=scheme.label,
+            ms=scheme.size)
+
+
 def appearance():
     """ 
     Specify the plot's appearance, with e.g. font types etc.
@@ -45,21 +46,22 @@ def appearance():
         interface with LaTeX). If it isn't, we issue a warning and fall \
         back to mathtext. 
     """
-    
+
     plt.style.use("./default.mplstyle")
-        
+
     if rcParams["text.usetex"]:
         # Check if LaTeX is available
         try:
             subprocess.call(["latex", "-version"])
-        except OSError as e:
+        except OSError as err:
             rc("text", usetex=False)
-            if e.errno == os.errno.ENOENT:
+            if err.errno == os.errno.ENOENT:
                 warnings.warn(
-                    "Cannot find `latex` command. "
-                    "Using matplotlib's mathtext.")
+                        "Cannot find `latex` command. "
+                        "Using matplotlib's mathtext.")
 
-def legend(title=None):
+
+def legend(leg_title=None):
     """ 
     Turn on the legend.
     
@@ -67,10 +69,11 @@ def legend(title=None):
         Legend properties specfied in by mplstyle, but could be
         overridden here.
     
-    :param title: Title of legend
-    :type title: string
+    :param leg_title: Title of legend
+    :type leg_title: string
     """
-    leg = plt.legend(prop={'size': 16}, title=title)
+    plt.legend(prop={'size': 16}, title=leg_title)
+
 
 def plot_limits(ax, limits=None):
     """ 
@@ -153,12 +156,12 @@ def plot_image(data, bin_limits, plot_limits, scheme):
 
     # imshow is annoying - it reads (y, x) rather than (x, y) so we take 
     # transpose.
-    plt.im = plt.imshow(data.T, 
-                        cmap=scheme.colour_map, 
+    plt.im = plt.imshow(data.T,
+                        cmap=scheme.colour_map,
                         extent=bin_limits,
-                        interpolation='bilinear', 
+                        interpolation='bilinear',
                         label=scheme.label,
-                        origin='lower', 
+                        origin='lower',
                         aspect=aspect)
     # Plot a colour bar
     cb = plt.colorbar(plt.im, orientation='horizontal', shrink=0.5)
@@ -240,12 +243,12 @@ def plot_filled_contour(
     levels = np.append(levels, 1.)
 
     # Filled contours.
-    plt.contourf(data.T, 
+    plt.contourf(data.T,
                  levels,
                  colors=scheme.colours,
-                 hold='on', 
+                 hold='on',
                  extent=bin_limits,
-                 interpolation='bilinear', 
+                 interpolation='bilinear',
                  origin=None,
                  alpha=0.7)
 
@@ -295,10 +298,10 @@ def plot_band(x_data, y_data, width, ax, scheme):
 
     # Finally plot
     ax.fill_between(x_data, lower_y, upper_y, where=None, facecolor=scheme.colour, alpha=0.7)
-    
+
     # Proxy for legend
     plt.plot(-1, -1, 's',
-            color=scheme.colour,
-            label=scheme.label, 
-            alpha=0.7, 
-            ms=15)
+             color=scheme.colour,
+             label=scheme.label,
+             alpha=0.7,
+             ms=15)

@@ -13,6 +13,7 @@ import gtk
 import re
 from pylab import *
 import pygtk
+import pickle
 
 #  SuperPy modules.
 import data_loader
@@ -128,6 +129,7 @@ class GUIControl:
         self.plot_limits = default("plot_limits")
         self.bin_limits = default("bin_limits")
         self.fig = None
+        self.plot = None
 
         # Enumerate available plot types and keep an ordered
         # dict mapping descriptions to classes.
@@ -481,6 +483,11 @@ class GUIControl:
         # Instantiate the plot and get the figure
         self.fig = plot_class(self.data, options).figure()
 
+        # Also store a handle to the plot class instance.
+        # This is used for pickling - which needs to
+        # re-create the figure to work correctly.
+        self.plot = plot_class(self.data, options)
+
         # Put figure in plot box.
         canvas = FigureCanvas(self.fig)  # A gtk.DrawingArea.
         self.gridbox.attach(canvas, 2, 4, 0, 13)
@@ -489,6 +496,11 @@ class GUIControl:
         save_button = gtk.Button('Save plot.')
         save_button.connect("clicked", self._psave)
         self.gridbox.attach(save_button, 2, 4, 13, 14)
+
+        # Button to pickle the plot.
+        pickle_button = gtk.Button('Pickle plot.')
+        pickle_button.connect("clicked", self._ppickle)
+        self.gridbox.attach(pickle_button, 2, 4, 14, 15)
 
         # Show new buttons etc.
         self.window.show_all()
@@ -502,13 +514,34 @@ class GUIControl:
         button -- Button with this callback function.
 
         """
-        file_name = save_file_gui()  # Get name to save to from a dialogue box.
+        # Get name to save to from a dialogue box.
+        file_name = save_file_gui()
+
         if not isinstance(file_name, str):
-            return  # Case in which no file is chosen.
+            # Case in which no file is chosen.
+            return
+
         # So that figure is correct size for saving - showing a figure changes
         # its size...
         self.fig.set_size_inches(default("size"))
         plots.save_plot(file_name)
+
+    def _ppickle(self, button):
+        """ Callback function to save a pickle of the plot via a dialogue box.
+        The pickled plot can then be imported and manipulated elsewhere.
+
+        Arguments:
+        button -- Button with this callback function.
+
+        """
+        # Name of pickle file to save to
+        file_name = save_file_gui()
+
+        if not isinstance(file_name, str):
+            # Case in which no file is chosen.
+            return
+
+        pickle.dump(self.plot.figure(), file(file_name, 'wb'))
 
 
 def main():

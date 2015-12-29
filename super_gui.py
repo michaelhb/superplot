@@ -81,6 +81,8 @@ def save_file_gui():
     file_filter.add_pattern("*.eps")
     file_filter.add_pattern("*.ps")
     file_filter.add_pattern("*.png")
+    file_filter.add_pattern("*.pkl")
+
     dialog.add_filter(file_filter)
     file_filter = gtk.FileFilter()
     dialog.add_filter(file_filter)
@@ -540,7 +542,7 @@ class GUIControl:
         if not isinstance(file_name, str):
             # Case in which no file is chosen.
             return
-
+        
         pickle.dump(self.plot.figure(), file(file_name, 'wb'))
 
 

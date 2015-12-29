@@ -4,17 +4,115 @@ Runs without arguments - GUI dialogs are used to select the
 chain and info files.
 """
 
-# External modules.
-
-# SuperPy modules.
-from plot_options import default
-import statslib.point as stats
-
-# import OneDim
-import statslib.one_dim as one_dim
-from super_gui import open_file_gui
+from prettytable import PrettyTable as pt
 import data_loader
 
+from super_gui import open_file_gui
+
+from plot_options import default
+import statslib.point as stats
+import statslib.one_dim as one_dim
+
+ALPHA = default("alpha")[1]
+
+def _summary(name, param, posterior, chi_sq):
+    """
+    Find summary statistics for a single parameter.
+    
+    :param name: Name of parameter
+    :type name: string
+    :param param: Data column of parameter
+    :type param:
+    :param posterior:
+    :type posterior:
+    :param chi_sq:
+    :type chi_sq:
+    
+    :returns: Lis of summary statistics for a particular parameter
+    :rtype: list
+    """
+    
+    # Best-fit point
+    bestfit = stats.best_fit(chi_sq, param)
+    
+    # Posterior mean
+    post_mean = stats.posterior_mean(posterior, param)
+    
+    # Credible regions
+    pdf_data = one_dim.posterior_pdf(param,
+                                     posterior,
+                                     nbins=default("nbins"),
+                                     bin_limits=default("bin_limits")
+                                     )
+    
+    lower_credible_region = one_dim.credible_region(pdf_data.pdf,
+                                                    pdf_data.bin_centers,
+                                                    alpha=ALPHA,
+                                                    region="lower")
+    upper_credible_region = one_dim.credible_region(pdf_data.pdf,
+                                                    pdf_data.bin_centers,
+                                                    alpha=ALPHA,
+                                                    region="upper")
+                                                                                                             
+    summary = [name, 
+               bestfit,
+               post_mean, 
+               lower_credible_region,
+               upper_credible_region
+               ]
+               
+    return summary
+    
+def _summary_table(labels, data, names=None, datafile=None, infofile=None):
+    """
+    Summarize multiple parameters in a table.
+    
+    :returns: Table of summary statistics for particular parameters
+    :rtype: string
+    """
+    
+    # Summarize all parameters by default
+    if names is None:
+        names = labels.values()
+
+    # Make a string describing credible interval
+    beta_percent = 100. * (1. - ALPHA)
+    credible_name = "%.2g%% credible region" % beta_percent 
+    
+    # Headings for a table
+    headings = ["Name",
+                "best-fit",
+                "posterior mean",
+                credible_name,
+                ""
+                ]          
+    param_table = pt(headings)
+    param_table.align = "l"   
+    param_table.float_format = "4.2" 
+
+    # Make summary data and add it to table
+    posterior = data[0]
+    chi_sq = data[1]
+
+    for key, name in labels.iteritems():
+        if name in names:
+            param = data[key]
+            param_table.add_row(_summary(name, param, posterior, chi_sq))
+    
+
+    
+    # Best-fit information and information about chain
+    min_chi_sq = data[1].min()
+    p_value = stats.p_value(data[1], default("dof"))
+    bestfit_table = pt(header=False)
+    bestfit_table.align = "l"   
+    bestfit_table.float_format = "4.2"
+    bestfit_table.add_row(["File", datafile])
+    bestfit_table.add_row(["Info-file", infofile])
+    bestfit_table.add_row(["Minimum chi-squared", min_chi_sq])
+    bestfit_table.add_row(["p-value", p_value])
+
+    return bestfit_table.get_string() + "\n\n" + param_table.get_string()
 
 def main():
     # Select chain and info file with a GUI.
@@ -24,49 +122,8 @@ def main():
     # Load and label data
     labels, data = data_loader.load(infofile, datafile)
 
-    # Print information for the parameters.
-    print 'Param | Best-fit | Posterior Mean | 1 sigma Credible region'
-    for key, name in labels.iteritems():
-        if key == 0 or key == 1 or '\chi^2' in name:
-            continue
-        x = data[key]
-        pw = data[0]
-        chisq = data[1]
-        bestfit = stats.best_fit(chisq, x)
-        postmean = stats.posterior_mean(pw, x)
-        pdf = one_dim.posterior_pdf(
-                x,
-                pw,
-                nbins=default("nbins"),
-                bin_limits=default("bin_limits")).pdf
-        xc = one_dim.posterior_pdf(
-                x,
-                pw,
-                nbins=default("nbins"),
-                bin_limits=default("bin_limits")).bin_centers
-
-        try:
-            lowercredibleregion = one_dim.credible_region(
-                    pdf,
-                    xc,
-                    alpha=default("alpha")[0],
-                    region="lower")
-        except RuntimeError:
-            lowercredibleregion = 0.0
-        try:
-            uppercredibleregion = one_dim.credible_region(
-                    pdf,
-                    xc,
-                    alpha=default("alpha")[0],
-                    region="upper")
-        except RuntimeError:
-            uppercredibleregion = 0.0
-        print name, bestfit, postmean, lowercredibleregion, uppercredibleregion
-
-    # Print best-fit information.
-    print 'Min ChiSq', data[1].min()
-    print 'p-value', stats.p_value(data[1], default("dof"))
-
+    summary_table = _summary_table(labels, data, datafile=datafile, infofile=infofile)
+    return summary_table
 
 if __name__ == "__main__":
-    main()
+    print main()

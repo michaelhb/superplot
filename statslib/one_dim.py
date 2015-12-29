@@ -150,7 +150,7 @@ def credible_region(pdf, bin_centers, alpha, region):
 
     # Integrate until we find desired probability
     for index in range(pdf.size):
-        prob = sum(pdf[:index])
+        prob = sum(pdf[:index + 1])  # + 1 as e.g. pdf[:0] = [] etc
         if prob > desired_prob:
             _credible_region = bin_centers[index]
             break

@@ -154,7 +154,7 @@ class GUIControl:
         # Add a table of boxes to the window.
         self.gridbox = gtk.Table(
                 15,
-                4,
+                5,
                 False)  # 9 rows and 4 columns that are NOT homegenous.
         self.window.add(self.gridbox)  # Add table to our window.
         self.gridbox.show()  # Show the table.
@@ -327,6 +327,12 @@ class GUIControl:
 
         #######################################################################
 
+        # Check boxes to control what is saved (note we only attach them to the window
+        # after showing a plot).
+        self.save_pdf = gtk.CheckButton('Save PDF')
+        self.save_summary = gtk.CheckButton('Save summary .txt')
+        self.save_pickle = gtk.CheckButton('Save .pkl')
+
         # Show all boxes so far regardless.
 
         self.window.show_all()
@@ -492,17 +498,23 @@ class GUIControl:
 
         # Put figure in plot box.
         canvas = FigureCanvas(self.fig)  # A gtk.DrawingArea.
-        self.gridbox.attach(canvas, 2, 4, 0, 13)
+        self.gridbox.attach(canvas, 2, 5, 0, 13)
 
         # Button to save the plot.
         save_button = gtk.Button('Save plot.')
         save_button.connect("clicked", self._psave)
-        self.gridbox.attach(save_button, 2, 4, 13, 14)
+        self.gridbox.attach(save_button, 2, 5, 14, 15)
 
-        # Button to pickle the plot.
-        pickle_button = gtk.Button('Pickle plot.')
-        pickle_button.connect("clicked", self._ppickle)
-        self.gridbox.attach(pickle_button, 2, 4, 14, 15)
+        # Attach the check boxes to specify what is saved.
+        def align_center(checkbox):
+            alignment = gtk.Alignment(xalign=0.5, yalign=0.5,
+                                      xscale=0.0, yscale=0.0)
+            alignment.add(checkbox)
+            return alignment
+
+        self.gridbox.attach(align_center(self.save_pdf), 2, 3, 13, 14)
+        self.gridbox.attach(align_center(self.save_summary), 3, 4, 13, 14)
+        self.gridbox.attach(align_center(self.save_pickle), 4, 5, 13, 14)
 
         # Show new buttons etc.
         self.window.show_all()

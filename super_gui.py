@@ -14,6 +14,7 @@ import re
 from pylab import *
 import pygtk
 import pickle
+import time
 
 #  SuperPy modules.
 import data_loader
@@ -128,10 +129,10 @@ class GUIControl:
     Main GUI element for superplot. Presents controls for selecting plot options,
     creating a plot, and saving a plot.
 
-    :param labels: Chain label dictionary.
-    :type labels: dict
-    :param data: Chain data dictionary.
-    :type data: dict
+    :param data_file: Path to chain file.
+    :type data_file: string
+    :param info_file: Path to info file.
+    :type data: string
     :param xindex: Default x-data index.
     :type xindex: integer
     :param yindex: Default y-data index.
@@ -143,19 +144,23 @@ class GUIControl:
 
     """
 
-    def __init__(self, labels, data, xindex=2, yindex=3, zindex=4, default_plot_type=0):
+    def __init__(self, data_file, info_file, xindex=2, yindex=3, zindex=4, default_plot_type=0):
 
-        # Import data and labels as local variables, etc.
-        self.data = data
-        self.labels = labels
+        self.data_file = data_file
+        self.info_file = info_file
         self.xindex = xindex
         self.yindex = yindex
         self.zindex = zindex
 
         self.plot_limits = default("plot_limits")
         self.bin_limits = default("bin_limits")
+
         self.fig = None
         self.plot = None
+        self.options = None
+
+        # Load data
+        self.labels, self.data = data_loader.load(info_file, data_file)
 
         # Enumerate available plot types and keep an ordered
         # dict mapping descriptions to classes.
@@ -484,7 +489,7 @@ class GUIControl:
 
         # Gather up all of the plot options and put them in
         # a plot_options tuple
-        options = plot_options(
+        self.options = plot_options(
                 xindex=self.xindex,
                 yindex=self.yindex,
                 zindex=self.zindex,
@@ -513,12 +518,12 @@ class GUIControl:
         plot_class = self.plots[self.typebox.get_active_text()]
 
         # Instantiate the plot and get the figure
-        self.fig = plot_class(self.data, options).figure()
+        self.fig = plot_class(self.data, self.options).figure()
 
         # Also store a handle to the plot class instance.
         # This is used for pickling - which needs to
         # re-create the figure to work correctly.
-        self.plot = plot_class(self.data, options)
+        self.plot = plot_class(self.data, self.options)
 
         # Put figure in plot box.
         canvas = FigureCanvas(self.fig)  # A gtk.DrawingArea.
@@ -577,16 +582,32 @@ class GUIControl:
             pickle.dump(self.plot.figure(), file(file_name + ".pkl", 'wb'))
 
         if save_summary:
-            # Nothing for now!
-            pass
+            with open(file_name + ".txt", 'w') as summary_file:
+                summary_file.write("\n".join(self._summary()))
+
+    def _summary(self):
+        """
+        Create a generic summary (list of strings). Plot specific
+        information can be appended to this before saving to file.
+
+        :returns: List of summary strings
+        :rtype: list
+        """
+        return [
+            "Date: {}".format(time.strftime("%c")),
+            "Chain file: {}".format(self.data_file),
+            "Info file: {}".format(self.info_file),
+            "Number of bins: {}".format(self.options.nbins),
+            "Bin limits: {}".format(self.options.bin_limits),
+            "Alpha: {}".format(self.options.alpha),
+        ]
 
 
 def main():
-    datafile = open_file_gui("Select data file")
-    infofile = open_file_gui("Select info file")
+    data_file = open_file_gui("Select data file")
+    info_file = open_file_gui("Select info file")
 
-    labels, data = data_loader.load(infofile, datafile)
-    bcb = GUIControl(labels, data)
+    bcb = GUIControl(data_file, info_file)
     gtk.main()
     return
 

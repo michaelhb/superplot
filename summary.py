@@ -13,8 +13,6 @@ from plot_options import default
 import statslib.point as stats
 import statslib.one_dim as one_dim
 
-ALPHA = default("alpha")[1]
-
 def _summary(name, param, posterior, chi_sq):
     """
     Find summary statistics for a single parameter.
@@ -47,11 +45,11 @@ def _summary(name, param, posterior, chi_sq):
     
     lower_credible_region = one_dim.credible_region(pdf_data.pdf,
                                                     pdf_data.bin_centers,
-                                                    alpha=ALPHA,
+                                                    alpha=default("alpha")[1],
                                                     region="lower")
     upper_credible_region = one_dim.credible_region(pdf_data.pdf,
                                                     pdf_data.bin_centers,
-                                                    alpha=ALPHA,
+                                                    alpha=default("alpha")[1],
                                                     region="upper")
                                                                                                              
     summary = [name, 
@@ -76,7 +74,7 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
         names = labels.values()
 
     # Make a string describing credible interval
-    beta_percent = 100. * (1. - ALPHA)
+    beta_percent = 100. * (1. - default("alpha")[1])
     credible_name = "%.2g%% credible region" % beta_percent 
     
     # Headings for a table

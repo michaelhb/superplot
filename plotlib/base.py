@@ -90,6 +90,9 @@ class Plot(object):
     def figure(self):
         """
         Abstract method - return the pyplot figure associated with this plot.
+
+        :returns: Matplotlib Figure object
+        :rtype: matplotlib.figure.Figure
         """
         pass
 

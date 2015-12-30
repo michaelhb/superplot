@@ -13,6 +13,7 @@ from plot_options import default
 import statslib.point as stats
 import statslib.one_dim as one_dim
 
+
 def _summary(name, param, posterior, chi_sq):
     """
     Find summary statistics for a single parameter.
@@ -26,23 +27,23 @@ def _summary(name, param, posterior, chi_sq):
     :param chi_sq:
     :type chi_sq:
     
-    :returns: Lis of summary statistics for a particular parameter
+    :returns: List of summary statistics for a particular parameter
     :rtype: list
     """
-    
+
     # Best-fit point
     bestfit = stats.best_fit(chi_sq, param)
-    
+
     # Posterior mean
     post_mean = stats.posterior_mean(posterior, param)
-    
+
     # Credible regions
     pdf_data = one_dim.posterior_pdf(param,
                                      posterior,
                                      nbins=default("nbins"),
                                      bin_limits=default("bin_limits")
                                      )
-    
+
     lower_credible_region = one_dim.credible_region(pdf_data.pdf,
                                                     pdf_data.bin_centers,
                                                     alpha=default("alpha")[1],
@@ -51,16 +52,17 @@ def _summary(name, param, posterior, chi_sq):
                                                     pdf_data.bin_centers,
                                                     alpha=default("alpha")[1],
                                                     region="upper")
-                                                                                                             
-    summary = [name, 
+
+    summary = [name,
                bestfit,
-               post_mean, 
+               post_mean,
                lower_credible_region,
                upper_credible_region
                ]
-               
+
     return summary
-    
+
+
 def _summary_table(labels, data, names=None, datafile=None, infofile=None):
     """
     Summarize multiple parameters in a table.
@@ -68,25 +70,25 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
     :returns: Table of summary statistics for particular parameters
     :rtype: string
     """
-    
+
     # Summarize all parameters by default
     if names is None:
         names = labels.values()
 
     # Make a string describing credible interval
     beta_percent = 100. * (1. - default("alpha")[1])
-    credible_name = "%.2g%% credible region" % beta_percent 
-    
+    credible_name = "%.2g%% credible region" % beta_percent
+
     # Headings for a table
     headings = ["Name",
                 "best-fit",
                 "posterior mean",
                 credible_name,
                 ""
-                ]          
+                ]
     param_table = pt(headings)
-    param_table.align = "l"   
-    param_table.float_format = "4.2" 
+    param_table.align = "l"
+    param_table.float_format = "4.2"
 
     # Make summary data and add it to table
     posterior = data[0]
@@ -96,14 +98,12 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
         if name in names:
             param = data[key]
             param_table.add_row(_summary(name, param, posterior, chi_sq))
-    
 
-    
     # Best-fit information and information about chain
     min_chi_sq = data[1].min()
     p_value = stats.p_value(data[1], default("dof"))
     bestfit_table = pt(header=False)
-    bestfit_table.align = "l"   
+    bestfit_table.align = "l"
     bestfit_table.float_format = "4.2"
     bestfit_table.add_row(["File", datafile])
     bestfit_table.add_row(["Info-file", infofile])
@@ -111,6 +111,7 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
     bestfit_table.add_row(["p-value", p_value])
 
     return bestfit_table.get_string() + "\n\n" + param_table.get_string()
+
 
 def main():
     # Select chain and info file with a GUI.
@@ -122,6 +123,7 @@ def main():
 
     summary_table = _summary_table(labels, data, datafile=datafile, infofile=infofile)
     return summary_table
+
 
 if __name__ == "__main__":
     print main()

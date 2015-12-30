@@ -23,14 +23,16 @@ from plot_options import plot_options, default
 pygtk.require('2.0')
 
 
-def open_file_gui():
+def open_file_gui(window_title="Open.."):
     """ GUI for opening a file with a file browser.
+    :param window_title: Window title
+    :type window_title: string
 
     :returns: Name of file selected with GUI.
     :rtype: string
     """
     # Select the file from a dialog box.
-    dialog = gtk.FileChooserDialog("Open..",
+    dialog = gtk.FileChooserDialog(window_title,
                                    None,
                                    gtk.FILE_CHOOSER_ACTION_OPEN,
                                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
@@ -60,14 +62,17 @@ def open_file_gui():
     return filename
 
 
-def save_file_gui():
+def save_file_gui(window_title="Save.."):
     """ GUI for saving a file with a file browser.
+
+    :param window_title: Window title
+    :type window_title: string
 
     :returns: Name of file selected with GUI.
     :rtype: string
     """
     # Select the file from a dialog box.
-    dialog = gtk.FileChooserDialog("Open..",
+    dialog = gtk.FileChooserDialog(window_title,
                                    None,
                                    gtk.FILE_CHOOSER_ACTION_SAVE,
                                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
@@ -100,6 +105,24 @@ def save_file_gui():
     return filename
 
 
+def message_dialog(message_type, message):
+    """
+    Show a message dialog.
+
+    :param message_type: Type of dialogue - e.g gtk.MESSAGE_WARNING or gtk.MESSAGE_ERROR.
+    :type message_type: gtk.MessageType
+    :param message: Text to show in dialogue.
+    :type message: string
+    """
+    md = gtk.MessageDialog(None,
+                           gtk.DIALOG_DESTROY_WITH_PARENT,
+                           message_type,
+                           gtk.BUTTONS_CLOSE,
+                           message)
+    md.run()
+    md.destroy()
+
+
 class GUIControl:
     """
     Main GUI element for superplot. Presents controls for selecting plot options,
@@ -119,6 +142,7 @@ class GUIControl:
     :type default_plot_type: integer
 
     """
+
     def __init__(self, labels, data, xindex=2, yindex=3, zindex=4, default_plot_type=0):
 
         # Import data and labels as local variables, etc.
@@ -528,6 +552,14 @@ class GUIControl:
         button -- Button with this callback function.
 
         """
+        save_pdf = self.save_pdf.get_active()
+        save_summary = self.save_summary.get_active()
+        save_pickle = self.save_pickle.get_active()
+
+        if not (save_pdf or save_summary or save_pickle):
+            message_dialog(gtk.MESSAGE_WARNING, "Nothing to save!")
+            return
+
         # Get name to save to from a dialogue box.
         file_name = save_file_gui()
 
@@ -535,32 +567,23 @@ class GUIControl:
             # Case in which no file is chosen.
             return
 
-        # So that figure is correct size for saving - showing a figure changes
-        # its size...
-        self.fig.set_size_inches(default("size"))
-        plots.save_plot(file_name)
+        if save_pdf:
+            # So that figure is correct size for saving - showing a figure changes
+            # its size...
+            self.fig.set_size_inches(default("size"))
+            plots.save_plot(file_name + ".pdf")
 
-    def _ppickle(self, button):
-        """ Callback function to save a pickle of the plot via a dialogue box.
-        The pickled plot can then be imported and manipulated elsewhere.
+        if save_pickle:
+            pickle.dump(self.plot.figure(), file(file_name + ".pkl", 'wb'))
 
-        Arguments:
-        button -- Button with this callback function.
-
-        """
-        # Name of pickle file to save to
-        file_name = save_file_gui()
-
-        if not isinstance(file_name, str):
-            # Case in which no file is chosen.
-            return
-        
-        pickle.dump(self.plot.figure(), file(file_name, 'wb'))
+        if save_summary:
+            # Nothing for now!
+            pass
 
 
 def main():
-    datafile = open_file_gui()
-    infofile = open_file_gui()
+    datafile = open_file_gui("Select data file")
+    infofile = open_file_gui("Select info file")
 
     labels, data = data_loader.load(infofile, datafile)
     bcb = GUIControl(labels, data)

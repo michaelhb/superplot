@@ -57,15 +57,21 @@ class OneDimStandard(OneDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
+        summary = []
 
         # Best-fit point
-        pm.plot_data(stats.best_fit(self.chisq, self.xdata),
+        best_fit = stats.best_fit(self.chisq, self.xdata)
+        pm.plot_data(best_fit,
                      0.02,
                      schemes.best_fit)
-        # Posterior mean 
-        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata),
+        summary.append("Best-fit point: {}".format(best_fit))
+
+        # Posterior mean
+        posterior_mean = stats.posterior_mean(self.posterior, self.xdata)
+        pm.plot_data(posterior_mean,
                      0.02,
                      schemes.posterior_mean)
+        summary.append("Posterior mean: {}".format(posterior_mean))
 
         # Posterior PDF
         pdf_data = one_dim.posterior_pdf(self.xdata,
@@ -86,19 +92,26 @@ class OneDimStandard(OneDimPlot):
                                  for aa in opt.alpha]
         upper_credible_region = [one_dim.credible_region(pdf_data.pdf, pdf_data.bin_centers, alpha=aa, region="upper")
                                  for aa in opt.alpha]
+        summary.append("Lower credible region: {}".format(lower_credible_region))
+        summary.append("Upper credible region: {}".format(upper_credible_region))
+
         for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, schemes.credible_regions):
             pm.plot_data([lower, upper], [1.1, 1.1], scheme)
 
         # Confidence interval
         conf_intervals = [one_dim.conf_interval(prof_data.prof_chi_sq, prof_data.bin_centers, alpha=aa) for aa in
                           opt.alpha]
-        for interval, scheme in zip(conf_intervals, schemes.conf_intervals):
-            pm.plot_data(interval, [1.] * int(opt.nbins), scheme)
+
+        for intervals, scheme in zip(conf_intervals, schemes.conf_intervals):
+            pm.plot_data(intervals, [1.] * int(opt.nbins), scheme)
+            summary.append("{}:".format(scheme.label))
+            for interval in intervals:
+                summary.append(str(interval))
 
         # Add plot legend
         pm.legend(opt.leg_title)
 
-        return fig
+        return self.plot_data(figure=fig, summary=summary)
 
 
 class OneDimChiSq(OneDimPlot):
@@ -112,12 +125,14 @@ class OneDimChiSq(OneDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
+        summary = []
 
         # Data itself.
         prof_data = one_dim.prof_data(self.xdata,
                                       self.chisq,
                                       nbins=opt.nbins,
                                       bin_limits=opt.bin_limits)
+        print prof_data
 
         pm.plot_data(prof_data.bin_centers, prof_data.prof_chi_sq, schemes.prof_chi_sq)
 
@@ -126,13 +141,16 @@ class OneDimChiSq(OneDimPlot):
         pm.plot_limits(ax, opt.plot_limits)
 
         # Best-fit point
-        pm.plot_data(stats.best_fit(self.chisq, self.xdata), 0.08, schemes.best_fit)
+        best_fit = stats.best_fit(self.chisq, self.xdata)
+        pm.plot_data(best_fit, 0.08, schemes.best_fit)
+        summary.append("Best-fit point: {}".format(best_fit))
 
         # Confidence intervals as filled regions
         critical_chi_sq = [chi2.ppf(1. - aa, 1) for aa in opt.alpha]
 
         for chi_sq, facecolor, name in zip(critical_chi_sq, schemes.prof_chi_sq.colours,
                                            schemes.prof_chi_sq.level_names):
+            # TODO - do we want the filled in regions in the summary file?
             ax.fill_between(prof_data.bin_centers,
                             0,
                             10,
@@ -153,11 +171,12 @@ class OneDimChiSq(OneDimPlot):
         # Add plot legend
         pm.legend(opt.leg_title)
 
-        # Override y-axis label
-        # TODO what is being overridden here?
+        # Override y-axis label. This prevents the y axis from taking its
+        # label from the 'y-axis variable' selction in the GUI (as
+        # in this plot it should always be chi-squared).
         plt.ylabel(schemes.prof_chi_sq.label)
 
-        return fig
+        return self.plot_data(figure=fig, summary=summary)
 
 
 class TwoDimPlotFilledPDF(TwoDimPlot):
@@ -169,6 +188,7 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
+        summary = []
 
         # Best-fit point
         pm.plot_data(stats.best_fit(self.chisq, self.xdata),
@@ -204,7 +224,7 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         # Add legend
         pm.legend(opt.leg_title)
 
-        return fig
+        return self.plot_data(figure=fig, summary=summary)
 
 
 class TwoDimPlotFilledPL(TwoDimPlot):
@@ -216,6 +236,7 @@ class TwoDimPlotFilledPL(TwoDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
+        summary = []
 
         # Best-fit point
         pm.plot_data(stats.best_fit(self.chisq, self.xdata),
@@ -245,7 +266,7 @@ class TwoDimPlotFilledPL(TwoDimPlot):
         # Add legend
         pm.legend(opt.leg_title)
 
-        return fig
+        return self.plot_data(figure=fig, summary=summary)
 
 
 class TwoDimPlotPDF(TwoDimPlot):
@@ -257,6 +278,7 @@ class TwoDimPlotPDF(TwoDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
+        summary = []
 
         # Best-fit point
         pm.plot_data(stats.best_fit(self.chisq, self.xdata),
@@ -296,7 +318,7 @@ class TwoDimPlotPDF(TwoDimPlot):
         # Add legend
         pm.legend(opt.leg_title)
 
-        return fig
+        return self.plot_data(figure=fig, summary=summary)
 
 
 class TwoDimPlotPL(TwoDimPlot):
@@ -308,6 +330,7 @@ class TwoDimPlotPL(TwoDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
+        summary = []
 
         # Best-fit point
         pm.plot_data(stats.best_fit(self.chisq, self.xdata),
@@ -343,7 +366,7 @@ class TwoDimPlotPL(TwoDimPlot):
         # Add legend
         pm.legend(opt.leg_title)
 
-        return fig
+        return self.plot_data(figure=fig, summary=summary)
 
 
 class Scatter(TwoDimPlot):
@@ -356,6 +379,7 @@ class Scatter(TwoDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
+        summary = []
 
         # Best-fit point
         pm.plot_data(stats.best_fit(self.chisq, self.xdata),
@@ -429,7 +453,7 @@ class Scatter(TwoDimPlot):
         # Add legend
         pm.legend(opt.leg_title)
 
-        return fig
+        return self.plot_data(figure=fig, summary=summary)
 
 
 plot_types = [

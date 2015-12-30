@@ -526,7 +526,7 @@ class GUIControl:
         self.plot = plot_class(self.data, self.options)
 
         # Put figure in plot box.
-        canvas = FigureCanvas(self.fig)  # A gtk.DrawingArea.
+        canvas = FigureCanvas(self.fig.figure)  # A gtk.DrawingArea.
         self.gridbox.attach(canvas, 2, 5, 0, 13)
 
         # Button to save the plot.
@@ -575,15 +575,17 @@ class GUIControl:
         if save_pdf:
             # So that figure is correct size for saving - showing a figure changes
             # its size...
-            self.fig.set_size_inches(default("size"))
+            self.fig.figure.set_size_inches(default("size"))
             plots.save_plot(file_name + ".pdf")
 
         if save_pickle:
-            pickle.dump(self.plot.figure(), file(file_name + ".pkl", 'wb'))
+            # Need to re-draw the figure for this to work
+            pickle.dump(self.plot.figure().figure, file(file_name + ".pkl", 'wb'))
 
         if save_summary:
             with open(file_name + ".txt", 'w') as summary_file:
                 summary_file.write("\n".join(self._summary()))
+                summary_file.write("\n" + "\n".join(self.fig.summary))
 
     def _summary(self):
         """

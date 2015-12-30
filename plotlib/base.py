@@ -10,6 +10,7 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
+from collections import namedtuple
 
 # SuperPy modules.
 import plot_mod as pm
@@ -86,13 +87,18 @@ class Plot(object):
 
         return fig, ax
 
+    plot_data = namedtuple("plot_data", ("figure", "summary"))
+    """
+    Return data type for figure() method.
+    """
+
     @abstractmethod
     def figure(self):
         """
         Abstract method - return the pyplot figure associated with this plot.
 
-        :returns: Matplotlib Figure object
-        :rtype: matplotlib.figure.Figure
+        :returns: Matplotlib figure, list of plot specific summary strings
+        :rtype: named tuple (figure: matplotlib.figure.Figure, summary: list)
         """
         pass
 

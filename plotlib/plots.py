@@ -172,7 +172,7 @@ class OneDimChiSq(OneDimPlot):
             for filled, group in groupby(zip(prof_data.bin_centers, fill_where), key=lambda x: x[1]):
                 if filled:
                     bins = [g[0] for g in group]
-                    summary.append("{},{}".format(bins[0], bins[-1]))
+                    summary.append("{},{}".format(min(bins), max(bins)))
 
             # Plot a proxy for the legend - plot spurious data outside plot limits,
             # with legend entry matching colours of filled regions.

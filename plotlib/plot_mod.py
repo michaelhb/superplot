@@ -35,11 +35,14 @@ def plot_data(x, y, scheme):
             ms=scheme.size)
 
 
-def appearance():
+def appearance(style_sheet):
     """ 
     Specify the plot's appearance, with e.g. font types etc.
-    from an mplstyle file. Currently this file must be placed in the
-    application root directory and named 'default.mplstyle'.
+    from an mplstyle file.
+
+    :param style_sheet: Path to the style sheet for this plot. Options in this \
+        style sheet override any in ./styles/default.mplstyle
+    :type style_sheet: string
     
     .. Warning: If the user wants LaTeX, we first check if the 'latex' \
         shell command is available (as this is what matplotlib uses to \
@@ -47,7 +50,7 @@ def appearance():
         back to mathtext. 
     """
 
-    plt.style.use("./default.mplstyle")
+    plt.style.use(["./styles/default.mplstyle", style_sheet])
 
     if rcParams["text.usetex"]:
         # Check if LaTeX is available

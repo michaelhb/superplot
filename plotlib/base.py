@@ -83,7 +83,9 @@ class Plot(object):
         pm.plot_ticks(opt.xticks, opt.yticks, ax)
         pm.plot_labels(opt.xlabel, opt.ylabel, opt.plot_title)
         pm.plot_limits(ax, opt.plot_limits)
-        pm.appearance()
+
+        style_sheet = "./styles/{}.mplstyle".format(self.__class__.__name__)
+        pm.appearance(style_sheet)
 
         return fig, ax
 

@@ -205,14 +205,16 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         summary = []
 
         # Best-fit point
-        pm.plot_data(stats.best_fit(self.chisq, self.xdata),
-                     stats.best_fit(self.chisq, self.ydata),
-                     schemes.best_fit)
+        best_fit_x = stats.best_fit(self.chisq, self.xdata)
+        best_fit_y = stats.best_fit(self.chisq, self.ydata)
+        pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
+        summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
 
         # Posterior mean
-        pm.plot_data(stats.posterior_mean(self.posterior, self.xdata),
-                     stats.posterior_mean(self.posterior, self.ydata),
-                     schemes.posterior_mean)
+        posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
+        posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
+        pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
+        summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
 
         # Credible regions
         pdf_data = two_dim.posterior_pdf(

@@ -133,7 +133,6 @@ class OneDimChiSq(OneDimPlot):
                                       self.chisq,
                                       nbins=opt.nbins,
                                       bin_limits=opt.bin_limits)
-        print prof_data
 
         pm.plot_data(prof_data.bin_centers, prof_data.prof_chi_sq, schemes.prof_chi_sq)
 

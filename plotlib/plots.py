@@ -17,6 +17,7 @@ is implemented, it should be added to this list.
 
 Also includes a function to save the current plot.
 """
+from itertools import groupby
 
 # SuperPy modules.
 import schemes
@@ -150,15 +151,29 @@ class OneDimChiSq(OneDimPlot):
 
         for chi_sq, facecolor, name in zip(critical_chi_sq, schemes.prof_chi_sq.colours,
                                            schemes.prof_chi_sq.level_names):
-            # TODO - do we want the filled in regions in the summary file?
+
+            # Create a list where element i is True if bin i should be filled.
+            fill_where = prof_data.prof_chi_sq >= chi_sq
+
+            # Fill in areas on the chart above the threshold
             ax.fill_between(prof_data.bin_centers,
                             0,
                             10,
-                            where=prof_data.prof_chi_sq >= chi_sq,
+                            where=fill_where,
                             facecolor=facecolor,
                             interpolate=False,
                             alpha=0.7
                             )
+
+            # List the boundaries of the regions that were filled in the summary file
+            # as comma separated pairs. itertools.groupby splits the list into
+            # contiguous regions according to the key function - we take the first
+            # and last elements of the "True" regions.
+            summary.append(name + ":")
+            for filled, group in groupby(zip(prof_data.bin_centers, fill_where), key=lambda x: x[1]):
+                if filled:
+                    bins = [g[0] for g in group]
+                    summary.append("{},{}".format(bins[0], bins[-1]))
 
             # Plot a proxy for the legend - plot spurious data outside plot limits,
             # with legend entry matching colours of filled regions.

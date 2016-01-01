@@ -110,7 +110,7 @@ class OneDimStandard(OneDimPlot):
                 summary.append(str(interval))
 
         # Add plot legend
-        pm.legend(opt.leg_title)
+        pm.legend(opt.leg_title, opt.leg_position)
 
         return self.plot_data(figure=fig, summary=summary)
 
@@ -183,7 +183,7 @@ class OneDimChiSq(OneDimPlot):
             pm.plot_band(prof_data.bin_centers, prof_data.prof_chi_sq, opt.tau, ax, schemes.tau_band)
 
         # Add plot legend
-        pm.legend(opt.leg_title)
+        pm.legend(opt.leg_title, opt.leg_position)
 
         # Override y-axis label. This prevents the y axis from taking its
         # label from the 'y-axis variable' selction in the GUI (as
@@ -238,7 +238,7 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
                 bin_limits=opt.bin_limits)
 
         # Add legend
-        pm.legend(opt.leg_title)
+        pm.legend(opt.leg_title, opt.leg_position)
 
         return self.plot_data(figure=fig, summary=summary)
 
@@ -282,7 +282,7 @@ class TwoDimPlotFilledPL(TwoDimPlot):
                 bin_limits=opt.bin_limits)
 
         # Add legend
-        pm.legend(opt.leg_title)
+        pm.legend(opt.leg_title, opt.leg_position)
 
         return self.plot_data(figure=fig, summary=summary)
 
@@ -336,7 +336,7 @@ class TwoDimPlotPDF(TwoDimPlot):
                 bin_limits=opt.bin_limits)
 
         # Add legend
-        pm.legend(opt.leg_title)
+        pm.legend(opt.leg_title, opt.leg_position)
 
         return self.plot_data(figure=fig, summary=summary)
 
@@ -386,7 +386,7 @@ class TwoDimPlotPL(TwoDimPlot):
                 bin_limits=opt.bin_limits)
 
         # Add legend
-        pm.legend(opt.leg_title)
+        pm.legend(opt.leg_title, opt.leg_position)
 
         return self.plot_data(figure=fig, summary=summary)
 
@@ -475,7 +475,7 @@ class Scatter(TwoDimPlot):
                 bin_limits=opt.bin_limits)
 
         # Add legend
-        pm.legend(opt.leg_title)
+        pm.legend(opt.leg_title, opt.leg_position)
 
         return self.plot_data(figure=fig, summary=summary)
 

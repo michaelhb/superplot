@@ -182,7 +182,7 @@ class GUIControl:
 
         # Add a table of boxes to the window.
         self.gridbox = gtk.Table(
-                15,
+                16,
                 5,
                 False)  # 9 rows and 4 columns that are NOT homegenous.
         self.window.add(self.gridbox)  # Add table to our window.
@@ -313,37 +313,49 @@ class GUIControl:
         self.legtitle.set_text("")
         self.gridbox.attach(self.legtitle, 1, 2, 10, 11, xoptions=gtk.FILL)
 
+        # Legend position.
+        tlegpos = gtk.Button("Legend position:")
+        self.gridbox.attach(tlegpos, 0, 1, 11, 12, xoptions=gtk.FILL)
+        # Combo box to select position.
+        self.legpos = gtk.combo_box_new_text()
+        self.gridbox.attach(self.legpos, 1, 2, 11, 12, xoptions=gtk.FILL)
+        for loc in [
+                "best", "upper right", "lower left", "lower right", "right", "center left",
+                "center right", "lower center", "upper center", "center"]:
+            self.legpos.append_text(loc)
+        self.legpos.set_active(0)
+
         #######################################################################
 
         # Number of bins per dimension.
         tbins = gtk.Button("Bins per dimension:")
-        self.gridbox.attach(tbins, 0, 1, 11, 12, xoptions=gtk.FILL)
+        self.gridbox.attach(tbins, 0, 1, 12, 13, xoptions=gtk.FILL)
         # Text box to alter bins.
         self.bins = gtk.SpinButton()
         self.bins.set_increments(1, 5)
         self.bins.set_range(5, 100)
         self.bins.set_value(default("nbins"))
-        self.gridbox.attach(self.bins, 1, 2, 11, 12, xoptions=gtk.FILL)
+        self.gridbox.attach(self.bins, 1, 2, 12, 13, xoptions=gtk.FILL)
 
         #######################################################################
 
         # Axes limits!
         alimits = gtk.Button(
                 "Comma separated plot limits\nx_min, x_max, y_min, y_max:")
-        self.gridbox.attach(alimits, 0, 1, 12, 13, xoptions=gtk.FILL)
+        self.gridbox.attach(alimits, 0, 1, 13, 14, xoptions=gtk.FILL)
         # Text box to alter title.
         self.alimits = gtk.Entry()
-        self.gridbox.attach(self.alimits, 1, 2, 12, 13, xoptions=gtk.FILL)
+        self.gridbox.attach(self.alimits, 1, 2, 13, 14, xoptions=gtk.FILL)
         self.alimits.connect("changed", self._calimits)
         self.alimits.append_text("")
 
         # Bin limits!
         blimits = gtk.Button(
                 "Comma separated bin limits\nx_min, x_max, y_min, y_max:")
-        self.gridbox.attach(blimits, 0, 1, 13, 14, xoptions=gtk.FILL)
+        self.gridbox.attach(blimits, 0, 1, 14, 15, xoptions=gtk.FILL)
         # Text box to alter title.
         self.blimits = gtk.Entry()
-        self.gridbox.attach(self.blimits, 1, 2, 13, 14, xoptions=gtk.FILL)
+        self.gridbox.attach(self.blimits, 1, 2, 14, 15, xoptions=gtk.FILL)
         self.blimits.connect("changed", self._cblimits)
         self.blimits.append_text("")
 
@@ -352,7 +364,7 @@ class GUIControl:
         # Button to make the plot.
         makeplot = gtk.Button('Make plot.')
         makeplot.connect("clicked", self._pmakeplot)
-        self.gridbox.attach(makeplot, 1, 2, 14, 15, xoptions=gtk.FILL)
+        self.gridbox.attach(makeplot, 1, 2, 15, 16, xoptions=gtk.FILL)
 
         #######################################################################
 
@@ -511,7 +523,8 @@ class GUIControl:
                 ylabel=self.labels[self.yindex],
                 zlabel=self.labels[self.zindex],
                 plot_title=self.plottitle.get_text(),
-                leg_title=self.legtitle.get_text()
+                leg_title=self.legtitle.get_text(),
+                leg_position=self.legpos.get_active_text()
         )
 
         # Fetch the class for the selected plot type
@@ -527,12 +540,12 @@ class GUIControl:
 
         # Put figure in plot box.
         canvas = FigureCanvas(self.fig.figure)  # A gtk.DrawingArea.
-        self.gridbox.attach(canvas, 2, 5, 0, 13)
+        self.gridbox.attach(canvas, 2, 5, 0, 14)
 
         # Button to save the plot.
         save_button = gtk.Button('Save plot.')
         save_button.connect("clicked", self._psave)
-        self.gridbox.attach(save_button, 2, 5, 14, 15)
+        self.gridbox.attach(save_button, 2, 5, 15, 16)
 
         # Attach the check boxes to specify what is saved.
         def align_center(checkbox):
@@ -541,9 +554,9 @@ class GUIControl:
             alignment.add(checkbox)
             return alignment
 
-        self.gridbox.attach(align_center(self.save_pdf), 2, 3, 13, 14)
-        self.gridbox.attach(align_center(self.save_summary), 3, 4, 13, 14)
-        self.gridbox.attach(align_center(self.save_pickle), 4, 5, 13, 14)
+        self.gridbox.attach(align_center(self.save_pdf), 2, 3, 14, 15)
+        self.gridbox.attach(align_center(self.save_summary), 3, 4, 14, 15)
+        self.gridbox.attach(align_center(self.save_pickle), 4, 5, 14, 15)
 
         # Show new buttons etc.
         self.window.show_all()

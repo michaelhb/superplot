@@ -35,7 +35,9 @@ plot_options = namedtuple("plot_options", (
     "ylabel",  # Label for y axis
     "zlabel",  # Label for z axis
     "plot_title",  # Title of plot
-    "leg_title"  # Plot legend
+    "leg_title",    # Plot legend
+    "leg_position"  # Location of plot legend
+
 ))
 
 

@@ -64,7 +64,7 @@ def appearance(style_sheet):
                         "Using matplotlib's mathtext.")
 
 
-def legend(leg_title=None):
+def legend(leg_title=None, leg_position=None):
     """ 
     Turn on the legend.
     
@@ -74,8 +74,10 @@ def legend(leg_title=None):
     
     :param leg_title: Title of legend
     :type leg_title: string
+    :param leg_position: Position of legend
+    :type leg_position: string
     """
-    plt.legend(prop={'size': 16}, title=leg_title)
+    plt.legend(prop={'size': 16}, title=leg_title, loc=leg_position)
 
 
 def plot_limits(ax, limits=None):

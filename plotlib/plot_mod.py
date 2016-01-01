@@ -77,7 +77,8 @@ def legend(leg_title=None, leg_position=None):
     :param leg_position: Position of legend
     :type leg_position: string
     """
-    plt.legend(prop={'size': 16}, title=leg_title, loc=leg_position)
+    if leg_position != "no legend":
+        plt.legend(prop={'size': 16}, title=leg_title, loc=leg_position)
 
 
 def plot_limits(ax, limits=None):

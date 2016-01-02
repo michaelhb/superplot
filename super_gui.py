@@ -315,11 +315,13 @@ class GUIControl:
         self.show_credible_regions = gtk.CheckButton("Credible regions")
         self.show_conf_intervals = gtk.CheckButton("Confidence intervals")
         self.show_posterior_pdf = gtk.CheckButton("Posterior PDF")
+        self.show_prof_like = gtk.CheckButton("Profile Likelihood")
         self.show_best_fit.set_active(True)
         self.show_posterior_mean.set_active(True)
         self.show_credible_regions.set_active(True)
         self.show_conf_intervals.set_active(True)
         self.show_posterior_pdf.set_active(True)
+        self.show_prof_like.set_active(True)
 
         # Make Plot Button ####################################################
 
@@ -375,16 +377,26 @@ class GUIControl:
         self.gridbox.attach(blimits, 0, 1, 14, 15, xoptions=gtk.FILL)
         self.gridbox.attach(self.blimits, 1, 2, 14, 15, xoptions=gtk.FILL)
 
-        point_plot_box = gtk.HBox()
+        point_plot_container = gtk.VBox()
+        point_plot_box_upper = gtk.HBox(homogeneous=True)
+        point_plot_box_lower = gtk.HBox(homogeneous=True)
 
-        for check_box in [self.show_conf_intervals, self.show_credible_regions,
-                          self.show_best_fit, self.show_posterior_mean,
-                          self.show_posterior_pdf]:
-            point_plot_box.pack_start_defaults(
-                self._align_center(check_box)
-            )
+        for check_box in [
+                self.show_conf_intervals,
+                self.show_credible_regions,
+                self.show_best_fit]:
+            point_plot_box_upper.pack_start_defaults(check_box)
 
-        self.gridbox.attach(point_plot_box, 0, 2, 15, 16, xoptions=gtk.FILL)
+        for check_box in [
+                self.show_posterior_mean,
+                self.show_posterior_pdf,
+                self.show_prof_like]:
+            point_plot_box_lower.pack_start_defaults(check_box)
+
+        point_plot_container.pack_start_defaults(point_plot_box_upper)
+        point_plot_container.pack_start_defaults(point_plot_box_lower)
+
+        self.gridbox.attach(point_plot_container, 0, 2, 15, 16, xoptions=gtk.FILL)
 
         self.gridbox.attach(makeplot, 0, 2, 16, 17, xoptions=gtk.FILL)
 
@@ -561,7 +573,8 @@ class GUIControl:
                 show_posterior_mean=self.show_posterior_mean.get_active(),
                 show_conf_intervals=self.show_conf_intervals.get_active(),
                 show_credible_regions=self.show_credible_regions.get_active(),
-                show_posterior_pdf=self.show_posterior_pdf.get_active()
+                show_posterior_pdf=self.show_posterior_pdf.get_active(),
+                show_prof_like=self.show_prof_like.get_active()
         )
 
         # Fetch the class for the selected plot type

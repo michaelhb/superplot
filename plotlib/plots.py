@@ -85,7 +85,8 @@ class OneDimStandard(OneDimPlot):
                                       self.chisq,
                                       nbins=opt.nbins,
                                       bin_limits=opt.bin_limits)
-        pm.plot_data(prof_data.bin_centers, prof_data.prof_like, schemes.prof_like)
+        if opt.show_prof_like:
+            pm.plot_data(prof_data.bin_centers, prof_data.prof_like, schemes.prof_like)
 
         # Credible region
         lower_credible_region = [one_dim.credible_region(pdf_data.pdf, pdf_data.bin_centers, alpha=aa, region="lower")
@@ -275,6 +276,7 @@ class TwoDimPlotFilledPL(TwoDimPlot):
         if opt.show_posterior_mean:
             pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
 
+        # Profile likelihood
         prof_data = two_dim.profile_like(
                 self.xdata,
                 self.ydata,
@@ -380,6 +382,7 @@ class TwoDimPlotPL(TwoDimPlot):
         if opt.show_posterior_mean:
             pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
 
+        # Profile likelihood
         prof_data = two_dim.profile_like(
                 self.xdata,
                 self.ydata,
@@ -387,11 +390,12 @@ class TwoDimPlotPL(TwoDimPlot):
                 nbins=opt.nbins,
                 bin_limits=opt.bin_limits)
 
-        pm.plot_image(
-                prof_data.prof_like,
-                opt.bin_limits,
-                opt.plot_limits,
-                schemes.prof_like)
+        if opt.show_prof_like:
+            pm.plot_image(
+                    prof_data.prof_like,
+                    opt.bin_limits,
+                    opt.plot_limits,
+                    schemes.prof_like)
 
         levels = [two_dim.critical_prof_like(aa) for aa in opt.alpha]
 

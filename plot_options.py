@@ -42,7 +42,8 @@ plot_options = namedtuple("plot_options", (
     "show_posterior_mean",
     "show_conf_intervals",
     "show_credible_regions",
-    "show_posterior_pdf"
+    "show_posterior_pdf",
+    "show_prof_like"
 ))
 
 

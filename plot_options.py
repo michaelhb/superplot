@@ -29,8 +29,7 @@ plot_options = namedtuple("plot_options", (
     "alpha",  # Values of alpha in asc. order [float, float]
     "tau",  # Theoretical error width on delta chi-squared plots.
 
-    # Size and labels
-    "size",  # Size in inches [x, y]
+    # Labels
     "xlabel",  # Label for x axis
     "ylabel",  # Label for y axis
     "zlabel",  # Label for z axis
@@ -60,8 +59,6 @@ if _defaults["alpha"] is not None:
     _defaults["alpha"] = np.array(_defaults["alpha"])
 if _defaults["plot_limits"] is not None:
     _defaults["plot_limits"] = np.array(_defaults["plot_limits"])
-if _defaults["size"] is not None:
-    _defaults["size"] = tuple(_defaults["size"])
 
 
 def default(option):

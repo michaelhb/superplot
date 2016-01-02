@@ -133,10 +133,6 @@ plot_options:
     # Default plot title.
     plot_title: 'Fowlie (2014)'
 
-    # Default plot size.
-    #AF This may be redudant, it should be in the mpstyle sheet
-    size: [8, 8]
-
     # For theoretical error on delta chi-squared plots.
     tau: 2
 

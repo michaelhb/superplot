@@ -541,7 +541,6 @@ class GUIControl:
                 tau=default("tau"),
                 alpha=default("alpha"),
 
-                size=default("size"),
                 xlabel=self.labels[self.xindex],
                 ylabel=self.labels[self.yindex],
                 zlabel=self.labels[self.zindex],
@@ -606,9 +605,8 @@ class GUIControl:
             return
 
         if save_pdf:
-            # So that figure is correct size for saving - showing a figure changes
-            # its size...
-            self.fig.figure.set_size_inches(default("size"))
+            # Re-draw figure so that size specified in style sheet is applied
+            self.plot.figure().figure
             plots.save_plot(file_name + ".pdf")
 
         if save_pickle:

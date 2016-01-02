@@ -75,9 +75,7 @@ class Plot(object):
         # Returns the figure and axes.
         opt = self.plot_options
 
-        # TODO opt.size is probably redundant as it is set in
-        # mplstyle in apperance
-        fig = plt.figure(figsize=opt.size)  # Size in inches.
+        fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
 
         pm.plot_ticks(opt.xticks, opt.yticks, ax)

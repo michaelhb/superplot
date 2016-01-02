@@ -5,7 +5,7 @@ lines.linewidth : 4
 axes.grid : True
 
 # Set size of plot in inches
-figure.figsize : 2.5, 2.5
+figure.figsize : 8, 8
 
 # Legend properties
 legend.shadow : False

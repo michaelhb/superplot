@@ -36,7 +36,11 @@ plot_options = namedtuple("plot_options", (
     "zlabel",  # Label for z axis
     "plot_title",  # Title of plot
     "leg_title",    # Plot legend
-    "leg_position"  # Location of plot legend
+    "leg_position",  # Location of plot legend
+
+    # Whether to show best-fit and posterior mean
+    "show_best_fit", # True / False
+    "show_posterior_mean" # True / False
 
 ))
 

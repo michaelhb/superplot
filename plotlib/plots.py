@@ -62,17 +62,15 @@ class OneDimStandard(OneDimPlot):
 
         # Best-fit point
         best_fit = stats.best_fit(self.chisq, self.xdata)
-        pm.plot_data(best_fit,
-                     0.02,
-                     schemes.best_fit)
         summary.append("Best-fit point: {}".format(best_fit))
+        if opt.show_best_fit:
+            pm.plot_data(best_fit, 0.02, schemes.best_fit)
 
         # Posterior mean
         posterior_mean = stats.posterior_mean(self.posterior, self.xdata)
-        pm.plot_data(posterior_mean,
-                     0.02,
-                     schemes.posterior_mean)
         summary.append("Posterior mean: {}".format(posterior_mean))
+        if opt.show_posterior_mean:
+            pm.plot_data(posterior_mean, 0.02, schemes.posterior_mean)
 
         # Posterior PDF
         pdf_data = one_dim.posterior_pdf(self.xdata,
@@ -142,8 +140,9 @@ class OneDimChiSq(OneDimPlot):
 
         # Best-fit point
         best_fit = stats.best_fit(self.chisq, self.xdata)
-        pm.plot_data(best_fit, 0.08, schemes.best_fit)
         summary.append("Best-fit point: {}".format(best_fit))
+        if opt.show_best_fit:
+            pm.plot_data(best_fit, 0.08, schemes.best_fit)
 
         # Confidence intervals as filled regions
         critical_chi_sq = [chi2.ppf(1. - aa, 1) for aa in opt.alpha]
@@ -207,14 +206,16 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         # Best-fit point
         best_fit_x = stats.best_fit(self.chisq, self.xdata)
         best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
         summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
+        if opt.show_best_fit:
+            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
 
         # Posterior mean
         posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
         posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
         summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
+        if opt.show_posterior_mean:
+            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
 
         # Credible regions
         pdf_data = two_dim.posterior_pdf(
@@ -257,14 +258,16 @@ class TwoDimPlotFilledPL(TwoDimPlot):
         # Best-fit point
         best_fit_x = stats.best_fit(self.chisq, self.xdata)
         best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
         summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
+        if opt.show_best_fit:
+            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
 
         # Posterior mean
         posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
         posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
         summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
+        if opt.show_posterior_mean:
+            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
 
         prof_data = two_dim.profile_like(
                 self.xdata,
@@ -301,14 +304,16 @@ class TwoDimPlotPDF(TwoDimPlot):
         # Best-fit point
         best_fit_x = stats.best_fit(self.chisq, self.xdata)
         best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
         summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
+        if opt.show_best_fit:
+            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
 
         # Posterior mean
         posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
         posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
         summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
+        if opt.show_posterior_mean:
+            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
 
         pdf_data = two_dim.posterior_pdf(
                 self.xdata,
@@ -355,14 +360,16 @@ class TwoDimPlotPL(TwoDimPlot):
         # Best-fit point
         best_fit_x = stats.best_fit(self.chisq, self.xdata)
         best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
         summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
+        if opt.show_best_fit:
+            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
 
         # Posterior mean
         posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
         posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
         summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
+        if opt.show_posterior_mean:
+            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
 
         prof_data = two_dim.profile_like(
                 self.xdata,
@@ -406,14 +413,16 @@ class Scatter(TwoDimPlot):
         # Best-fit point
         best_fit_x = stats.best_fit(self.chisq, self.xdata)
         best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
         summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
+        if opt.show_best_fit:
+            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
 
         # Posterior mean
         posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
         posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
         summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
+        if opt.show_posterior_mean:
+            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
 
         # Plot scatter of points.
         sc = plt.scatter(

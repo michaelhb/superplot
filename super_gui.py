@@ -20,6 +20,7 @@ import time
 import data_loader
 import plotlib.plots as plots
 from plot_options import plot_options, default
+from statslib import point
 
 pygtk.require('2.0')
 
@@ -307,6 +308,13 @@ class GUIControl:
         self.blimits.connect("changed", self._cblimits)
         self.blimits.append_text("")
 
+        # Best-fit & posterior mean ###########################################
+
+        self.show_best_fit = gtk.CheckButton("Best-fit")
+        self.show_best_fit.set_active(True)
+        self.show_posterior_mean = gtk.CheckButton("Posterior mean")
+        self.show_posterior_mean.set_active(True)
+
         # Make Plot Button ####################################################
 
         makeplot = gtk.Button('Make plot.')
@@ -322,7 +330,7 @@ class GUIControl:
 
         # Layout - GTK Table ##################################################
 
-        self.gridbox = gtk.Table(16, 5, False)
+        self.gridbox = gtk.Table(17, 5, False)
 
         self.gridbox.attach(typetitle, 0, 1, 0, 1, xoptions=gtk.FILL)
         self.gridbox.attach(self.typebox, 1, 2, 0, 1, xoptions=gtk.FILL)
@@ -361,7 +369,15 @@ class GUIControl:
         self.gridbox.attach(blimits, 0, 1, 14, 15, xoptions=gtk.FILL)
         self.gridbox.attach(self.blimits, 1, 2, 14, 15, xoptions=gtk.FILL)
 
-        self.gridbox.attach(makeplot, 1, 2, 15, 16, xoptions=gtk.FILL)
+        point_plot_box = gtk.HBox()
+        point_plot_box.pack_start_defaults(
+                self._align_center(self.show_best_fit))
+        point_plot_box.pack_start_defaults(
+                self._align_center(self.show_posterior_mean))
+
+        self.gridbox.attach(point_plot_box, 1, 2, 15, 16, xoptions=gtk.FILL)
+
+        self.gridbox.attach(makeplot, 1, 2, 16, 17, xoptions=gtk.FILL)
 
         # Make main GUI window.
         self.window = gtk.Window()
@@ -377,6 +393,16 @@ class GUIControl:
         self.window.show_all()
 
         return
+
+    @staticmethod
+    def _align_center(child):
+        """
+        Utility method to wrap a GUI element in a centered gtk.Alignment
+        """
+        alignment = gtk.Alignment(xalign=0.5, yalign=0.5,
+                                  xscale=0.0, yscale=0.0)
+        alignment.add(child)
+        return alignment
 
     ###########################################################################
     # Call-back functions. These functions are executed when buttons
@@ -521,7 +547,10 @@ class GUIControl:
                 zlabel=self.labels[self.zindex],
                 plot_title=self.plottitle.get_text(),
                 leg_title=self.legtitle.get_text(),
-                leg_position=self.legpos.get_active_text()
+                leg_position=self.legpos.get_active_text(),
+
+                show_best_fit=self.show_best_fit.get_active(),
+                show_posterior_mean=self.show_posterior_mean.get_active()
         )
 
         # Fetch the class for the selected plot type
@@ -537,23 +566,17 @@ class GUIControl:
 
         # Put figure in plot box.
         canvas = FigureCanvas(self.fig.figure)  # A gtk.DrawingArea.
-        self.gridbox.attach(canvas, 2, 5, 0, 14)
+        self.gridbox.attach(canvas, 2, 5, 0, 15)
 
         # Button to save the plot.
         save_button = gtk.Button('Save plot.')
         save_button.connect("clicked", self._psave)
-        self.gridbox.attach(save_button, 2, 5, 15, 16)
+        self.gridbox.attach(save_button, 2, 5, 16, 17)
 
         # Attach the check boxes to specify what is saved.
-        def align_center(checkbox):
-            alignment = gtk.Alignment(xalign=0.5, yalign=0.5,
-                                      xscale=0.0, yscale=0.0)
-            alignment.add(checkbox)
-            return alignment
-
-        self.gridbox.attach(align_center(self.save_pdf), 2, 3, 14, 15)
-        self.gridbox.attach(align_center(self.save_summary), 3, 4, 14, 15)
-        self.gridbox.attach(align_center(self.save_pickle), 4, 5, 14, 15)
+        self.gridbox.attach(self._align_center(self.save_pdf), 2, 3, 15, 16)
+        self.gridbox.attach(self._align_center(self.save_summary), 3, 4, 15, 16)
+        self.gridbox.attach(self._align_center(self.save_pickle), 4, 5, 15, 16)
 
         # Show new buttons etc.
         self.window.show_all()

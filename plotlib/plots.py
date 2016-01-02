@@ -77,7 +77,8 @@ class OneDimStandard(OneDimPlot):
                                          self.posterior,
                                          nbins=opt.nbins,
                                          bin_limits=opt.bin_limits)
-        pm.plot_data(pdf_data.bin_centers, pdf_data.pdf, schemes.posterior)
+        if opt.show_posterior_pdf:
+            pm.plot_data(pdf_data.bin_centers, pdf_data.pdf, schemes.posterior)
 
         # Profile likelihood
         prof_data = one_dim.prof_data(self.xdata,
@@ -94,15 +95,17 @@ class OneDimStandard(OneDimPlot):
         summary.append("Lower credible region: {}".format(lower_credible_region))
         summary.append("Upper credible region: {}".format(upper_credible_region))
 
-        for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, schemes.credible_regions):
-            pm.plot_data([lower, upper], [1.1, 1.1], scheme)
+        if opt.show_credible_regions:
+            for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, schemes.credible_regions):
+                pm.plot_data([lower, upper], [1.1, 1.1], scheme)
 
         # Confidence interval
         conf_intervals = [one_dim.conf_interval(prof_data.prof_chi_sq, prof_data.bin_centers, alpha=aa) for aa in
                           opt.alpha]
 
         for intervals, scheme in zip(conf_intervals, schemes.conf_intervals):
-            pm.plot_data(intervals, [1.] * int(opt.nbins), scheme)
+            if opt.show_conf_intervals:
+                pm.plot_data(intervals, [1.] * int(opt.nbins), scheme)
             summary.append("{}:".format(scheme.label))
             for interval in intervals:
                 summary.append(str(interval))
@@ -154,14 +157,15 @@ class OneDimChiSq(OneDimPlot):
             fill_where = prof_data.prof_chi_sq >= chi_sq
 
             # Fill in areas on the chart above the threshold
-            ax.fill_between(prof_data.bin_centers,
-                            0,
-                            10,
-                            where=fill_where,
-                            facecolor=facecolor,
-                            interpolate=False,
-                            alpha=0.7
-                            )
+            if opt.show_conf_intervals:
+                ax.fill_between(prof_data.bin_centers,
+                                0,
+                                10,
+                                where=fill_where,
+                                facecolor=facecolor,
+                                interpolate=False,
+                                alpha=0.7
+                                )
 
             # List the boundaries of the regions that were filled in the summary file
             # as comma separated pairs. itertools.groupby splits the list into
@@ -175,7 +179,8 @@ class OneDimChiSq(OneDimPlot):
 
             # Plot a proxy for the legend - plot spurious data outside plot limits,
             # with legend entry matching colours of filled regions.
-            plt.plot(-1, -1, 's', color=facecolor, label=name, alpha=0.7, ms=15)
+            if opt.show_conf_intervals:
+                plt.plot(-1, -1, 's', color=facecolor, label=name, alpha=0.7, ms=15)
 
         if opt.tau is not None:
             # Plot the theory error as a band around the usual line
@@ -232,11 +237,12 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         pdf = pdf / pdf.sum()
 
         # Plot contours
-        pm.plot_filled_contour(
-                pdf,
-                levels,
-                schemes.posterior,
-                bin_limits=opt.bin_limits)
+        if opt.show_credible_regions:
+            pm.plot_filled_contour(
+                    pdf,
+                    levels,
+                    schemes.posterior,
+                    bin_limits=opt.bin_limits)
 
         # Add legend
         pm.legend(opt.leg_title, opt.leg_position)
@@ -278,11 +284,12 @@ class TwoDimPlotFilledPL(TwoDimPlot):
 
         levels = [two_dim.critical_prof_like(aa) for aa in opt.alpha]
 
-        pm.plot_filled_contour(
-                prof_data.prof_like,
-                levels,
-                schemes.prof_like,
-                bin_limits=opt.bin_limits)
+        if opt.show_conf_intervals:
+            pm.plot_filled_contour(
+                    prof_data.prof_like,
+                    levels,
+                    schemes.prof_like,
+                    bin_limits=opt.bin_limits)
 
         # Add legend
         pm.legend(opt.leg_title, opt.leg_position)
@@ -322,11 +329,12 @@ class TwoDimPlotPDF(TwoDimPlot):
                 nbins=opt.nbins,
                 bin_limits=opt.bin_limits)
 
-        pm.plot_image(
-                pdf_data.pdf,
-                opt.bin_limits,
-                opt.plot_limits,
-                schemes.posterior)
+        if opt.show_posterior_pdf:
+            pm.plot_image(
+                    pdf_data.pdf,
+                    opt.bin_limits,
+                    opt.plot_limits,
+                    schemes.posterior)
 
         levels = [two_dim.critical_density(pdf_data.pdf, aa) for aa in opt.alpha]
 
@@ -334,11 +342,12 @@ class TwoDimPlotPDF(TwoDimPlot):
         pdf = pdf_data.pdf
         pdf = pdf / pdf.sum()
 
-        pm.plot_contour(
-                pdf,
-                levels,
-                schemes.posterior,
-                bin_limits=opt.bin_limits)
+        if opt.show_credible_regions:
+            pm.plot_contour(
+                    pdf,
+                    levels,
+                    schemes.posterior,
+                    bin_limits=opt.bin_limits)
 
         # Add legend
         pm.legend(opt.leg_title, opt.leg_position)
@@ -386,11 +395,12 @@ class TwoDimPlotPL(TwoDimPlot):
 
         levels = [two_dim.critical_prof_like(aa) for aa in opt.alpha]
 
-        pm.plot_contour(
-                prof_data.prof_like,
-                levels,
-                schemes.prof_like,
-                bin_limits=opt.bin_limits)
+        if opt.show_conf_intervals:
+            pm.plot_contour(
+                    prof_data.prof_like,
+                    levels,
+                    schemes.prof_like,
+                    bin_limits=opt.bin_limits)
 
         # Add legend
         pm.legend(opt.leg_title, opt.leg_position)
@@ -447,7 +457,7 @@ class Scatter(TwoDimPlot):
         cb.locator = MaxNLocator(4)
         cb.update_ticks()
 
-        # Credible regions      
+        # Credible regions
         pdf_data = two_dim.posterior_pdf(
                 self.xdata,
                 self.ydata,
@@ -461,11 +471,12 @@ class Scatter(TwoDimPlot):
         pdf = pdf_data.pdf
         pdf = pdf / pdf.sum()
 
-        pm.plot_contour(
-                pdf,
-                levels,
-                schemes.posterior,
-                bin_limits=opt.bin_limits)
+        if opt.show_credible_regions:
+            pm.plot_contour(
+                    pdf,
+                    levels,
+                    schemes.posterior,
+                    bin_limits=opt.bin_limits)
 
         # Confidence interval        
         prof_data = two_dim.profile_like(
@@ -477,11 +488,12 @@ class Scatter(TwoDimPlot):
 
         levels = [two_dim.critical_prof_like(aa) for aa in opt.alpha]
 
-        pm.plot_contour(
-                prof_data.prof_like,
-                levels,
-                schemes.prof_like,
-                bin_limits=opt.bin_limits)
+        if opt.show_conf_intervals:
+            pm.plot_contour(
+                    prof_data.prof_like,
+                    levels,
+                    schemes.prof_like,
+                    bin_limits=opt.bin_limits)
 
         # Add legend
         pm.legend(opt.leg_title, opt.leg_position)

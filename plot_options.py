@@ -37,10 +37,12 @@ plot_options = namedtuple("plot_options", (
     "leg_title",    # Plot legend
     "leg_position",  # Location of plot legend
 
-    # Whether to show best-fit and posterior mean
-    "show_best_fit", # True / False
-    "show_posterior_mean" # True / False
-
+    # Whether to show optional plot elements (all True / False)
+    "show_best_fit",
+    "show_posterior_mean",
+    "show_conf_intervals",
+    "show_credible_regions",
+    "show_posterior_pdf"
 ))
 
 

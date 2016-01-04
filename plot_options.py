@@ -60,6 +60,7 @@ with open(config_path) as cfile:
 # but that might confuse users / be messy.
 if _defaults["alpha"] is not None:
     _defaults["alpha"] = np.array(_defaults["alpha"])
+    _defaults["alpha"].sort()
 if _defaults["plot_limits"] is not None:
     _defaults["plot_limits"] = np.array(_defaults["plot_limits"])
 

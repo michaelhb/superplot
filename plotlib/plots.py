@@ -127,6 +127,9 @@ class OneDimStandard(OneDimPlot):
         # Add plot legend
         pm.legend(opt.leg_title, opt.leg_position)
 
+        # Set Y-axis label
+        plt.ylabel("Probability Density")
+
         return self.plot_data(figure=fig, summary=summary)
 
 

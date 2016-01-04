@@ -243,10 +243,10 @@ def plot_filled_contour(
              bin_limits[1][1]))
 
     # We need to ensure levels are in ascending order, and append the 
-    # list with one. This makes n intervals (between n + 1 values) that will 
-    # be shown with colours.
+    # list with highest possible value. This makes n intervals 
+    # (between n + 1 values) that will be shown with colours.
     levels = sort(levels)
-    levels = np.append(levels, 1.)
+    levels = np.append(levels, data.max())
 
     # Filled contours.
     plt.contourf(data.T,

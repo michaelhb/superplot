@@ -293,7 +293,8 @@ def plot_band(x_data, y_data, width, ax, scheme):
     """
 
     # For a given x, find largest/smallest y within x \pm width
-    upper_y = lower_y = np.zeros(len(y_data))
+    upper_y = np.full(len(y_data), -float("inf"))
+    lower_y = np.full(len(y_data), float("inf"))
     for index, x in enumerate(x_data):
         for x_prime, y_prime in zip(x_data, y_data):
             if abs(x - x_prime) < width:

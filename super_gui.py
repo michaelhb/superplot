@@ -188,11 +188,8 @@ class GUIControl:
         self.x = gtk.combo_box_new_text()
         # List the available parameter names in a particlular order
         # in the combo-boxes.
-        for data_key in self.data.keys():
-            data_name = self.labels[data_key].replace(
-                    '$',
-                    '')  # Remove $ from GUI, but not from plot labels.
-            self.x.append_text(data_name)
+        for label in self.labels.itervalues():
+            self.x.append_text(label)
         self.x.set_wrap_width(5)  # Make box wider for long lists.
         self.x.connect('changed', self._cx)
 
@@ -213,11 +210,8 @@ class GUIControl:
         self.y = gtk.combo_box_new_text()
         # List the available parameter names in a particlular order
         # in the combo-boxes.
-        for data_key in self.data.keys():
-            data_name = self.labels[data_key].replace(
-                    '$',
-                    '')  # Remove $ from GUI, but not from plot labels.
-            self.y.append_text(data_name)
+        for label in self.labels.itervalues():
+            self.y.append_text(label)
         self.y.set_wrap_width(5)  # Make box wider for long lists.
         self.y.connect('changed', self._cy)
 
@@ -236,11 +230,8 @@ class GUIControl:
         self.z = gtk.combo_box_new_text()
         # List the available parameter names in a particlular order
         # in the combo-boxes.
-        for data_key in self.data.keys():
-            data_name = self.labels[data_key].replace(
-                    '$',
-                    '')  # Remove $ from GUI, but not from plot labels.
-            self.z.append_text(data_name)
+        for label in self.labels.itervalues():
+            self.z.append_text(label)
         self.z.set_wrap_width(5)  # Make box wider for long lists.
         self.z.connect('changed', self._cz)
 

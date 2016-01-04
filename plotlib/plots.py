@@ -148,11 +148,11 @@ class OneDimChiSq(OneDimPlot):
                                       self.chisq,
                                       nbins=opt.nbins,
                                       bin_limits=opt.bin_limits)
-
+        # Plot the delta chi-squared 
         pm.plot_data(prof_data.bin_centers, prof_data.prof_chi_sq, schemes.prof_chi_sq)
 
-        # Plot the delta chi-squared 
-        # TODO what's this about: between default range, 0 - 10.
+        # Alter the y-axis limit so that it extends to 10.
+        opt.plot_limits[3] = 10.
         pm.plot_limits(ax, opt.plot_limits)
 
         # Best-fit point

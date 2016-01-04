@@ -102,7 +102,7 @@ def prof_data(parameter, chi_sq, nbins=50, bin_limits=None):
     bin_numbers = map(shift, bin_numbers)
 
     # Initialize the profiled chi-squared to something massive
-    prof_chi_sq = np.zeros(nbins) + 1e90
+    prof_chi_sq = np.full(nbins, float("inf"))
 
     # Minimize the chi-squared in each bin by looping 
     # over all the entries in the chain.

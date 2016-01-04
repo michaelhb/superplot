@@ -131,7 +131,7 @@ plot_options:
     yticks: 5
 
     # Default plot title.
-    plot_title: 'Fowlie (2014)'
+    plot_title: ''
 
     # For theoretical error on delta chi-squared plots.
     tau: 2

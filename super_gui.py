@@ -513,6 +513,12 @@ class GUIControl(object):
         # Convert to floats
         self.plot_limits = [float(i) for i in self.plot_limits if i]
 
+        # Permit only two floats, if it is a one-dimensional plot
+        if len(self.plot_limits) == 2 and "One-dimensional" in self.typebox.get_active_text():
+            self.plot_limits += [None, None]
+        elif len(self.plot_limits) != 4:
+            raise RuntimeError("Must specify four floats for axes limits")
+
     def _cblimits(self, textbox):
         """
         Callback function for setting bin limits.
@@ -527,14 +533,24 @@ class GUIControl(object):
 
         # Split text by commas etc
         self.bin_limits = re.split(r"\s*[,;]\s*", textbox.get_text())
-        # Convert to floats.
+        # Convert to floats
         self.bin_limits = [float(i) for i in self.bin_limits if i]
-        # Convert to two-tuple format
-        try:
-            self.bin_limits = [[self.bin_limits[0], self.bin_limits[1]], [
-                self.bin_limits[2], self.bin_limits[3]]]
-        except:
-            raise IndexError
+
+        # Permit only two floats, if it is a one-dimensional plot
+        one_dim_plot = "One-dimensional" in self.typebox.get_active_text()
+        if len(self.bin_limits) == 2 and not one_dim_plot:
+            raise RuntimeError("Specify four floats for bin limits in 2D plot")
+        elif len(self.bin_limits) != 2 and one_dim_plot:
+            raise RuntimeError("Specify two floats for bin limits in 1D plot")
+        elif len(self.plot_limits) == 4 and not one_dim_plot:
+            # Convert to two-tuple format
+            try:
+                self.bin_limits = [[self.bin_limits[0], self.bin_limits[1]], [
+                    self.bin_limits[2], self.bin_limits[3]]]
+            except:
+                raise IndexError("Specify four floats for bin limits in 2D plot")
+        else:
+            raise RuntimeError("Specify four floats for bin limits in 2D plot")
 
     def _pmakeplot(self, button):
         """

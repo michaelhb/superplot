@@ -277,8 +277,8 @@ class GUIControl:
 
         tbins = gtk.Button("Bins per dimension:")
         self.bins = gtk.SpinButton()
-        self.bins.set_increments(1, 5)
-        self.bins.set_range(5, 100)
+        self.bins.set_increments(10, 10)
+        self.bins.set_range(5, 10000)
         self.bins.set_value(default("nbins"))
 
         # Plot and Bin Limits #################################################

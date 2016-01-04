@@ -14,7 +14,7 @@ import point
 import warnings
 
 
-def posterior_pdf(parameter, posterior, nbins=50, bin_limits=None):
+def posterior_pdf(parameter, posterior, nbins=50, bin_limits=None, norm_area=False):
     r"""
     Weighted histogram of data for posterior PDF.
     
@@ -33,6 +33,9 @@ def posterior_pdf(parameter, posterior, nbins=50, bin_limits=None):
     :type nbins: integer
     :param bin_limits: Bin limits for histogram
     :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :param norm_area: If True, normalize the PDF so that the integral over the
+        range is one. Otherwise, normalize the PDF so that the maximum value
+        is one.
     
     :returns: Posterior pdf and centers of bins for probability distribution.
     :rtype: named tuple (pdf: numpy.ndarray, bin_centers: numpy.ndarray)
@@ -42,11 +45,12 @@ def posterior_pdf(parameter, posterior, nbins=50, bin_limits=None):
     pdf, bin_edges = np.histogram(parameter,
                                   nbins,
                                   range=bin_limits,
-                                  weights=posterior)
+                                  weights=posterior,
+                                  density=norm_area)
 
-    # Normalize the PDF so that its maximum value is one.
-    # NB could normalize so that area is one.
-    pdf = pdf / pdf.max()
+    # If not norming area, norm PDF so that its maximum value is one.
+    if not norm_area:
+        pdf = pdf / pdf.max()
 
     # Find centres of bins
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) * 0.5

@@ -60,23 +60,18 @@ class OneDimStandard(OneDimPlot):
         opt = self.plot_options
         summary = []
 
-        # Best-fit point
-        best_fit = stats.best_fit(self.chisq, self.xdata)
-        summary.append("Best-fit point: {}".format(best_fit))
-        if opt.show_best_fit:
-            pm.plot_data(best_fit, 0.02, schemes.best_fit)
+        # Autoscale the Y axis.
+        ax.autoscale(axis='y')
 
-        # Posterior mean
-        posterior_mean = stats.posterior_mean(self.posterior, self.xdata)
-        summary.append("Posterior mean: {}".format(posterior_mean))
-        if opt.show_posterior_mean:
-            pm.plot_data(posterior_mean, 0.02, schemes.posterior_mean)
-
-        # Posterior PDF
+        # Posterior PDF. Norm by area if not showing profile likelihood,
+        # otherwise norm max value to one.
         pdf_data = one_dim.posterior_pdf(self.xdata,
                                          self.posterior,
                                          nbins=opt.nbins,
-                                         bin_limits=opt.bin_limits)
+                                         bin_limits=opt.bin_limits,
+                                         norm_area=
+                                         False if opt.show_prof_like
+                                         else True)
         if opt.show_posterior_pdf:
             pm.plot_data(pdf_data.bin_centers, pdf_data.pdf, schemes.posterior)
 
@@ -88,6 +83,21 @@ class OneDimStandard(OneDimPlot):
         if opt.show_prof_like:
             pm.plot_data(prof_data.bin_centers, prof_data.prof_like, schemes.prof_like)
 
+        # Height to plot the best-fit and posterior-mean points
+        point_height = 0.02 * pdf_data.pdf.max()
+
+        # Best-fit point
+        best_fit = stats.best_fit(self.chisq, self.xdata)
+        summary.append("Best-fit point: {}".format(best_fit))
+        if opt.show_best_fit:
+            pm.plot_data(best_fit, point_height, schemes.best_fit)
+
+        # Posterior mean
+        posterior_mean = stats.posterior_mean(self.posterior, self.xdata)
+        summary.append("Posterior mean: {}".format(posterior_mean))
+        if opt.show_posterior_mean:
+            pm.plot_data(posterior_mean, point_height, schemes.posterior_mean)
+
         # Credible region
         lower_credible_region = [one_dim.credible_region(pdf_data.pdf, pdf_data.bin_centers, alpha=aa, region="lower")
                                  for aa in opt.alpha]
@@ -97,8 +107,10 @@ class OneDimStandard(OneDimPlot):
         summary.append("Upper credible region: {}".format(upper_credible_region))
 
         if opt.show_credible_regions:
+            # Plot the credible region line @ +10% of the max PDF value
+            cr_height = 1.1 * pdf_data.pdf.max()
             for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, schemes.credible_regions):
-                pm.plot_data([lower, upper], [1.1, 1.1], scheme)
+                pm.plot_data([lower, upper], [cr_height, cr_height], scheme)
 
         # Confidence interval
         conf_intervals = [one_dim.conf_interval(prof_data.prof_chi_sq, prof_data.bin_centers, alpha=aa) for aa in
@@ -106,7 +118,8 @@ class OneDimStandard(OneDimPlot):
 
         for intervals, scheme in zip(conf_intervals, schemes.conf_intervals):
             if opt.show_conf_intervals:
-                pm.plot_data(intervals, [1.] * int(opt.nbins), scheme)
+                # Plot the CI line @ the max PDF value
+                pm.plot_data(intervals, [pdf_data.pdf.max()] * int(opt.nbins), scheme)
             summary.append("{}:".format(scheme.label))
             for interval in intervals:
                 summary.append(str(interval))

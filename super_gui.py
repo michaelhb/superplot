@@ -324,8 +324,11 @@ class GUIControl:
         # Check boxes to control what is saved (note we only attach them to the
         # window after showing a plot).
         self.save_pdf = gtk.CheckButton('Save PDF')
+        self.save_pdf.set_active(True)
         self.save_summary = gtk.CheckButton('Save summary .txt')
+        self.save_summary.set_active(True)
         self.save_pickle = gtk.CheckButton('Save .pkl')
+        self.save_pickle.set_active(True)
 
         # Layout - GTK Table ##################################################
 

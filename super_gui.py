@@ -2,38 +2,42 @@
 This module provides the superplot GUI.
 """
 
-# External modules.
-# Uncomment to select /GTK/GTKAgg/GTKCairo
-# from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
-from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
-# from matplotlib.backends.backend_gtkcairo import FigureCanvasGTKCairo as FigureCanvas
-
-from collections import OrderedDict
 import gtk
 import re
-from pylab import *
 import pygtk
 import pickle
 import time
-
-#  SuperPy modules.
 import data_loader
+
 import plotlib.plots as plots
+
+from collections import OrderedDict
+from pylab import *
 from plot_options import plot_options, default
 from statslib import point
+# Uncomment to select /GTK/GTKAgg/GTKCairo
+from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
+# from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
+# from matplotlib.backends.backend_gtkcairo import FigureCanvasGTKCairo as FigureCanvas
 
 pygtk.require('2.0')
 
 
-def open_file_gui(window_title="Open.."):
-    """ GUI for opening a file with a file browser.
+def open_file_gui(window_title="Open", set_name=None, add_pattern=None):
+    """ 
+    GUI for opening a file with a file browser.
+    
     :param window_title: Window title
     :type window_title: string
+    :param set_name: Title of filter
+    :type set_name: string
+    :param add_pattern: Acceptable file patterns in filter, e.g ["*.pdf"]
+    :type add_pattern: list
 
     :returns: Name of file selected with GUI.
     :rtype: string
     """
-    # Select the file from a dialog box.
+    # Select the file from a dialog box
     dialog = gtk.FileChooserDialog(window_title,
                                    None,
                                    gtk.FILE_CHOOSER_ACTION_OPEN,
@@ -41,21 +45,20 @@ def open_file_gui(window_title="Open.."):
                                     gtk.STOCK_OPEN, gtk.RESPONSE_OK))
     dialog.set_default_response(gtk.RESPONSE_OK)
 
-    # Only show particular files.
+    # Only show particular files
     file_filter = gtk.FileFilter()
-    file_filter.set_name("Text files, serial data or info file.")
-    file_filter.add_pattern("*.txt")
-    file_filter.add_pattern("*.pkl")
-    file_filter.add_pattern("*.info")
-    dialog.add_filter(file_filter)
-    file_filter = gtk.FileFilter()
+    if set_name:
+        file_filter.set_name(set_name)
+    if add_pattern:
+        for pattern in add_pattern:
+            file_filter.add_pattern(pattern)
     dialog.add_filter(file_filter)
 
     response = dialog.run()
     if response == gtk.RESPONSE_OK:
-        print 'File:', dialog.get_filename(), 'selected.'
+        print 'File: %s selected' % dialog.get_filename()
     elif response == gtk.RESPONSE_CANCEL:
-        print 'Error: no file selected.'
+        warnings.warn("No file selected")
 
     # Save the file name/path
     filename = dialog.get_filename()
@@ -64,16 +67,20 @@ def open_file_gui(window_title="Open.."):
     return filename
 
 
-def save_file_gui(window_title="Save.."):
+def save_file_gui(window_title="Save As", set_name=None, add_pattern=None):
     """ GUI for saving a file with a file browser.
 
     :param window_title: Window title
     :type window_title: string
+    :param set_name: Title of filter
+    :type set_name: string
+    :param add_pattern: Acceptable file patterns in filter, e.g ["*.pdf"]
+    :type add_pattern: list
 
     :returns: Name of file selected with GUI.
     :rtype: string
     """
-    # Select the file from a dialog box.
+    # Select the file from a dialog box
     dialog = gtk.FileChooserDialog(window_title,
                                    None,
                                    gtk.FILE_CHOOSER_ACTION_SAVE,
@@ -81,24 +88,20 @@ def save_file_gui(window_title="Save.."):
                                     gtk.STOCK_OPEN, gtk.RESPONSE_OK))
     dialog.set_default_response(gtk.RESPONSE_OK)
 
-    # Only show particular files.
+    # Only show particular files
     file_filter = gtk.FileFilter()
-    file_filter.set_name("PDF, PS, EPS or PNG files.")
-    file_filter.add_pattern("*.pdf")
-    file_filter.add_pattern("*.eps")
-    file_filter.add_pattern("*.ps")
-    file_filter.add_pattern("*.png")
-    file_filter.add_pattern("*.pkl")
-
-    dialog.add_filter(file_filter)
-    file_filter = gtk.FileFilter()
+    if set_name:
+        file_filter.set_name(set_name)
+    if add_pattern:
+        for pattern in add_pattern:
+            file_filter.add_pattern(pattern)
     dialog.add_filter(file_filter)
 
     response = dialog.run()
     if response == gtk.RESPONSE_OK:
-        print 'File:', dialog.get_filename(), 'selected.'
+        print 'File: %s selected' % dialog.get_filename()
     elif response == gtk.RESPONSE_CANCEL:
-        print 'Error: no file selected.'
+        warnings.warn("No file selected")
 
     # Save the file name/path
     filename = dialog.get_filename()
@@ -617,7 +620,12 @@ class GUIControl:
             return
 
         # Get name to save to from a dialogue box.
-        file_name = save_file_gui()
+        file_name = save_file_gui(set_name="Save plot as image",
+                                  add_pattern=["*.pdf", 
+                                               "*.png", 
+                                               "*.eps", 
+                                               "*.ps"]
+                                  )
 
         if not isinstance(file_name, str):
             # Case in which no file is chosen.
@@ -656,8 +664,14 @@ class GUIControl:
 
 
 def main():
-    data_file = open_file_gui("Select data file")
-    info_file = open_file_gui("Select info file")
+    data_file = open_file_gui(window_title="Select a MultiNest *.txt file", 
+                              set_name="MultiNest *.txt file",
+                              add_pattern=["*.txt", "*.pkl"]
+                              )
+    info_file = open_file_gui(window_title="Select an information file", 
+                              set_name="Information file *.info describing *.txt file",
+                              add_pattern=["*.info"]
+                              )
 
     bcb = GUIControl(data_file, info_file)
     gtk.main()

@@ -67,7 +67,8 @@ def open_file_gui(window_title="Open", set_name=None, add_pattern=None):
 
 
 def save_file_gui(window_title="Save As", set_name=None, add_pattern=None):
-    """ GUI for saving a file with a file browser.
+    """
+    GUI for saving a file with a file browser.
 
     :param window_title: Window title
     :type window_title: string
@@ -395,7 +396,9 @@ class GUIControl(object):
         point_plot_container.pack_start_defaults(point_plot_box_upper)
         point_plot_container.pack_start_defaults(point_plot_box_lower)
 
-        self.gridbox.attach(point_plot_container, 0, 2, 15, 16, xoptions=gtk.FILL)
+        self.gridbox.attach(point_plot_container,
+                            0, 2, 15, 16,
+                            xoptions=gtk.FILL)
 
         self.gridbox.attach(makeplot, 0, 2, 16, 17, xoptions=gtk.FILL)
 
@@ -539,44 +542,44 @@ class GUIControl(object):
 
         Main action is that it calls a ploting function that returns a figure
         object that is attached to our window.
-        
+
         :param button: Button with this callback function
         :type button:
         """
 
         # Gather up all of the plot options and put them in
         # a plot_options tuple
-        self.options = plot_options(
-                xindex=self.xindex,
-                yindex=self.yindex,
-                zindex=self.zindex,
-                logx=self.logx.get_active(),
-                logy=self.logy.get_active(),
-                logz=self.logz.get_active(),
+        args = {"xindex": self.xindex,
+                "yindex": self.yindex,
+                "zindex": self.zindex,
+                "logx": self.logx.get_active(),
+                "logy": self.logy.get_active(),
+                "logz": self.logz.get_active(),
 
-                plot_limits=self.plot_limits,
-                bin_limits=self.bin_limits,
-                nbins=self.bins.get_value_as_int(),
-                xticks=default("xticks"),
-                yticks=default("yticks"),
+                "plot_limits": self.plot_limits,
+                "bin_limits": self.bin_limits,
+                "nbins": self.bins.get_value_as_int(),
+                "xticks": default("xticks"),
+                "yticks": default("yticks"),
 
-                tau=default("tau"),
-                alpha=default("alpha"),
+                "tau": default("tau"),
+                "alpha": default("alpha"),
 
-                xlabel=self.labels[self.xindex],
-                ylabel=self.labels[self.yindex],
-                zlabel=self.labels[self.zindex],
-                plot_title=self.plottitle.get_text(),
-                leg_title=self.legtitle.get_text(),
-                leg_position=self.legpos.get_active_text(),
+                "xlabel": self.labels[self.xindex],
+                "ylabel": self.labels[self.yindex],
+                "zlabel": self.labels[self.zindex],
+                "plot_title": self.plottitle.get_text(),
+                "leg_title": self.legtitle.get_text(),
+                "leg_position": self.legpos.get_active_text(),
 
-                show_best_fit=self.show_best_fit.get_active(),
-                show_posterior_mean=self.show_posterior_mean.get_active(),
-                show_conf_intervals=self.show_conf_intervals.get_active(),
-                show_credible_regions=self.show_credible_regions.get_active(),
-                show_posterior_pdf=self.show_posterior_pdf.get_active(),
-                show_prof_like=self.show_prof_like.get_active()
-        )
+                "show_best_fit": self.show_best_fit.get_active(),
+                "show_posterior_mean": self.show_posterior_mean.get_active(),
+                "show_conf_intervals": self.show_conf_intervals.get_active(),
+                "show_credible_regions": self.show_credible_regions.get_active(),
+                "show_posterior_pdf": self.show_posterior_pdf.get_active(),
+                "show_prof_like": self.show_prof_like.get_active()
+                }
+        self.options = plot_options(**args)
 
         # Fetch the class for the selected plot type
         plot_class = self.plots[self.typebox.get_active_text()]
@@ -611,7 +614,7 @@ class GUIControl(object):
         Callback function to save a plot via a dialogue box.
         NB differs from toolbox save, because it's figure object, rather
         than image in the canvas box.
-        
+
         :param button: Button with this callback function
         :type button:
         """
@@ -643,7 +646,8 @@ class GUIControl(object):
 
         if save_pickle:
             # Need to re-draw the figure for this to work
-            pickle.dump(self.plot.figure().figure, file(file_prefix + ".pkl", 'wb'))
+            figure = self.plot.figure().figure
+            pickle.dump(figure, file(file_prefix + ".pkl", 'wb'))
 
         if save_summary:
             with open(file_prefix + ".txt", 'w') as summary_file:
@@ -677,7 +681,8 @@ def main():
                               add_pattern=["*.txt", "*.pkl"]
                               )
     info_file = open_file_gui(window_title="Select an information file",
-                              set_name="Information file *.info describing *.txt file",
+                              set_name="Information file *.info describing "
+                                       "*.txt file",
                               add_pattern=["*.info"]
                               )
 

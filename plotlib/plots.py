@@ -63,83 +63,67 @@ class OneDimStandard(OneDimPlot):
         # Autoscale the y-axis.
         ax.autoscale(axis='y')
 
-        # Posterior PDF. Norm by area if not showing profile likelihood,
-        # otherwise norm max value to one.
-        pdf_data = one_dim.posterior_pdf(self.xdata,
-                                         self.posterior,
-                                         nbins=opt.nbins,
-                                         bin_limits=opt.bin_limits,
-                                         norm_area=
-                                         False if opt.show_prof_like
-                                         else True)
         if opt.show_posterior_pdf:
-            pm.plot_data(pdf_data.bin_centers, pdf_data.pdf, schemes.posterior)
+            pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, schemes.posterior)
 
-        # Profile likelihood
-        prof_data = one_dim.prof_data(self.xdata,
-                                      self.chisq,
-                                      nbins=opt.nbins,
-                                      bin_limits=opt.bin_limits)
         if opt.show_prof_like:
-            pm.plot_data(prof_data.bin_centers, prof_data.prof_like, schemes.prof_like)
+            pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_like, schemes.prof_like)
 
         # Height to plot the best-fit and posterior-mean points
-        point_height = 0.02 * pdf_data.pdf.max()
+        point_height = 0.02 * self.pdf_data.pdf.max()
 
         # Best-fit point
-        best_fit = stats.best_fit(self.chisq, self.xdata)
-        summary.append("Best-fit point: {}".format(best_fit))
         if opt.show_best_fit:
-            pm.plot_data(best_fit, point_height, schemes.best_fit)
+            pm.plot_data(self.best_fit, point_height, schemes.best_fit)
 
         # Posterior mean
-        posterior_mean = stats.posterior_mean(self.posterior, self.xdata)
-        summary.append("Posterior mean: {}".format(posterior_mean))
         if opt.show_posterior_mean:
-            pm.plot_data(posterior_mean, point_height, schemes.posterior_mean)
+            pm.plot_data(self.posterior_mean, point_height, schemes.posterior_mean)
 
         # Posterior median
-        posterior_median = one_dim.posterior_median(self.xdata, self.posterior)
-        summary.append("Posterior median: {}".format(posterior_median))
         if opt.show_posterior_median:
-            pm.plot_data(posterior_median, point_height, schemes.posterior_median)
+            pm.plot_data(self.posterior_median, point_height, schemes.posterior_median)
 
         # Posterior mode
-        posterior_modes = one_dim.posterior_mode(*pdf_data)
-        summary.append("Posterior mode/s: {}".format(posterior_modes))
         if opt.show_posterior_mode:
-            for mode in posterior_modes:
+            for mode in self.posterior_modes:
                 pm.plot_data(mode, point_height, schemes.posterior_mode)
 
-        # Credible region
-        lower_credible_region = [one_dim.credible_region(pdf_data.pdf, pdf_data.bin_centers, alpha=aa, region="lower")
-                                 for aa in opt.alpha]
-        upper_credible_region = [one_dim.credible_region(pdf_data.pdf, pdf_data.bin_centers, alpha=aa, region="upper")
-                                 for aa in opt.alpha]
-        summary.append("Lower credible region: {}".format(lower_credible_region))
-        summary.append("Upper credible region: {}".format(upper_credible_region))
+        # Credible regions
+        lower_credible_region = [
+            one_dim.credible_region(
+                    self.pdf_data.pdf, self.pdf_data.bin_centers, alpha=aa, region="lower")
+            for aa in opt.alpha]
+
+        upper_credible_region = [
+            one_dim.credible_region(self.pdf_data.pdf, self.pdf_data.bin_centers, alpha=aa, region="upper")
+            for aa in opt.alpha]
+
+        self.summary.append("Lower credible region: {}".format(lower_credible_region))
+        self.summary.append("Upper credible region: {}".format(upper_credible_region))
 
         if opt.show_credible_regions:
             # Plot the credible region line @ +10% of the max PDF value
-            cr_height = 1.1 * pdf_data.pdf.max()
+            cr_height = 1.1 * self.pdf_data.pdf.max()
             for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, schemes.credible_regions):
                 pm.plot_data([lower, upper], [cr_height, cr_height], scheme)
 
         # Confidence interval
-        conf_intervals = [one_dim.conf_interval(prof_data.prof_chi_sq, prof_data.bin_centers, alpha=aa) for aa in
+        conf_intervals = [one_dim.conf_interval(self.prof_data.prof_chi_sq, self.prof_data.bin_centers, alpha=aa) for aa
+                          in
                           opt.alpha]
 
         for intervals, scheme in zip(conf_intervals, schemes.conf_intervals):
             if opt.show_conf_intervals:
                 # Plot the CI line @ the max PDF value
-                pm.plot_data(intervals, [pdf_data.pdf.max()] * int(opt.nbins), scheme)
+                pm.plot_data(intervals, [self.pdf_data.pdf.max()] * int(opt.nbins), scheme)
             summary.append("{}:".format(scheme.label))
             for interval in intervals:
                 summary.append(str(interval))
 
         # Add plot legend
         pm.legend(opt.leg_title, opt.leg_position)
-        
+
         # Override y-axis label. This prevents the y axis from taking its
         # label from the 'y-axis variable' selction in the GUI.
         if opt.show_posterior_pdf and not opt.show_prof_like:
@@ -149,7 +133,7 @@ class OneDimStandard(OneDimPlot):
         else:
             plt.ylabel("")
 
-        return self.plot_data(figure=fig, summary=summary)
+        return self.plot_data(figure=fig, summary=self.summary)
 
 
 class OneDimChiSq(OneDimPlot):
@@ -165,23 +149,29 @@ class OneDimChiSq(OneDimPlot):
         opt = self.plot_options
         summary = []
 
-        # Data itself.
-        prof_data = one_dim.prof_data(self.xdata,
-                                      self.chisq,
-                                      nbins=opt.nbins,
-                                      bin_limits=opt.bin_limits)
         # Plot the delta chi-squared 
-        pm.plot_data(prof_data.bin_centers, prof_data.prof_chi_sq, schemes.prof_chi_sq)
+        pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, schemes.prof_chi_sq)
 
         # Alter the y-axis limit so that it extends to 10.
         opt.plot_limits[3] = 10.
         pm.plot_limits(ax, opt.plot_limits)
 
         # Best-fit point
-        best_fit = stats.best_fit(self.chisq, self.xdata)
-        summary.append("Best-fit point: {}".format(best_fit))
         if opt.show_best_fit:
-            pm.plot_data(best_fit, 0.08, schemes.best_fit)
+            pm.plot_data(self.best_fit, 0.08, schemes.best_fit)
+
+        # Posterior mean
+        if opt.show_posterior_mean:
+            pm.plot_data(self.posterior_mean, 0.08, schemes.posterior_mean)
+
+        # Posterior median
+        if opt.show_posterior_median:
+            pm.plot_data(self.posterior_median, 0.08, schemes.posterior_median)
+
+        # Posterior mode
+        if opt.show_posterior_mode:
+            for mode in self.posterior_modes:
+                pm.plot_data(mode, 0.08, schemes.posterior_mode)
 
         # Confidence intervals as filled regions
         critical_chi_sq = [chi2.ppf(1. - aa, 1) for aa in opt.alpha]
@@ -190,11 +180,11 @@ class OneDimChiSq(OneDimPlot):
                                            schemes.prof_chi_sq.level_names):
 
             # Create a list where element i is True if bin i should be filled.
-            fill_where = prof_data.prof_chi_sq >= chi_sq
+            fill_where = self.prof_data.prof_chi_sq >= chi_sq
 
             # Fill in areas on the chart above the threshold
             if opt.show_conf_intervals:
-                ax.fill_between(prof_data.bin_centers,
+                ax.fill_between(self.prof_data.bin_centers,
                                 0,
                                 10,
                                 where=fill_where,
@@ -207,11 +197,11 @@ class OneDimChiSq(OneDimPlot):
             # as comma separated pairs. itertools.groupby splits the list into
             # contiguous regions according to the key function - we take the first
             # and last elements of the "True" regions.
-            summary.append(name + ":")
-            for filled, group in groupby(zip(prof_data.bin_centers, fill_where), key=lambda x: x[1]):
+            self.summary.append(name + ":")
+            for filled, group in groupby(zip(self.prof_data.bin_centers, fill_where), key=lambda x: x[1]):
                 if filled:
                     bins = [g[0] for g in group]
-                    summary.append("{},{}".format(min(bins), max(bins)))
+                    self.summary.append("{},{}".format(min(bins), max(bins)))
 
             # Plot a proxy for the legend - plot spurious data outside plot limits,
             # with legend entry matching colours of filled regions.
@@ -220,7 +210,7 @@ class OneDimChiSq(OneDimPlot):
 
         if opt.tau is not None:
             # Plot the theory error as a band around the usual line
-            pm.plot_band(prof_data.bin_centers, prof_data.prof_chi_sq, opt.tau, ax, schemes.tau_band)
+            pm.plot_band(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, opt.tau, ax, schemes.tau_band)
 
         # Add plot legend
         pm.legend(opt.leg_title, opt.leg_position)
@@ -230,7 +220,7 @@ class OneDimChiSq(OneDimPlot):
         # in this plot it should always be chi-squared).
         plt.ylabel(schemes.prof_chi_sq.label)
 
-        return self.plot_data(figure=fig, summary=summary)
+        return self.plot_data(figure=fig, summary=self.summary)
 
 
 class TwoDimPlotFilledPDF(TwoDimPlot):

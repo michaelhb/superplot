@@ -14,7 +14,8 @@ from collections import namedtuple
 
 # SuperPy modules.
 import plot_mod as pm
-
+import statslib.one_dim as one_dim
+import statslib.point as stats
 
 class Plot(object):
     """
@@ -44,6 +45,9 @@ class Plot(object):
         self.xdata = np.array(data[plot_options.xindex])
         self.ydata = np.array(data[plot_options.yindex])
         self.zdata = np.array(data[plot_options.zindex])
+
+        # List to hold plot specific summary data
+        self.summary = []
 
         # Apply log scaling to data if required.
 
@@ -112,6 +116,7 @@ class OneDimPlot(Plot):
 
     def __init__(self, data, plot_options):
         super(OneDimPlot, self).__init__(data, plot_options)
+        opt = self.plot_options
 
         # If the user didn't specify bin or plot limits,
         # we find the extent of the data and use that to set them.
@@ -134,6 +139,39 @@ class OneDimPlot(Plot):
                     plot_limits=extent
             )
 
+        # Posterior PDF. Norm by area if not showing profile likelihood,
+        # otherwise norm max value to one.
+        self.pdf_data = one_dim.posterior_pdf(
+            self.xdata,
+            self.posterior,
+            nbins=opt.nbins,
+            bin_limits=opt.bin_limits,
+            norm_area=
+            False if opt.show_prof_like
+            else True)
+
+        # Profile likelihood
+        self.prof_data = one_dim.prof_data(
+            self.xdata,
+            self.chisq,
+            nbins=opt.nbins,
+            bin_limits=opt.bin_limits)
+
+        # Best-fit point
+        self.best_fit = stats.best_fit(self.chisq, self.xdata)
+        self.summary.append("Best-fit point: {}".format(self.best_fit))
+
+        # Posterior mean
+        self.posterior_mean = stats.posterior_mean(self.posterior, self.xdata)
+        self.summary.append("Posterior mean: {}".format(self.posterior_mean))
+
+        # Posterior median
+        self.posterior_median = one_dim.posterior_median(self.xdata, self.posterior)
+        self.summary.append("Posterior median: {}".format(self.posterior_median))
+
+        # Posterior mode
+        self.posterior_modes = one_dim.posterior_mode(*self.pdf_data)
+        self.summary.append("Posterior mode/s: {}".format(self.posterior_modes))
 
 class TwoDimPlot(Plot):
     """

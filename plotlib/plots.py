@@ -244,6 +244,14 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         opt = self.plot_options
         summary = []
 
+        # Posterior PDF
+        pdf_data = two_dim.posterior_pdf(
+                self.xdata,
+                self.ydata,
+                self.posterior,
+                nbins=opt.nbins,
+                bin_limits=opt.bin_limits)
+
         # Best-fit point
         best_fit_x = stats.best_fit(self.chisq, self.xdata)
         best_fit_y = stats.best_fit(self.chisq, self.ydata)
@@ -258,14 +266,14 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         if opt.show_posterior_mean:
             pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
 
-        # Credible regions
-        pdf_data = two_dim.posterior_pdf(
-                self.xdata,
-                self.ydata,
-                self.posterior,
-                nbins=opt.nbins,
-                bin_limits=opt.bin_limits)
+        # Posterior mode
+        posterior_modes = two_dim.posterior_mode(*pdf_data)
+        summary.append("Posterior modes/s (x,y)".format(posterior_modes))
+        if opt.show_posterior_mode:
+            for bin_center_x, bin_center_y in posterior_modes:
+                pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode)
 
+        # Credible regions
         levels = [two_dim.critical_density(pdf_data.pdf, aa) for aa in opt.alpha]
 
         # Make sure pdf is correctly normalised.
@@ -345,20 +353,6 @@ class TwoDimPlotPDF(TwoDimPlot):
         opt = self.plot_options
         summary = []
 
-        # Best-fit point
-        best_fit_x = stats.best_fit(self.chisq, self.xdata)
-        best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
-        if opt.show_best_fit:
-            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
-
-        # Posterior mean
-        posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
-        posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
-        if opt.show_posterior_mean:
-            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
-
         pdf_data = two_dim.posterior_pdf(
                 self.xdata,
                 self.ydata,
@@ -373,6 +367,28 @@ class TwoDimPlotPDF(TwoDimPlot):
                     opt.plot_limits,
                     schemes.posterior)
 
+        # Best-fit point
+        best_fit_x = stats.best_fit(self.chisq, self.xdata)
+        best_fit_y = stats.best_fit(self.chisq, self.ydata)
+        summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
+        if opt.show_best_fit:
+            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
+
+        # Posterior mean
+        posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
+        posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
+        summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
+        if opt.show_posterior_mean:
+            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
+
+        # Posterior mode
+        posterior_modes = two_dim.posterior_mode(*pdf_data)
+        summary.append("Posterior modes/s (x,y)".format(posterior_modes))
+        if opt.show_posterior_mode:
+            for bin_center_x, bin_center_y in posterior_modes:
+                pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode)
+
+        # Credible regions
         levels = [two_dim.critical_density(pdf_data.pdf, aa) for aa in opt.alpha]
 
         # Make sure pdf is correctly normalised.
@@ -459,20 +475,6 @@ class Scatter(TwoDimPlot):
         opt = self.plot_options
         summary = []
 
-        # Best-fit point
-        best_fit_x = stats.best_fit(self.chisq, self.xdata)
-        best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
-        if opt.show_best_fit:
-            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
-
-        # Posterior mean
-        posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
-        posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
-        if opt.show_posterior_mean:
-            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
-
         # Plot scatter of points.
         sc = plt.scatter(
                 self.xdata,
@@ -496,7 +498,6 @@ class Scatter(TwoDimPlot):
         cb.locator = MaxNLocator(4)
         cb.update_ticks()
 
-        # Credible regions
         pdf_data = two_dim.posterior_pdf(
                 self.xdata,
                 self.ydata,
@@ -504,6 +505,28 @@ class Scatter(TwoDimPlot):
                 nbins=opt.nbins,
                 bin_limits=opt.bin_limits)
 
+        # Best-fit point
+        best_fit_x = stats.best_fit(self.chisq, self.xdata)
+        best_fit_y = stats.best_fit(self.chisq, self.ydata)
+        summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
+        if opt.show_best_fit:
+            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
+
+        # Posterior mean
+        posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
+        posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
+        summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
+        if opt.show_posterior_mean:
+            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
+
+        # Posterior mode
+        posterior_modes = two_dim.posterior_mode(*pdf_data)
+        summary.append("Posterior modes/s (x,y)".format(posterior_modes))
+        if opt.show_posterior_mode:
+            for bin_center_x, bin_center_y in posterior_modes:
+                pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode)
+
+        # Credible regions
         levels = [two_dim.critical_density(pdf_data.pdf, aa) for aa in opt.alpha]
 
         # Make sure pdf is correctly normalised

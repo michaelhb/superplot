@@ -198,3 +198,41 @@ def critical_prof_like(alpha):
     _critical_prof_like = np.exp(- 0.5 * critical_chi_sq)
 
     return _critical_prof_like
+
+
+def posterior_mode(pdf, bin_centers_x, bin_centers_y):
+    """
+    :param pdf: Two dimensional PDF
+    :type pdf: numpy.ndarray
+    :param bin_centers_x: Bin centers for PDF x axis
+    :type bin_centers_x: numpy.ndarray
+    :param bin_centers_y: Bin centers for PDF y axis
+
+    This function should normally return a list with a single element -
+    [bin_center_x, bin_center_y] - for the bin with the highest
+    weighted cont.
+
+    If more than one bin shares the highest weighted count, then this
+    function will:
+    - issue a warning
+    - return the bin centers of the bins with the highest weighted count
+
+    :returns: list of bin centers [bin_center_x, bin_center_y]
+        with the highest weighted count
+    :rtype: list
+    """
+
+    # Find the maximum weighted count.
+    max_count = np.max(pdf)
+
+    # Find the indices of bins having the max count.
+    max_indices = np.argwhere(pdf == max_count)
+
+    # Issue a warning if we found more than one such bin.
+    if len(max_indices) > 1:
+        warnings.warn("posterior mode: max count shared by {} bins".format(
+            len(max_indices)
+        ))
+
+    # Return the (x,y) bin centers of the corresponding cells.
+    return [[bin_centers_x[x], bin_centers_y[y]] for x, y in max_indices]

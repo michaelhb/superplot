@@ -124,6 +124,6 @@ def _label_chain(data, labels):
     # Label all unlabelled columns with integers
     for index in range(len(data)):
         if not labels.get(index):
-            warnings.warn("Labels did not match data."
+            warnings.warn("Labels did not match data. "
                           "Missing labels are integers.")
             labels[index] = str(index)

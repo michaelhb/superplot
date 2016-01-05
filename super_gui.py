@@ -22,7 +22,10 @@ from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanva
 pygtk.require('2.0')
 
 
-def open_file_gui(window_title="Open", set_name=None, add_pattern=None):
+def open_file_gui(window_title="Open",
+                  set_name=None,
+                  add_pattern=None,
+                  allow_no_file=True):
     """
     GUI for opening a file with a file browser.
 
@@ -32,17 +35,32 @@ def open_file_gui(window_title="Open", set_name=None, add_pattern=None):
     :type set_name: string
     :param add_pattern: Acceptable file patterns in filter, e.g ["*.pdf"]
     :type add_pattern: list
+    :param allow_no_file: Allow for no file to be selected
+    :type allow_no_file: bool
 
     :returns: Name of file selected with GUI.
     :rtype: string
     """
+
+    # Make a string for option of not selecting a file
+    if set_name:
+        no_file = "No %s" % set_name
+    else:
+        no_file = "No file"
+
+    # Make buttons, allowing for cae in which no cancel button is desired
+    if allow_no_file:
+        buttons = (no_file, gtk.RESPONSE_CANCEL,
+                   gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+    else:
+        buttons = (gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+
     # Select the file from a dialog box
-    dialog = gtk.FileChooserDialog(window_title,
-                                   None,
-                                   gtk.FILE_CHOOSER_ACTION_OPEN,
-                                   (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                    gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+    dialog = gtk.FileChooserDialog(title=window_title,
+                                   action=gtk.FILE_CHOOSER_ACTION_OPEN,
+                                   buttons=buttons)
     dialog.set_default_response(gtk.RESPONSE_OK)
+    dialog.set_current_folder(os.getcwd())
 
     # Only show particular files
     file_filter = gtk.FileFilter()
@@ -60,13 +78,15 @@ def open_file_gui(window_title="Open", set_name=None, add_pattern=None):
         warnings.warn("No file selected")
 
     # Save the file name/path
-    filename = dialog.get_filename()
+    file_name = dialog.get_filename()
     dialog.destroy()
 
-    return filename
+    return file_name
 
 
-def save_file_gui(window_title="Save As", set_name=None, add_pattern=None):
+def save_file_gui(window_title="Save As",
+                  set_name=None,
+                  add_pattern=None):
     """
     GUI for saving a file with a file browser.
 
@@ -81,12 +101,13 @@ def save_file_gui(window_title="Save As", set_name=None, add_pattern=None):
     :rtype: string
     """
     # Select the file from a dialog box
-    dialog = gtk.FileChooserDialog(window_title,
-                                   None,
-                                   gtk.FILE_CHOOSER_ACTION_SAVE,
-                                   (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                    gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+    buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+               gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+    dialog = gtk.FileChooserDialog(title=window_title,
+                                   action=gtk.FILE_CHOOSER_ACTION_OPEN,
+                                   buttons=buttons)
     dialog.set_default_response(gtk.RESPONSE_OK)
+    dialog.set_current_folder(os.getcwd())
 
     # Only show particular files
     file_filter = gtk.FileFilter()
@@ -104,10 +125,10 @@ def save_file_gui(window_title="Save As", set_name=None, add_pattern=None):
         warnings.warn("No file selected")
 
     # Save the file name/path
-    filename = dialog.get_filename()
+    file_name = dialog.get_filename()
     dialog.destroy()
 
-    return filename
+    return file_name
 
 
 def message_dialog(message_type, message):
@@ -147,7 +168,7 @@ class GUIControl(object):
     :param default_plot_type: Default plot type index
     :type default_plot_type: integer
     """
-    
+
     def __init__(self,
                  data_file,
                  info_file,
@@ -649,7 +670,6 @@ class GUIControl(object):
                                                "*.eps",
                                                "*.ps"]
                                   )
-        file_prefix = os.path.splitext(file_name)[0]
 
         if not isinstance(file_name, str):
             # Case in which no file is chosen
@@ -663,9 +683,11 @@ class GUIControl(object):
         if save_pickle:
             # Need to re-draw the figure for this to work
             figure = self.plot.figure().figure
+            file_prefix = os.path.splitext(file_name)[0]
             pickle.dump(figure, file(file_prefix + ".pkl", 'wb'))
 
         if save_summary:
+            file_prefix = os.path.splitext(file_name)[0]
             with open(file_prefix + ".txt", 'w') as summary_file:
                 summary_file.write("\n".join(self._summary()))
                 summary_file.write("\n" + "\n".join(self.fig.summary))
@@ -694,12 +716,14 @@ def main():
     """
     data_file = open_file_gui(window_title="Select a MultiNest *.txt file",
                               set_name="MultiNest *.txt file",
-                              add_pattern=["*.txt", "*.pkl"]
+                              add_pattern=["*.txt", "*.pkl"],
+                              allow_no_file=False
                               )
     info_file = open_file_gui(window_title="Select an information file",
                               set_name="Information file *.info describing "
                                        "*.txt file",
-                              add_pattern=["*.info"]
+                              add_pattern=["*.info"],
+                              allow_no_file=True
                               )
 
     GUIControl(data_file, info_file)

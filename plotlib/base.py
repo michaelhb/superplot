@@ -15,7 +15,9 @@ from collections import namedtuple
 # SuperPy modules.
 import plot_mod as pm
 import statslib.one_dim as one_dim
+import statslib.two_dim as two_dim
 import statslib.point as stats
+import schemes
 
 class Plot(object):
     """
@@ -173,6 +175,7 @@ class OneDimPlot(Plot):
         self.posterior_modes = one_dim.posterior_mode(*self.pdf_data)
         self.summary.append("Posterior mode/s: {}".format(self.posterior_modes))
 
+
 class TwoDimPlot(Plot):
     """
     Abstract base class for two dimensional plot types \
@@ -184,6 +187,7 @@ class TwoDimPlot(Plot):
 
     def __init__(self, data, plot_options):
         super(TwoDimPlot, self).__init__(data, plot_options)
+        opt = self.plot_options
 
         # If the user didn't specify bin or plot limits,
         # we find the extent of the data and use that to set them.
@@ -201,3 +205,73 @@ class TwoDimPlot(Plot):
             self.plot_options = self.plot_options._replace(
                     plot_limits=extent
             )
+
+        # Posterior PDF
+        self.pdf_data = two_dim.posterior_pdf(
+                self.xdata,
+                self.ydata,
+                self.posterior,
+                nbins=opt.nbins,
+                bin_limits=opt.bin_limits)
+
+        # Profile likelihood
+        self.prof_data = two_dim.profile_like(
+                self.xdata,
+                self.ydata,
+                self.chisq,
+                nbins=opt.nbins,
+                bin_limits=opt.bin_limits)
+
+        # Best-fit point
+        self.best_fit_x = stats.best_fit(self.chisq, self.xdata)
+        self.best_fit_y = stats.best_fit(self.chisq, self.ydata)
+        self.summary.append(
+                "Best-fit point (x,y): {}, {}".format(
+                    self.best_fit_x, self.best_fit_y))
+
+        # Posterior mean
+        self.posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
+        self.posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
+        self.summary.append(
+                "Posterior mean (x,y): {}, {}".format(
+                        self.posterior_mean_x, self.posterior_mean_y))
+
+        # Posterior mode
+        self.posterior_modes = two_dim.posterior_mode(*self.pdf_data)
+        self.summary.append("Posterior modes/s (x,y)".format(self.posterior_modes))
+
+    def _new_plot(self):
+        fig, ax = super(TwoDimPlot, self)._new_plot()
+        opt = self.plot_options
+
+        # Best-fit point
+        if opt.show_best_fit:
+            pm.plot_data(self.best_fit_x, self.best_fit_y, schemes.best_fit)
+
+        # Posterior mean
+        if opt.show_posterior_mean:
+            pm.plot_data(self.posterior_mean_x, self.posterior_mean_y, schemes.posterior_mean)
+
+        # Posterior mode
+        if opt.show_posterior_mode:
+            for bin_center_x, bin_center_y in self.posterior_modes:
+                pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode)
+
+        return fig, ax
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

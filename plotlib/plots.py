@@ -58,7 +58,6 @@ class OneDimStandard(OneDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
-        summary = []
 
         # Autoscale the y-axis.
         ax.autoscale(axis='y')
@@ -117,9 +116,9 @@ class OneDimStandard(OneDimPlot):
             if opt.show_conf_intervals:
                 # Plot the CI line @ the max PDF value
                 pm.plot_data(intervals, [self.pdf_data.pdf.max()] * int(opt.nbins), scheme)
-            summary.append("{}:".format(scheme.label))
+            self.summary.append("{}:".format(scheme.label))
             for interval in intervals:
-                summary.append(str(interval))
+                self.summary.append(str(interval))
 
         # Add plot legend
         pm.legend(opt.leg_title, opt.leg_position)
@@ -147,7 +146,6 @@ class OneDimChiSq(OneDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
-        summary = []
 
         # Plot the delta chi-squared 
         pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, schemes.prof_chi_sq)
@@ -232,42 +230,12 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
-        summary = []
-
-        # Posterior PDF
-        pdf_data = two_dim.posterior_pdf(
-                self.xdata,
-                self.ydata,
-                self.posterior,
-                nbins=opt.nbins,
-                bin_limits=opt.bin_limits)
-
-        # Best-fit point
-        best_fit_x = stats.best_fit(self.chisq, self.xdata)
-        best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
-        if opt.show_best_fit:
-            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
-
-        # Posterior mean
-        posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
-        posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
-        if opt.show_posterior_mean:
-            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
-
-        # Posterior mode
-        posterior_modes = two_dim.posterior_mode(*pdf_data)
-        summary.append("Posterior modes/s (x,y)".format(posterior_modes))
-        if opt.show_posterior_mode:
-            for bin_center_x, bin_center_y in posterior_modes:
-                pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode)
 
         # Credible regions
-        levels = [two_dim.critical_density(pdf_data.pdf, aa) for aa in opt.alpha]
+        levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in opt.alpha]
 
         # Make sure pdf is correctly normalised.
-        pdf = pdf_data.pdf
+        pdf = self.pdf_data.pdf
         pdf = pdf / pdf.sum()
 
         # Plot contours
@@ -281,7 +249,7 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         # Add legend
         pm.legend(opt.leg_title, opt.leg_position)
 
-        return self.plot_data(figure=fig, summary=summary)
+        return self.plot_data(figure=fig, summary=self.summary)
 
 
 class TwoDimPlotFilledPL(TwoDimPlot):
@@ -293,35 +261,12 @@ class TwoDimPlotFilledPL(TwoDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
-        summary = []
-
-        # Best-fit point
-        best_fit_x = stats.best_fit(self.chisq, self.xdata)
-        best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
-        if opt.show_best_fit:
-            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
-
-        # Posterior mean
-        posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
-        posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
-        if opt.show_posterior_mean:
-            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
-
-        # Profile likelihood
-        prof_data = two_dim.profile_like(
-                self.xdata,
-                self.ydata,
-                self.chisq,
-                nbins=opt.nbins,
-                bin_limits=opt.bin_limits)
 
         levels = [two_dim.critical_prof_like(aa) for aa in opt.alpha]
 
         if opt.show_conf_intervals:
             pm.plot_filled_contour(
-                    prof_data.prof_like,
+                    self.prof_data.prof_like,
                     levels,
                     schemes.prof_like,
                     bin_limits=opt.bin_limits)
@@ -329,7 +274,7 @@ class TwoDimPlotFilledPL(TwoDimPlot):
         # Add legend
         pm.legend(opt.leg_title, opt.leg_position)
 
-        return self.plot_data(figure=fig, summary=summary)
+        return self.plot_data(figure=fig, summary=self.summary)
 
 
 class TwoDimPlotPDF(TwoDimPlot):
@@ -341,48 +286,19 @@ class TwoDimPlotPDF(TwoDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
-        summary = []
-
-        pdf_data = two_dim.posterior_pdf(
-                self.xdata,
-                self.ydata,
-                self.posterior,
-                nbins=opt.nbins,
-                bin_limits=opt.bin_limits)
 
         if opt.show_posterior_pdf:
             pm.plot_image(
-                    pdf_data.pdf,
+                    self.pdf_data.pdf,
                     opt.bin_limits,
                     opt.plot_limits,
                     schemes.posterior)
 
-        # Best-fit point
-        best_fit_x = stats.best_fit(self.chisq, self.xdata)
-        best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
-        if opt.show_best_fit:
-            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
-
-        # Posterior mean
-        posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
-        posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
-        if opt.show_posterior_mean:
-            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
-
-        # Posterior mode
-        posterior_modes = two_dim.posterior_mode(*pdf_data)
-        summary.append("Posterior modes/s (x,y)".format(posterior_modes))
-        if opt.show_posterior_mode:
-            for bin_center_x, bin_center_y in posterior_modes:
-                pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode)
-
         # Credible regions
-        levels = [two_dim.critical_density(pdf_data.pdf, aa) for aa in opt.alpha]
+        levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in opt.alpha]
 
         # Make sure pdf is correctly normalised.
-        pdf = pdf_data.pdf
+        pdf = self.pdf_data.pdf
         pdf = pdf / pdf.sum()
 
         if opt.show_credible_regions:
@@ -395,7 +311,7 @@ class TwoDimPlotPDF(TwoDimPlot):
         # Add legend
         pm.legend(opt.leg_title, opt.leg_position)
 
-        return self.plot_data(figure=fig, summary=summary)
+        return self.plot_data(figure=fig, summary=self.summary)
 
 
 class TwoDimPlotPL(TwoDimPlot):
@@ -407,33 +323,10 @@ class TwoDimPlotPL(TwoDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
-        summary = []
-
-        # Best-fit point
-        best_fit_x = stats.best_fit(self.chisq, self.xdata)
-        best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
-        if opt.show_best_fit:
-            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
-
-        # Posterior mean
-        posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
-        posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
-        if opt.show_posterior_mean:
-            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
-
-        # Profile likelihood
-        prof_data = two_dim.profile_like(
-                self.xdata,
-                self.ydata,
-                self.chisq,
-                nbins=opt.nbins,
-                bin_limits=opt.bin_limits)
 
         if opt.show_prof_like:
             pm.plot_image(
-                    prof_data.prof_like,
+                    self.prof_data.prof_like,
                     opt.bin_limits,
                     opt.plot_limits,
                     schemes.prof_like)
@@ -442,7 +335,7 @@ class TwoDimPlotPL(TwoDimPlot):
 
         if opt.show_conf_intervals:
             pm.plot_contour(
-                    prof_data.prof_like,
+                    self.prof_data.prof_like,
                     levels,
                     schemes.prof_like,
                     bin_limits=opt.bin_limits)
@@ -450,7 +343,7 @@ class TwoDimPlotPL(TwoDimPlot):
         # Add legend
         pm.legend(opt.leg_title, opt.leg_position)
 
-        return self.plot_data(figure=fig, summary=summary)
+        return self.plot_data(figure=fig, summary=self.summary)
 
 
 class Scatter(TwoDimPlot):
@@ -488,39 +381,11 @@ class Scatter(TwoDimPlot):
         cb.locator = MaxNLocator(4)
         cb.update_ticks()
 
-        pdf_data = two_dim.posterior_pdf(
-                self.xdata,
-                self.ydata,
-                self.posterior,
-                nbins=opt.nbins,
-                bin_limits=opt.bin_limits)
-
-        # Best-fit point
-        best_fit_x = stats.best_fit(self.chisq, self.xdata)
-        best_fit_y = stats.best_fit(self.chisq, self.ydata)
-        summary.append("Best-fit point (x,y): {}, {}".format(best_fit_x, best_fit_y))
-        if opt.show_best_fit:
-            pm.plot_data(best_fit_x, best_fit_y, schemes.best_fit)
-
-        # Posterior mean
-        posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
-        posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
-        summary.append("Posterior mean (x,y): {}, {}".format(posterior_mean_x, posterior_mean_y))
-        if opt.show_posterior_mean:
-            pm.plot_data(posterior_mean_x, posterior_mean_y, schemes.posterior_mean)
-
-        # Posterior mode
-        posterior_modes = two_dim.posterior_mode(*pdf_data)
-        summary.append("Posterior modes/s (x,y)".format(posterior_modes))
-        if opt.show_posterior_mode:
-            for bin_center_x, bin_center_y in posterior_modes:
-                pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode)
-
         # Credible regions
-        levels = [two_dim.critical_density(pdf_data.pdf, aa) for aa in opt.alpha]
+        levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in opt.alpha]
 
         # Make sure pdf is correctly normalised
-        pdf = pdf_data.pdf
+        pdf = self.pdf_data.pdf
         pdf = pdf / pdf.sum()
 
         if opt.show_credible_regions:
@@ -530,19 +395,11 @@ class Scatter(TwoDimPlot):
                     schemes.posterior,
                     bin_limits=opt.bin_limits)
 
-        # Confidence interval        
-        prof_data = two_dim.profile_like(
-                self.xdata,
-                self.ydata,
-                self.chisq,
-                nbins=opt.nbins,
-                bin_limits=opt.bin_limits)
-
         levels = [two_dim.critical_prof_like(aa) for aa in opt.alpha]
 
         if opt.show_conf_intervals:
             pm.plot_contour(
-                    prof_data.prof_like,
+                    self.prof_data.prof_like,
                     levels,
                     schemes.prof_like,
                     bin_limits=opt.bin_limits)

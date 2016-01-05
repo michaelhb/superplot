@@ -134,10 +134,7 @@ class OneDimStandard(OneDimPlot):
         elif opt.show_prof_like and not opt.show_posterior_pdf:
             plt.ylabel(schemes.prof_like.label)
         else:
-            plt.ylabel("")    
-
-        # Set Y-axis label
-        plt.ylabel("Probability Density")
+            plt.ylabel("")
 
         return self.plot_data(figure=fig, summary=summary)
 

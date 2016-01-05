@@ -20,10 +20,6 @@ Also includes a function to save the current plot.
 from itertools import groupby
 
 # SuperPy modules.
-import schemes
-import statslib.one_dim as one_dim
-import statslib.point as stats
-import statslib.two_dim as two_dim
 from base import *
 from scipy.stats import chi2
 

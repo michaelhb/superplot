@@ -23,6 +23,18 @@ schemes:
         symbol: 'o'
         label: 'Posterior Mean'
 
+    # Posterior median (point)
+    posterior_median:
+        colour: 'MidnightBlue'
+        symbol: 's'
+        label: 'Posterior Median'
+
+    # Posterior mode (point)
+    posterior_mode:
+        colour: 'Aqua'
+        symbol: '^'
+        label: 'Posterior Mode'
+
     # Best fit (point)
     best_fit:
         colour: 'Brown'

@@ -98,6 +98,19 @@ class OneDimStandard(OneDimPlot):
         if opt.show_posterior_mean:
             pm.plot_data(posterior_mean, point_height, schemes.posterior_mean)
 
+        # Posterior median
+        posterior_median = one_dim.posterior_median(self.xdata, self.posterior)
+        summary.append("Posterior median: {}".format(posterior_median))
+        if opt.show_posterior_median:
+            pm.plot_data(posterior_median, point_height, schemes.posterior_median)
+
+        # Posterior mode
+        posterior_modes = one_dim.posterior_mode(*pdf_data)
+        summary.append("Posterior mode/s: {}".format(posterior_modes))
+        if opt.show_posterior_mode:
+            for mode in posterior_modes:
+                pm.plot_data(mode, point_height, schemes.posterior_mode)
+
         # Credible region
         lower_credible_region = [one_dim.credible_region(pdf_data.pdf, pdf_data.bin_centers, alpha=aa, region="lower")
                                  for aa in opt.alpha]

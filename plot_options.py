@@ -40,6 +40,8 @@ plot_options = namedtuple("plot_options", (
     # Whether to show optional plot elements (all True / False)
     "show_best_fit",
     "show_posterior_mean",
+    "show_posterior_median",
+    "show_posterior_mode",
     "show_conf_intervals",
     "show_credible_regions",
     "show_posterior_pdf",

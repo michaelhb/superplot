@@ -59,6 +59,69 @@ def posterior_pdf(parameter, posterior, nbins=50, bin_limits=None, norm_area=Fal
     return posteriorpdf(pdf, bin_centers)
 
 
+def posterior_median(parameter, posterior):
+    """ Calculate the posterior median.
+
+    :param parameter: Data column of parameter of interest
+    :type parameter: numpy.ndarray
+    :param posterior: Data column of posterior weight, same length as data
+    :type posterior: numpy.ndarray
+
+    :returns: Posterior median
+    :rtype: numpy.float64
+    """
+
+    # Built a list of (parameter index, cumulative posterior weight)
+    cumulative = list(enumerate(np.cumsum(posterior)))
+
+    # Find the index of the last param value having
+    # cumulative posterior weight <= .5
+    index_lower = filter(lambda x: x[1] <= .5, cumulative)[-1][0]
+
+    # Find the index of the first param value having
+    # cumulative posterior weight >= .5
+    index_upper = filter(lambda x: x[1] >= .5, cumulative)[0][0]
+
+    if index_lower == index_upper:
+        return parameter[index_lower]
+    else:
+        return (parameter[index_lower] + parameter[index_upper]) / 2
+
+
+def posterior_mode(pdf, bin_centers):
+    """ Calculate the posterior mode for a 1D PDF.
+
+    :param pdf: Data column of marginalised posterior PDF
+    :type pdf: numpy.ndarray
+    :param bin_centers: Data column of parameter at bin centers
+    :type bin_centers: numpy.ndarray
+
+    This function should normally return a list with a single element
+    - the bin center of the bin with the highest weighted count.
+
+    If more than one bin shares the highest weighted count, then this
+    function will:
+    - issue a warning
+    - return the bin centers of each bin with the maximum count
+
+    :returns: list of bin centers of bins with highest weighted count
+    :rtype: list
+    """
+
+    # Find the maximum weighted count.
+    max_count = max(pdf)
+
+    # Find the indices of bins having the max count.
+    max_indices = [i for i, j in enumerate(pdf) if j == max_count]
+
+    if len(max_indices) > 1:
+        warnings.warn("posterior_mode: max count shared by {} bins".format(
+            len(max_indices)
+        ))
+
+    return [bin_centers[i] for i in max_indices]
+
+
 def prof_data(parameter, chi_sq, nbins=50, bin_limits=None):
     r"""
     Maximizes the likelihood in each bin to obtain the profile likelihood and

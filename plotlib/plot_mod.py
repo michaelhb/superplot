@@ -24,6 +24,8 @@ def plot_data(x, y, scheme, zorder=1):
     :type y: numpy.ndarray, numpy.dtype
     :param scheme: Object containing plot appearance options
     :type scheme: :py:class:`schemes.Scheme`
+    :param zorder: Draw order - lower numbers are plotted first
+    :type zorder: integer
 
     """
     plt.plot(

@@ -275,16 +275,16 @@ class TwoDimPlot(Plot):
 
         # Best-fit point
         if opt.show_best_fit:
-            pm.plot_data(self.best_fit_x, self.best_fit_y, schemes.best_fit)
+            pm.plot_data(self.best_fit_x, self.best_fit_y, schemes.best_fit, zorder=2)
 
         # Posterior mean
         if opt.show_posterior_mean:
-            pm.plot_data(self.posterior_mean_x, self.posterior_mean_y, schemes.posterior_mean)
+            pm.plot_data(self.posterior_mean_x, self.posterior_mean_y, schemes.posterior_mean, zorder=2)
 
         # Posterior mode
         if opt.show_posterior_mode:
             for bin_center_x, bin_center_y in self.posterior_modes:
-                pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode)
+                pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode, zorder=2)
 
         return fig, ax
 

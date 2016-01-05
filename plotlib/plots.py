@@ -61,11 +61,11 @@ class OneDimStandard(OneDimPlot):
 
         # Plot posterior PDF
         if opt.show_posterior_pdf:
-            pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, schemes.posterior, zorder=1)
+            pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, schemes.posterior)
 
         # Plot profile likelihood
         if opt.show_prof_like:
-            pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_like, schemes.prof_like, zorder=1)
+            pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_like, schemes.prof_like)
 
         # Credible regions
         lower_credible_region = [

@@ -102,7 +102,7 @@ def profile_like(paramx, paramy, chi_sq, nbins, bin_limits=None):
     bin_numbers_y = map(shift, bin_numbers_y)
     
     # Initialize the profiled chi-squared to something massive.
-    prof_chi_sq = np.zeros((nbins, nbins)) + 1e90
+    prof_chi_sq = np.full((nbins, nbins), float("inf"))
 
     # Minimize the chi-squared in each bin.
     for index in range(chi_sq.size):

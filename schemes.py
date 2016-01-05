@@ -72,5 +72,5 @@ for scheme_name, params in _config["schemes"].iteritems():
     scheme = Scheme(**params)
     setattr(sys.modules[__name__], scheme_name, scheme)
 
-credible_regions = [credible_region_s1, credible_region_s2]
-conf_intervals = [conf_interval_s1, conf_interval_s2]
+credible_regions = [credible_region_s2, credible_region_s1]
+conf_intervals = [conf_interval_s2, conf_interval_s1]

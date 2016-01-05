@@ -112,7 +112,7 @@ plot_options:
     # Currently only used in summary.py.
     dof: 10
 
-    # Values of alpha, in ascending order.
+    # Values of alpha.
     alpha: [0.05, 0.32]
 
     # Default plot limits [xmin, xmax, ymin, ymax].

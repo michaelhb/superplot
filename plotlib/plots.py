@@ -60,7 +60,7 @@ class OneDimStandard(OneDimPlot):
         opt = self.plot_options
         summary = []
 
-        # Autoscale the Y axis.
+        # Autoscale the y-axis.
         ax.autoscale(axis='y')
 
         # Posterior PDF. Norm by area if not showing profile likelihood,
@@ -126,6 +126,15 @@ class OneDimStandard(OneDimPlot):
 
         # Add plot legend
         pm.legend(opt.leg_title, opt.leg_position)
+        
+        # Override y-axis label. This prevents the y axis from taking its
+        # label from the 'y-axis variable' selction in the GUI.
+        if opt.show_posterior_pdf and not opt.show_prof_like:
+            plt.ylabel(schemes.posterior.label)
+        elif opt.show_prof_like and not opt.show_posterior_pdf:
+            plt.ylabel(schemes.prof_like.label)
+        else:
+            plt.ylabel("")    
 
         # Set Y-axis label
         plt.ylabel("Probability Density")
@@ -151,11 +160,11 @@ class OneDimChiSq(OneDimPlot):
                                       self.chisq,
                                       nbins=opt.nbins,
                                       bin_limits=opt.bin_limits)
-
+        # Plot the delta chi-squared 
         pm.plot_data(prof_data.bin_centers, prof_data.prof_chi_sq, schemes.prof_chi_sq)
 
-        # Plot the delta chi-squared 
-        # TODO what's this about: between default range, 0 - 10.
+        # Alter the y-axis limit so that it extends to 10.
+        opt.plot_limits[3] = 10.
         pm.plot_limits(ax, opt.plot_limits)
 
         # Best-fit point

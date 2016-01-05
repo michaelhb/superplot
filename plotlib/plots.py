@@ -52,37 +52,20 @@ class OneDimStandard(OneDimPlot):
     description = "One-dimensional plot."
 
     def figure(self):
-        fig, ax = self._new_plot()
+        # Plot mean, median, mode @ 0.02 * height of PDF
+        fig, ax = self._new_plot(point_height=0.02 * self.pdf_data.pdf.max())
         opt = self.plot_options
 
         # Autoscale the y-axis.
         ax.autoscale(axis='y')
 
+        # Plot posterior PDF
         if opt.show_posterior_pdf:
-            pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, schemes.posterior)
+            pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, schemes.posterior, zorder=1)
 
+        # Plot profile likelihood
         if opt.show_prof_like:
-            pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_like, schemes.prof_like)
-
-        # Height to plot the best-fit and posterior-mean points
-        point_height = 0.02 * self.pdf_data.pdf.max()
-
-        # Best-fit point
-        if opt.show_best_fit:
-            pm.plot_data(self.best_fit, point_height, schemes.best_fit)
-
-        # Posterior mean
-        if opt.show_posterior_mean:
-            pm.plot_data(self.posterior_mean, point_height, schemes.posterior_mean)
-
-        # Posterior median
-        if opt.show_posterior_median:
-            pm.plot_data(self.posterior_median, point_height, schemes.posterior_median)
-
-        # Posterior mode
-        if opt.show_posterior_mode:
-            for mode in self.posterior_modes:
-                pm.plot_data(mode, point_height, schemes.posterior_mode)
+            pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_like, schemes.prof_like, zorder=1)
 
         # Credible regions
         lower_credible_region = [
@@ -103,7 +86,7 @@ class OneDimStandard(OneDimPlot):
             for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, schemes.credible_regions):
                 pm.plot_data([lower, upper], [cr_height, cr_height], scheme)
 
-        # Confidence interval
+        # Confidence intervals
         conf_intervals = [one_dim.conf_interval(self.prof_data.prof_chi_sq, self.prof_data.bin_centers, alpha=aa) for aa
                           in
                           opt.alpha]
@@ -149,23 +132,6 @@ class OneDimChiSq(OneDimPlot):
         # Alter the y-axis limit so that it extends to 10.
         opt.plot_limits[3] = 10.
         pm.plot_limits(ax, opt.plot_limits)
-
-        # Best-fit point
-        if opt.show_best_fit:
-            pm.plot_data(self.best_fit, 0.08, schemes.best_fit)
-
-        # Posterior mean
-        if opt.show_posterior_mean:
-            pm.plot_data(self.posterior_mean, 0.08, schemes.posterior_mean)
-
-        # Posterior median
-        if opt.show_posterior_median:
-            pm.plot_data(self.posterior_median, 0.08, schemes.posterior_median)
-
-        # Posterior mode
-        if opt.show_posterior_mode:
-            for mode in self.posterior_modes:
-                pm.plot_data(mode, 0.08, schemes.posterior_mode)
 
         # Confidence intervals as filled regions
         critical_chi_sq = [chi2.ppf(1. - aa, 1) for aa in opt.alpha]

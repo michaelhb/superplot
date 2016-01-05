@@ -14,7 +14,7 @@ from matplotlib.ticker import AutoMinorLocator
 from pylab import *
 
 
-def plot_data(x, y, scheme):
+def plot_data(x, y, scheme, zorder=1):
     """ 
     Plot a point with a particular color scheme.
 
@@ -32,7 +32,8 @@ def plot_data(x, y, scheme):
             scheme.symbol,
             color=scheme.colour,
             label=scheme.label,
-            ms=scheme.size)
+            ms=scheme.size,
+            zorder=zorder)
 
 
 def appearance(style_sheet):

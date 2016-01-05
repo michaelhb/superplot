@@ -19,6 +19,7 @@ import statslib.two_dim as two_dim
 import statslib.point as stats
 import schemes
 
+
 class Plot(object):
     """
     Abstract base class for all plot types. Specifies interface for
@@ -175,6 +176,34 @@ class OneDimPlot(Plot):
         self.posterior_modes = one_dim.posterior_mode(*self.pdf_data)
         self.summary.append("Posterior mode/s: {}".format(self.posterior_modes))
 
+    def _new_plot(self, point_height=0.08):
+        """
+        Special new plot method for 1D plots.
+
+        :param point_height: Height to plot point statistics (mean, median, mode)
+        :type point_height: float
+        """
+        fig, ax = super(OneDimPlot, self)._new_plot()
+        opt = self.plot_options
+
+        # Best-fit point
+        if opt.show_best_fit:
+            pm.plot_data(self.best_fit, point_height, schemes.best_fit, zorder=2)
+
+        # Posterior mean
+        if opt.show_posterior_mean:
+            pm.plot_data(self.posterior_mean, point_height, schemes.posterior_mean, zorder=2)
+
+        # Posterior median
+        if opt.show_posterior_median:
+            pm.plot_data(self.posterior_median, point_height, schemes.posterior_median, zorder=2)
+
+        # Posterior mode
+        if opt.show_posterior_mode:
+            for mode in self.posterior_modes:
+                pm.plot_data(mode, point_height, schemes.posterior_mode, zorder=2)
+
+        return fig, ax
 
 class TwoDimPlot(Plot):
     """

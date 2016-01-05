@@ -128,7 +128,7 @@ def message_dialog(message_type, message):
     md.run()
     md.destroy()
 
-
+@profile
 class GUIControl(object):
     """
     Main GUI element for superplot. Presents controls for selecting plot
@@ -444,7 +444,7 @@ class GUIControl(object):
         :param combobox: Box with this callback function
         :type combobox:
         """
-        self.xindex = self.data.keys()[combobox.get_active()]
+        self.xindex = combobox.get_active()
         self.xtext.set_text(self.labels[self.xindex])
 
     def _cy(self, combobox):
@@ -455,7 +455,7 @@ class GUIControl(object):
         :param combobox: Box with this callback function
         :type combobox:
         """
-        self.yindex = self.data.keys()[combobox.get_active()]
+        self.yindex = combobox.get_active()
         self.ytext.set_text(self.labels[self.yindex])
 
     def _cz(self, combobox):
@@ -466,7 +466,7 @@ class GUIControl(object):
         :param combobox: Box with this callback function
         :type combobox:
         """
-        self.zindex = self.data.keys()[combobox.get_active()]
+        self.zindex = combobox.get_active()
         self.ztext.set_text(self.labels[self.zindex])
 
     def _cxtext(self, textbox):
@@ -687,7 +687,7 @@ class GUIControl(object):
             "Alpha: {}".format(self.options.alpha),
         ]
 
-
+@profile
 def main():
     """
     SuperPlot program - open relevant files and make GUI.

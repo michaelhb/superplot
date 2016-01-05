@@ -22,7 +22,9 @@ def load(info_file, data_file):
     :returns: Dictionary with chain's labels and array of data
     :rtype: dict (labels), array (data)
     """
-
+    if not data_file:
+        raise RuntimeWarning("Must specify a *.txt data file")
+    
     data = _read_data_file(data_file)
     labels = _read_info_file(info_file)
     _label_chain(data, labels)

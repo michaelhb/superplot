@@ -128,7 +128,7 @@ def message_dialog(message_type, message):
     md.run()
     md.destroy()
 
-@profile
+
 class GUIControl(object):
     """
     Main GUI element for superplot. Presents controls for selecting plot
@@ -147,7 +147,7 @@ class GUIControl(object):
     :param default_plot_type: Default plot type index
     :type default_plot_type: integer
     """
-
+    
     def __init__(self,
                  data_file,
                  info_file,
@@ -687,7 +687,7 @@ class GUIControl(object):
             "Alpha: {}".format(self.options.alpha),
         ]
 
-@profile
+
 def main():
     """
     SuperPlot program - open relevant files and make GUI.

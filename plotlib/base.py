@@ -149,9 +149,8 @@ class OneDimPlot(Plot):
             self.posterior,
             nbins=opt.nbins,
             bin_limits=opt.bin_limits,
-            norm_area=
-            False if opt.show_prof_like
-            else True)
+            norm_area=not opt.show_prof_like
+            )
 
         # Profile likelihood
         self.prof_data = one_dim.prof_data(

@@ -168,7 +168,7 @@ class OneDimPlot(Plot):
         self.summary.append("Posterior mean: {}".format(self.posterior_mean))
 
         # Posterior median
-        self.posterior_median = one_dim.posterior_median(self.xdata, self.posterior)
+        self.posterior_median = one_dim.posterior_median(self.posterior, self.xdata)
         self.summary.append("Posterior median: {}".format(self.posterior_median))
 
         # Posterior mode

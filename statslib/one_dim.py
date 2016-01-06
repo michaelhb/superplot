@@ -23,7 +23,7 @@ def posterior_pdf(parameter, posterior, nbins=50, bin_limits=None, norm_area=Fal
         ranges.
         
     .. Warnings:
-        Posterior PDF normalized such that maximum value is one.
+        By default, posterior PDF normalized such that maximum value is one.
 
     :param parameter: Data column of parameter of interest
     :type parameter: numpy.ndarray
@@ -59,20 +59,24 @@ def posterior_pdf(parameter, posterior, nbins=50, bin_limits=None, norm_area=Fal
     return posteriorpdf(pdf, bin_centers)
 
 
-def posterior_median(parameter, posterior):
-    """ Calculate the posterior median.
+def posterior_median(pdf, bin_centers):
+    r""" 
+    Calculate the posterior median. The median, :math:`m`, is such that
+    
+    .. math::
+        \int_{-\infty}^m p(x) dx = \int_m^{\infty} p(x) dx = 0.5
 
-    :param parameter: Data column of parameter of interest
-    :type parameter: numpy.ndarray
-    :param posterior: Data column of posterior weight, same length as data
-    :type posterior: numpy.ndarray
+    :param pdf: Data column of marginalised posterior PDF
+    :type pdf: numpy.ndarray
+    :param bin_centers: Data column of parameter at bin centers
+    :type bin_centers: numpy.ndarray
 
     :returns: Posterior median
     :rtype: numpy.float64
     """
 
-    # Built a list of (parameter index, cumulative posterior weight)
-    cumulative = list(enumerate(np.cumsum(posterior)))
+    # Build a list of (parameter index, cumulative posterior weight)
+    cumulative = list(enumerate(np.cumsum(pdf)))
 
     # Find the index of the last param value having
     # cumulative posterior weight <= .5
@@ -82,19 +86,13 @@ def posterior_median(parameter, posterior):
     # cumulative posterior weight >= .5
     index_upper = filter(lambda x: x[1] >= .5, cumulative)[0][0]
 
-    if index_lower == index_upper:
-        return parameter[index_lower]
-    else:
-        return (parameter[index_lower] + parameter[index_upper]) / 2
+    return 0.5 * (bin_centers[index_lower] + bin_centers[index_upper])
 
 
 def posterior_mode(pdf, bin_centers):
-    """ Calculate the posterior mode for a 1D PDF.
-
-    :param pdf: Data column of marginalised posterior PDF
-    :type pdf: numpy.ndarray
-    :param bin_centers: Data column of parameter at bin centers
-    :type bin_centers: numpy.ndarray
+    """ 
+    Calculate the posterior mode for a 1D PDF. The mode is such
+    that :math:`p(x)` is maximized.
 
     This function should normally return a list with a single element
     - the bin center of the bin with the highest weighted count.
@@ -103,6 +101,11 @@ def posterior_mode(pdf, bin_centers):
     function will:
     - issue a warning
     - return the bin centers of each bin with the maximum count
+
+    :param pdf: Data column of marginalised posterior PDF
+    :type pdf: numpy.ndarray
+    :param bin_centers: Data column of parameter at bin centers
+    :type bin_centers: numpy.ndarray
 
     :returns: list of bin centers of bins with highest weighted count
     :rtype: list

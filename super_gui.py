@@ -74,13 +74,13 @@ def open_file_gui(window_title="Open",
     response = dialog.run()
     if response == gtk.RESPONSE_OK:
         print 'File: %s selected' % dialog.get_filename()
+        # Save the file name/path
+        file_name = dialog.get_filename()
     elif response == gtk.RESPONSE_CANCEL:
         warnings.warn("No file selected")
+        file_name = None
 
-    # Save the file name/path
-    file_name = dialog.get_filename()
     dialog.destroy()
-
     return file_name
 
 
@@ -169,20 +169,10 @@ class GUIControl(object):
     :type default_plot_type: integer
     """
 
-    def __init__(self,
-                 data_file,
-                 info_file,
-                 xindex=2,
-                 yindex=3,
-                 zindex=4,
-                 default_plot_type=0
-                 ):
+    def __init__(self, data_file, info_file, default_plot_type=0):
 
         self.data_file = data_file
         self.info_file = info_file
-        self.xindex = xindex
-        self.yindex = yindex
-        self.zindex = zindex
 
         self.plot_limits = default("plot_limits")
         self.bin_limits = default("bin_limits")
@@ -193,6 +183,17 @@ class GUIControl(object):
 
         # Load data from files
         self.labels, self.data = data_loader.load(info_file, data_file)
+
+        # We need at least three columns - posterior, chisq & a data column
+        data_columns = self.data.shape[0]
+        assert data_columns >= 3
+
+        # Set x, y & z indices to first three data columns after the
+        # posterior and chisq. If there are less than three such columns
+        # assign to the rightmost available column.
+        self.xindex = 2
+        self.yindex = min(3, data_columns - 1)
+        self.zindex = min(4, data_columns - 1)
 
         # Enumerate available plot types and keep an ordered
         # dict mapping descriptions to classes.
@@ -731,7 +732,6 @@ def main():
                               add_pattern=["*.info"],
                               allow_no_file=True
                               )
-
     GUIControl(data_file, info_file)
     gtk.main()
     return

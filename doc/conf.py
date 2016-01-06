@@ -305,7 +305,8 @@ MOCK_MODULES = [
     'scipy.optimize',
     'scipy.stats',
     'pylab',
-    'numpy']
+    'numpy',
+    'pandas']
 sys.modules.update((mod_name, mock.Mock()) for mod_name in MOCK_MODULES)
 
 

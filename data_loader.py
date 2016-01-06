@@ -1,9 +1,9 @@
 r"""
 This module contains code for:
 
-- Opening and processing a *.txt data file.
-- Opening and processing an *.info information file.
-- Using the *.info file to label the data.
+- Opening and processing a \\*.txt data file.
+- Opening and processing an \\*.info information file.
+- Using the \\*.info file to label the data.
 """
 
 import warnings
@@ -12,11 +12,11 @@ import pandas as pd
 
 def load(info_file, data_file):
     """
-    Read data from *.info file and *.txt file.
+    Read data from \\*.info file and \\*.txt file.
 
-    :param data_file: Name of *.txt file
+    :param data_file: Name of \\*.txt file
     :type data_file: string
-    :param info_file: Name of *.info file
+    :param info_file: Name of \\*.info file
     :type info_file: string
 
     :returns: Dictionary with chain's labels and array of data
@@ -34,9 +34,9 @@ def load(info_file, data_file):
 
 def _read_data_file(file_name):
     """
-    Read *.txt file into an array.
+    Read \\*.txt file into an array.
 
-    :param file_name: Name of *.txt file
+    :param file_name: Name of \\*.txt file
     :type file_name: string
 
     :returns: Data as an array, with first index as column number

@@ -33,7 +33,7 @@ def open_file_gui(window_title="Open",
     :type window_title: string
     :param set_name: Title of filter
     :type set_name: string
-    :param add_pattern: Acceptable file patterns in filter, e.g ["*.pdf"]
+    :param add_pattern: Acceptable file patterns in filter, e.g ["\\*.pdf"]
     :type add_pattern: list
     :param allow_no_file: Allow for no file to be selected
     :type allow_no_file: bool
@@ -94,7 +94,7 @@ def save_file_gui(window_title="Save As",
     :type window_title: string
     :param set_name: Title of filter
     :type set_name: string
-    :param add_pattern: Acceptable file patterns in filter, e.g ["*.pdf"]
+    :param add_pattern: Acceptable file patterns in filter, e.g ["\\*.pdf"]
     :type add_pattern: list
 
     :returns: Name of file selected with GUI.

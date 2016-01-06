@@ -2,7 +2,7 @@
 =====================================
 Two Dimensional Statistical Functions
 =====================================
-This module contains all the functions for analysing a chain (*.txt file)
+This module contains all the functions for analysing a chain (\\*.txt file)
 and calculating the 2D stats for a particular pair of variables.
 """
 

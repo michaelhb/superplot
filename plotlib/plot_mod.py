@@ -11,7 +11,7 @@ import subprocess
 
 # External modules.
 from matplotlib.ticker import AutoMinorLocator
-from pylab import *
+from matplotlib.pylab import *
 
 
 def plot_data(x, y, scheme, zorder=1):

@@ -9,7 +9,7 @@ and attaches it as a module attribute with the defined name.
 # External modules.
 import os
 import sys
-from pylab import get_cmap
+from matplotlib.pylab import get_cmap
 import yaml
 
 

@@ -7,7 +7,7 @@ and calculating the 2D stats for a particular pair of variables.
 """
 
 # External modules.
-from pylab import *
+from matplotlib.pylab import *
 from scipy import stats
 from collections import namedtuple
 from scipy.optimize import bisect

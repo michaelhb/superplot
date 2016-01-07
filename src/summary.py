@@ -115,8 +115,8 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
 
 def main():
     # Select chain and info file with a GUI.
-    datafile = open_file_gui()
-    infofile = open_file_gui()
+    datafile = open_file_gui(add_pattern="*.txt")
+    infofile = open_file_gui(add_pattern="*.txt")
 
     # Load and label data
     labels, data = data_loader.load(infofile, datafile)

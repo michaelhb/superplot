@@ -1,4 +1,9 @@
 import os
+
+# Download setuptools if it's not installed on target system
+import ez_setup
+ez_setup.use_setuptools()
+
 from setuptools import setup, find_packages
 
 

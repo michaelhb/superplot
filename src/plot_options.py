@@ -7,7 +7,7 @@ TODO: This module should also do a reasonable amount of validation
 """
 import os
 from collections import namedtuple
-import yaml
+import simpleyaml as yaml
 import numpy as np
 
 plot_options = namedtuple("plot_options", (

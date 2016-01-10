@@ -10,7 +10,7 @@ and attaches it as a module attribute with the defined name.
 import os
 import sys
 from matplotlib.pylab import get_cmap
-import yaml
+import simpleyaml as yaml
 
 
 class Scheme:

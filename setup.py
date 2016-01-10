@@ -19,14 +19,8 @@ setup(
         setup_requires=["setuptools_git"],
 
         install_requires=[
-            "pygtk",
-            "numpy",
-            "matplotlib",
-            "scipy",
-            "pandas",
-            "pylab",
             "prettytable",
-            "pyyaml"
+            "simpleyaml"
         ],
 
         packages=find_packages("src"),

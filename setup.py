@@ -25,7 +25,8 @@ setup(
             "scipy",
             "pandas",
             "pylab",
-            "prettytable"
+            "prettytable",
+            "pyyaml"
         ],
 
         packages=find_packages("src"),

@@ -43,7 +43,7 @@ def _read_data_file(file_name):
     :rtype: numpy.array
     """
     # Read data into a pandas data-frame
-    data_frame = pd.read_csv(file_name, header=None, delim_whitespace=True, engine="c")
+    data_frame = pd.read_csv(file_name, header=None, sep="\s+", engine="c")
 
     # Transpose data-frame, such that first index is column rather than row
     data_frame = data_frame.transpose()

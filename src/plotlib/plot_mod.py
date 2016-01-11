@@ -8,6 +8,7 @@ in a consistent manner.
 
 # Python modules
 import subprocess
+import os
 
 # External modules.
 from matplotlib.ticker import AutoMinorLocator

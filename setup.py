@@ -37,8 +37,9 @@ setup(
         long_description=read("README.rst"),
 
         entry_points={
-            'console_scripts': [
-                'super_gui = superplot.super_gui:main'
+            'gui_scripts': [
+                'super_gui = superplot.super_gui:main',
+                'summary = superplot.summary:main'
             ]
         }
 )

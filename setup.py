@@ -23,7 +23,7 @@ setup(
             "simpleyaml"
         ],
 
-        packages=find_packages(""),
+        packages=["superplot"],
         include_package_data=True,
 
         name="superplot",

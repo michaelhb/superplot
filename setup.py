@@ -66,8 +66,8 @@ setup(
 
         entry_points={
             'gui_scripts': [
-                'super_gui = superplot.super_gui:main',
-                'summary = superplot.summary:main'
+                'superplot_gui = superplot.super_gui:main',
+                'superplot_summary = superplot.summary:main'
             ]
         }
 )

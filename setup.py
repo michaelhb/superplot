@@ -27,6 +27,16 @@ setup(
         include_package_data=True,
         package_dir={"": "src"},
 
+        py_modules=[
+            "data_loader",
+            "plot_options",
+            "schemes",
+            "summary",
+            "super_gui"
+        ],
+
+        data_files=[("", ["src/config.yml"])],
+
         name="superplot",
         version="2.0-dev",
         author="Andrew Fowlie, Michael Bardsley",

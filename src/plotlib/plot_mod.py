@@ -53,8 +53,8 @@ def appearance(style_sheet):
         interface with LaTeX). If it isn't, we issue a warning and fall \
         back to mathtext. 
     """
-
-    plt.style.use(["./styles/default.mplstyle", style_sheet])
+    # TODO should access these files via pkg_resources or something like that.
+    plt.style.use(["./plotlib/styles/default.mplstyle", style_sheet])
 
     if rcParams["text.usetex"]:
         # Check if LaTeX is available

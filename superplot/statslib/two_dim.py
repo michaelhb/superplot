@@ -6,12 +6,14 @@ This module contains all the functions for analysing a chain (\\*.txt file)
 and calculating the 2D stats for a particular pair of variables.
 """
 
+# superplot modules
+import point
+
 # External modules.
 from matplotlib.pylab import *
 from scipy import stats
 from collections import namedtuple
 from scipy.optimize import bisect
-import point
 
 
 def posterior_pdf(paramx, paramy, posterior, nbins=50, bin_limits=None):

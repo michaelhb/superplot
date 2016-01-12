@@ -2,22 +2,25 @@
 This module provides the superplot GUI.
 """
 
-import gtk
+# Standard modules
+import os
 import re
-import pygtk
 import pickle
 import time
-import data_loader
-import os
 import warnings
-
-import plotlib.plots as plots
-
 from collections import OrderedDict
-from plot_options import plot_options, default
+
+# External modules
+import gtk
+import pygtk
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 # from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
 # from matplotlib.backends.backend_gtkcairo import FigureCanvasGTKCairo as FigureCanvas
+
+# Superplot modules
+import data_loader
+import superplot.plotlib.plots as plots
+from plot_options import plot_options, default
 
 pygtk.require('2.0')
 

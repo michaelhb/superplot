@@ -15,10 +15,10 @@ from collections import namedtuple
 
 # SuperPy modules.
 import plot_mod as pm
-import statslib.one_dim as one_dim
-import statslib.two_dim as two_dim
-import statslib.point as stats
-import schemes
+import superplot.statslib.one_dim as one_dim
+import superplot.statslib.two_dim as two_dim
+import superplot.statslib.point as stats
+import superplot.schemes as schemes
 
 
 class Plot(object):

@@ -4,14 +4,15 @@ Runs without arguments - GUI dialogs are used to select the
 chain and info files.
 """
 
+# External modules
 from prettytable import PrettyTable as pt
+
+# superplot modules
 import data_loader
-
 from super_gui import open_file_gui
-
 from plot_options import default
-import statslib.point as stats
-import statslib.one_dim as one_dim
+import superplot.statslib.point as stats
+import superplot.statslib.one_dim as one_dim
 
 
 def _summary(name, param, posterior, chi_sq):

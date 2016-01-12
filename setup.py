@@ -20,7 +20,12 @@ setup(
 
         install_requires=[
             "prettytable",
-            "simpleyaml"
+            "simpleyaml",
+            "numpy",
+            "matplotlib",
+            "scipy",
+            "pandas",
+            "pygtk"
         ],
 
         packages=["superplot"],

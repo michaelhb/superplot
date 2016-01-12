@@ -23,19 +23,8 @@ setup(
             "simpleyaml"
         ],
 
-        packages=find_packages("src"),
+        packages=find_packages(""),
         include_package_data=True,
-        package_dir={"": "src"},
-
-        py_modules=[
-            "data_loader",
-            "plot_options",
-            "schemes",
-            "summary",
-            "super_gui"
-        ],
-
-        data_files=[("", ["src/config.yml"])],
 
         name="superplot",
         version="2.0-dev",
@@ -49,7 +38,7 @@ setup(
 
         entry_points={
             'console_scripts': [
-                'super_gui = super_gui:main'
+                'super_gui = superplot.super_gui:main'
             ]
         }
 )

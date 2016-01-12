@@ -1,1 +1,1 @@
-__all__ = ["OneDim", "TwoDim", "Point"]
+__all__ = ["one_dim", "two_dim", "point"]

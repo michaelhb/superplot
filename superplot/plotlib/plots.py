@@ -21,9 +21,9 @@ from itertools import groupby
 
 # SuperPy modules.
 from base import *
-from scipy.stats import chi2
 
 # External modules.
+from scipy.stats import chi2
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 

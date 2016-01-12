@@ -54,7 +54,12 @@ def appearance(style_sheet):
         back to mathtext. 
     """
     # TODO should access these files via pkg_resources or something like that.
-    plt.style.use(["./plotlib/styles/default.mplstyle", style_sheet])
+    default_style_sheet = os.path.join(
+        os.path.split(os.path.abspath(__file__))[0],
+        "styles/default.mplstyle"
+    )
+
+    plt.style.use([default_style_sheet, style_sheet])
 
     if rcParams["text.usetex"]:
         # Check if LaTeX is available

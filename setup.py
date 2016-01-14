@@ -51,7 +51,12 @@ setup(
 
         install_requires=requires,
 
-        packages=["superplot"],
+        packages=[
+            "superplot",
+            "superplot.plotlib",
+            "superplot.plotlib.styles",
+            "superplot.statslib"
+        ],
         include_package_data=True,
 
         name="superplot",

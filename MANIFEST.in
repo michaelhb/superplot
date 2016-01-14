@@ -1,0 +1,2 @@
+include superplot/config.yml
+include plotlib/styles/*.mplstyle

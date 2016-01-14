@@ -12,6 +12,9 @@ import sys
 from matplotlib.pylab import get_cmap
 import simpleyaml as yaml
 
+# Superplot modules.
+import plot_options
+
 
 class Scheme:
     r"""
@@ -57,18 +60,9 @@ class Scheme:
         self.size = size
         self.colours = colours
 
-
-# Load config.yml and store contents as private dictionary
-config_path = os.path.join(
-    os.path.split(os.path.abspath(__file__))[0],
-    "config.yml"
-)
-with open(config_path) as cfile:
-    _config = yaml.load(cfile)
-
 # For each scheme in the config file, create a Scheme
 # class and add it as a module attribute.
-for scheme_name, params in _config["schemes"].iteritems():
+for scheme_name, params in plot_options.get_config()["schemes"].iteritems():
     scheme = Scheme(**params)
     setattr(sys.modules[__name__], scheme_name, scheme)
 

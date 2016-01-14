@@ -6,6 +6,7 @@ TODO: This module should also do a reasonable amount of validation
       of config variables.
 """
 import os
+import appdirs
 from collections import namedtuple
 import simpleyaml as yaml
 import numpy as np
@@ -49,13 +50,31 @@ plot_options = namedtuple("plot_options", (
 ))
 
 
-# Store a dictionary of default options from config.yml
-config_path = os.path.join(
-    os.path.split(os.path.abspath(__file__))[0],
-    "config.yml"
-)
-with open(config_path) as cfile:
-    _defaults = yaml.load(cfile)["plot_options"]
+def get_config():
+    """
+    Load the config file, either from the user data
+    directory, or if that is not available, the installed
+    copy.
+    :returns: config
+    :rtype: dict
+    """
+    # First try to load the config file in the
+    # user data directory
+    config_path = os.path.join(
+            appdirs.user_data_dir("superplot", ""),
+            "config.yml"
+    )
+    # If it doesn't exist, use the installed copy
+    if not os.path.exists(config_path):
+        config_path = os.path.join(
+            os.path.split(os.path.abspath(__file__))[0],
+            "config.yml"
+        )
+    # Load & return config
+    with open(config_path) as cfile:
+        return yaml.load(cfile)
+
+_defaults = get_config()["plot_options"]
 
 # Fix the types of a few options. It would also be
 # possible to directly specify the types in the YAML file,

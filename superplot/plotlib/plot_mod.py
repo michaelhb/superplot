@@ -9,6 +9,7 @@ in a consistent manner.
 # Python modules
 import subprocess
 import os
+import appdirs
 
 # External modules.
 from matplotlib.ticker import AutoMinorLocator
@@ -39,27 +40,48 @@ def plot_data(x, y, scheme, zorder=1):
             zorder=zorder)
 
 
-def appearance(style_sheet):
-    """ 
+def appearance(plot_name):
+    """
     Specify the plot's appearance, with e.g. font types etc.
     from an mplstyle file.
 
-    :param style_sheet: Path to the style sheet for this plot. Options in this \
-        style sheet override any in ./styles/default.mplstyle
-    :type style_sheet: string
-    
+    Options in the style sheet associated with the plot name
+    override any in default.mplstyle.
+
+    :param plot_name: Name of the plot (class name)
+    :type plot_name: string
+
     .. Warning: If the user wants LaTeX, we first check if the 'latex' \
         shell command is available (as this is what matplotlib uses to \
         interface with LaTeX). If it isn't, we issue a warning and fall \
-        back to mathtext. 
+        back to mathtext.
     """
-    # TODO should access these files via pkg_resources or something like that.
+
+    style_sheet_name = "{}.mplstyle".format(plot_name)
+
+    # Try to use the style sheet installed in the user directory
+    style_sheet_path = os.path.join(
+            appdirs.user_data_dir("superplot", ""),
+            "styles",
+            style_sheet_name
+    )
+
+    # If that doesn't exist, use the installed copy
+    if not os.path.exists(style_sheet_path):
+        style_sheet_path = os.path.join(
+            os.path.split(os.path.abspath(__file__))[0],
+            "styles",
+            style_sheet_name
+        )
+
+    print style_sheet_path
+
     default_style_sheet = os.path.join(
         os.path.split(os.path.abspath(__file__))[0],
         "styles/default.mplstyle"
     )
 
-    plt.style.use([default_style_sheet, style_sheet])
+    plt.style.use([default_style_sheet, style_sheet_path])
 
     if rcParams["text.usetex"]:
         # Check if LaTeX is available

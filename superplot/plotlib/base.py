@@ -90,14 +90,7 @@ class Plot(object):
         pm.plot_labels(opt.xlabel, opt.ylabel, opt.plot_title)
         pm.plot_limits(ax, opt.plot_limits)
 
-        # TODO should access these files via pkg_resources or something like that.
-        # style_sheet = "./plotlib/styles/{}.mplstyle".format(self.__class__.__name__)
-        style_sheet = os.path.join(
-            os.path.split(os.path.abspath(__file__))[0],
-            "styles/{}.mplstyle".format(self.__class__.__name__)
-        )
-
-        pm.appearance(style_sheet)
+        pm.appearance(self.__class__.__name__)
 
         return fig, ax
 

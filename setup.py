@@ -110,6 +110,8 @@ class SuperplotInstall(install):
                 )
             )
 
+        print "Finished post-setup actions"
+
 setup(
         cmdclass={'install': SuperplotInstall},
 

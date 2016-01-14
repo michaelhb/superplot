@@ -1,2 +1,2 @@
 include superplot/config.yml
-include plotlib/styles/*.mplstyle
+include superplot/plotlib/styles/*.mplstyle

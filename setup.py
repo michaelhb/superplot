@@ -1,5 +1,8 @@
-from setuptools import setup, find_packages
+from setuptools import setup
+from setuptools.command.install import install
 import os
+import shutil
+import warnings
 import sys
 import platform
 
@@ -16,6 +19,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 requires = [
+    "appdirs",
     "prettytable",
     "simpleyaml",
     "numpy",
@@ -46,8 +50,70 @@ else:
         sys.exit(1)
 
 
+class SuperplotInstall(install):
+    """
+    Subclass the setuptools install command so we can
+    run post-install actions (e.g. placing the config file).
+    """
+    def run(self):
+        """
+        Post-install, this script will try to place the config and
+        style files in an OS-appropriate user data directory.
+        If this fails, setup will continue and the application
+        will fall back on the files included in the install.
+        """
+        install.run(self)
+        import appdirs
+
+        # OS-specific user data directory for this app.
+        # We will put the config file and style sheets here.
+        user_dir = appdirs.user_data_dir("superplot", "")
+
+        try:
+            if not os.path.isdir(user_dir):
+                os.mkdir(user_dir)
+        except OSError as e:
+            warnings.warn(
+                "Could not create user data directory: {}".format(
+                    e.strerror
+                )
+            )
+
+        # Copy config.yml to user directory
+        config_path = os.path.join(user_dir, "config.yml")
+
+        # If the config file is already present,
+        # *don't* overwrite it.
+        if os.path.exists(config_path):
+            warnings.warn(
+                "Config file already present - not overwriting."
+            )
+        else:
+            try:
+                shutil.copy("superplot/config.yml", config_path)
+            except shutil.Error as e:
+                warnings.warn(
+                    "Error copying config file to user directory: {}".format(
+                        e.strerror
+                    )
+                )
+
+        # Copy style sheets to user directory
+        styles_dir = os.path.join(user_dir, "styles")
+
+        try:
+            shutil.copytree("superplot/plotlib/styles", styles_dir)
+        except shutil.Error as e:
+            warnings.warn(
+                "Error copying style sheets to user directory: {}".format(
+                    e.strerror
+                )
+            )
+
 setup(
-        setup_requires=["setuptools_git"],
+        cmdclass={'install': SuperplotInstall},
+
+        setup_requires=["setuptools_git", "appdirs"],
 
         install_requires=requires,
 

@@ -100,15 +100,19 @@ class SuperplotInstall(install):
 
         # Copy style sheets to user directory
         styles_dir = os.path.join(user_dir, "styles")
-
-        try:
-            shutil.copytree("superplot/plotlib/styles", styles_dir)
-        except shutil.Error as e:
+        if os.path.isdir(styles_dir):
             warnings.warn(
-                "Error copying style sheets to user directory: {}".format(
-                    e.strerror
-                )
+                "Styles dir already present - not overwriting."
             )
+        else:
+            try:
+                shutil.copytree("superplot/plotlib/styles", styles_dir)
+            except shutil.Error as e:
+                warnings.warn(
+                    "Error copying style sheets to user directory: {}".format(
+                        e.strerror
+                    )
+                )
 
         print "Finished post-setup actions"
 

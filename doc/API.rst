@@ -2,57 +2,57 @@
 super_gui
 =========
 
-.. automodule:: super_gui
+.. automodule:: superplot.super_gui
     :members:
 
 ========
 statslib
 ========
 
-.. automodule:: statslib.point
+.. automodule:: superplot.statslib.point
     :members:
 
-.. automodule:: statslib.one_dim
+.. automodule:: superplot.statslib.one_dim
     :members:
 
-.. automodule:: statslib.two_dim
+.. automodule:: superplot.statslib.two_dim
     :members:
 
 =======
 plotlib
 =======
 
-.. automodule:: plotlib.base
+.. automodule:: superplot.plotlib.base
     :members:
 
-.. automodule:: plotlib.plot_mod
+.. automodule:: superplot.plotlib.plot_mod
     :members:
 
-.. automodule:: plotlib.plots
+.. automodule:: superplot.plotlib.plots
     :members:
 
-.. py:attribute:: plotlib.base.plot_types
+.. py:attribute:: superplot.plotlib.base.plot_types
 
 ===========
 data_loader
 ===========
-.. automodule:: data_loader
+.. automodule:: superplot.data_loader
     :members:
 
 ============
 plot_options
 ============
-.. automodule:: plot_options
+.. automodule:: superplot.plot_options
     :members:
 
 =======
 schemes
 =======
-.. automodule:: schemes
+.. automodule:: superplot.schemes
     :members:
 
 =======
 summary
 =======
-.. automodule:: summary
+.. automodule:: superplot.summary
     :members:

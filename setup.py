@@ -18,38 +18,6 @@ import platform
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-requires = [
-    "appdirs",
-    "prettytable",
-    "simpleyaml",
-    "numpy",
-    "matplotlib",
-    "scipy",
-    "pandas"
-]
-
-# install_requires should contain pygtk. However there's a problem,
-# at least on linux:
-# - pygtk can't be build from setuptools (only possible on Windows)
-# - setuptools isn't smart enough to figure out that the module is already
-#   there - i.e. it'll try to install it, remember it can't, and die.
-
-if platform.system() == "Windows":
-    # So if we're on windows, we can add it to the list.
-    requires.append("pygtk")
-else:
-    # Otherwise the best we can do is tell the user to install pygtk
-    # before trying again.
-    try:
-        import pygtk
-    except ImportError:
-        print "Superplot requires PyGTK, which is not available on this system " \
-              "and cannot be automatically installed. Please install PyGTK " \
-              "version 2.0 or greater using your OS package manager or via " \
-              "www.pygtk.org"
-        sys.exit(1)
-
-
 class SuperplotInstall(install):
     """
     Subclass the setuptools install command so we can
@@ -121,7 +89,16 @@ setup(
 
         setup_requires=["setuptools_git", "appdirs"],
 
-        install_requires=requires,
+        install_requires=[
+            "appdirs",
+            "prettytable",
+            "simpleyaml",
+            "numpy",
+            "matplotlib",
+            "scipy",
+            "pandas",
+            "pygtk"
+        ],
 
         packages=[
             "superplot",

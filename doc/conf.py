@@ -309,9 +309,11 @@ MOCK_MODULES = [
     'pandas',
     'gtk',
     'pygtk',
-    'appdirs',
-    'simpleyaml',
-    'prettytable']
+    # 'appdirs',
+    # 'simpleyaml',
+    'prettytable'
+]
+
 sys.modules.update((mod_name, mock.Mock()) for mod_name in MOCK_MODULES)
 
 

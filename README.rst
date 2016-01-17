@@ -40,7 +40,7 @@ Superplot requires Python 2.7+ and uses the following libraries:
 
 While pip will attempt to download and build these libraries if they are not installed, this can be a lengthy and/or fragile process for pygtk and the scientific libraries. Installation of pygtk, numpy, scipy, matplotlib and pandas via your operating system's package manager, or by installing a scientific python distribution such as Python(x,y) *before* installing superplot is recommended.
 
- On Ubuntu, this can be accomplished with the following commands::
+On Ubuntu, this can be accomplished with the following commands::
 
     sudo apt-get install git python-pip python-numpy python-scipy python-pandas  libfreetype6-dev python-gtk2-dev
 

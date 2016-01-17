@@ -1,5 +1,5 @@
 Superplot
-********
+*********
 
 This is a freestanding version of the plotting software previously in `superpy <https://github.com/innisfree/superpy>`_.
 

@@ -1,28 +1,87 @@
-SuperGUI
+Superplot
 ********
 
 This is a freestanding version of the plotting software previously in `superpy <https://github.com/innisfree/superpy>`_.
 
-superplot is a python GUI that plots SuperPy, SuperBayeS (with its information file format) files or generally MultiNest or BAYES-X results. It can calculate and plot:
+This package provides two utilities: superplot_gui and superplot_summary.
+
+superplot_gui is a python GUI that plots SuperPy, SuperBayeS (with its information file format) files or generally MultiNest or BAYES-X results. It can calculate and plot:
 
 * One- and two-dimensional marginalised posterior pdf and credible regions.
 * One- and two-dimensional marginalised profile likelihood and confidence intervals.
 * Best-fit points.
-* Posterior means.
+* Posterior means, medians and modes.
 * Three-dimensional scatter plots.
+
+superplot_gui can also:
+* Save a plot as a PDF document.
+* Write a summary text file containing plot-specific information.
+* Export the plot as a .pkl object, which can be imported and manipulated in a python interpreter.
+
+superplot_summary is a command line tool that outputs a table of summary statistics - best-fit, posterior mean and credible regions for each parameter, and overall minimum chi-squared and p-value.
 
 Installing
 ==========
-There is, in principle, nothing to install for this program (it is a script), but you might be missing a few required
-python packages, such as numpy, scipy, pylab, matplotlib, pygtk and gtk. These are common packages that should be easy to install on
-any system with a package manager.
+Superplot is currently in development and is hosted on the pypi test server. It can be installed via pip::
+
+    pip install --index=https://testpypi.python.org/pypi superplot
+
+Superplot requires Python 2.7+ and uses the following libraries:
+
+* prettytable
+* simpleyaml
+* appdirs
+* pygtk
+* numpy
+* scipy
+* matplotlib
+* pandas
+
+While pip will attempt to download and build these libraries if they are not installed, this can be a lengthy and/or fragile process for pygtk and the scientific libraries. Installation of pygtk, numpy, scipy, matplotlib and pandas via your operating system's package manager, or by installing a scientific python distribution such as Python(x,y) *before* installing superplot is recommended.
+
+ On Ubuntu, this can be accomplished with the following commands::
+
+    sudo apt-get install git python-pip python-numpy python-scipy python-pandas  libfreetype6-dev python-gtk2-dev
+
+The version of matplotlib supplied by ubuntu may not be compiled with GTK support. If this is the case, building matplotlib via pip will fix the problem::
+
+    pip install --upgrade --user matplotlib
+
+Note that Python(x,y) on windows also ships matplotlib without GTK support - running the above command after installing Python(x,y) also fixes this issue.
 
 Running
 =======
-To start SuperGUI::
 
-    python SuperGUI.py
+To run superplot_gui::
 
-A GUI window will appear to select a chain. Select e.g. the `.txt` file in the `/examples` sub-directory. A second GUI window will appear to select an information file. Select e.g. the `.info` file in the `/examples` sub-directory. Finally, select the variables and the plot type in the resulting GUI, and click `Make Plot`.
+    python -m superplot.super_gui
+
+To run superplot_summary::
+
+    python -m superplot.summary
+
+Superplot will also attempt to install launcher scripts in an OS-appropriate location, i.e. on ubuntu, ~/.local/bin/superplot_gui and ~/.local/bin/superplot_summary are alternative ways of launching the tools.
+
+Using superplot_gui
+===================
+
+A GUI window will appear to select a chain file. Select e.g. the `.txt` file in the `/examples` sub-directory. A second GUI window will appear to select an information file. Select e.g. the `.info` file in the `/examples` sub-directory. Finally, select the variables and the plot type in the resulting GUI, and click `Make Plot`.
 
 The buttons etc in the GUI should be self-explanatory. You do not require an `.info` file - if you don't have one, press cancel when asked for one, and the chain will be labelled in integers (within the GUI, you can change the axis labels etc anyway).
+
+Using superplot_summary
+=======================
+A GUI window will appear to select a chain file. Select e.g. the `.txt` file in the `/examples` sub-directory. A second GUI window will appear to select an information file. Select e.g. the `.info` file in the `/examples` sub-directory.
+
+superplot_summary will then print a table of summary statistics.
+
+Configuring superplot
+=====================
+
+On ubuntu, the superplot configuration files are installed to ~/.local/share/superplot. On windows they can be found in $HOME\AppData\Local\superplot.
+
+config.yml contains a range of options controlling the appearance and labelling of plot elements, as well as technical plot options.
+
+The styles/ folder contains a family of matplotlib style sheets giving finer grained control over the appearance of each plot type. default.mplstyle contains the base setiings, which can be overridden for individual plot types by editing the corresponding files.
+
+Note that copies of these config files are also installed alongside the source code, and will be used if the above files are unavailable.

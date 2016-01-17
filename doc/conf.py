@@ -306,7 +306,11 @@ MOCK_MODULES = [
     'scipy.stats',
     'pylab',
     'numpy',
-    'pandas']
+    'pandas',
+    'gtk',
+    'appdirs',
+    'simpleyaml',
+    'prettytable']
 sys.modules.update((mod_name, mock.Mock()) for mod_name in MOCK_MODULES)
 
 

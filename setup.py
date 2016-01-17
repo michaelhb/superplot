@@ -46,41 +46,41 @@ class SuperplotInstall(install):
                     e.strerror
                 )
             )
-
-        # Copy config.yml to user directory
-        config_path = os.path.join(user_dir, "config.yml")
-
-        # If the config file is already present,
-        # *don't* overwrite it.
-        if os.path.exists(config_path):
-            warnings.warn(
-                "Config file already present - not overwriting."
-            )
         else:
-            try:
-                shutil.copy("superplot/config.yml", config_path)
-            except shutil.Error as e:
+            # Copy config.yml to user directory
+            config_path = os.path.join(user_dir, "config.yml")
+    
+            # If the config file is already present,
+            # *don't* overwrite it.
+            if os.path.exists(config_path):
                 warnings.warn(
-                    "Error copying config file to user directory: {}".format(
-                        e.strerror
-                    )
+                    "Config file already present - not overwriting."
                 )
+            else:
+                try:
+                    shutil.copy("superplot/config.yml", config_path)
+                except shutil.Error as e:
+                    warnings.warn(
+                        "Error copying config file to user directory: {}".format(
+                            e.strerror
+                        )
+                    )
 
-        # Copy style sheets to user directory
-        styles_dir = os.path.join(user_dir, "styles")
-        if os.path.isdir(styles_dir):
-            warnings.warn(
-                "Styles dir already present - not overwriting."
-            )
-        else:
-            try:
-                shutil.copytree("superplot/plotlib/styles", styles_dir)
-            except shutil.Error as e:
+            # Copy style sheets to user directory
+            styles_dir = os.path.join(user_dir, "styles")
+            if os.path.isdir(styles_dir):
                 warnings.warn(
-                    "Error copying style sheets to user directory: {}".format(
-                        e.strerror
-                    )
+                    "Styles dir already present - not overwriting."
                 )
+            else:
+                try:
+                    shutil.copytree("superplot/plotlib/styles", styles_dir)
+                except shutil.Error as e:
+                    warnings.warn(
+                        "Error copying style sheets to user directory: {}".format(
+                            e.strerror
+                        )
+                    )
 
         print "Finished post-setup actions"
 

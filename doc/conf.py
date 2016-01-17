@@ -308,6 +308,7 @@ MOCK_MODULES = [
     'numpy',
     'pandas',
     'gtk',
+    'pygtk',
     'appdirs',
     'simpleyaml',
     'prettytable']

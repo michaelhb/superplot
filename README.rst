@@ -14,6 +14,7 @@ superplot_gui is a python GUI that plots SuperPy, SuperBayeS (with its informati
 * Three-dimensional scatter plots.
 
 superplot_gui can also:
+
 * Save a plot as a PDF document.
 * Write a summary text file containing plot-specific information.
 * Export the plot as a .pkl object, which can be imported and manipulated in a python interpreter.

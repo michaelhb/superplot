@@ -109,7 +109,7 @@ setup(
         include_package_data=True,
 
         name="superplot",
-        version="2.0-dev",
+        version="1.0.0-testing",
         author="Andrew Fowlie, Michael Bardsley",
         author_email="mhbar3@student.monash.edu",
         license="GPL v2",

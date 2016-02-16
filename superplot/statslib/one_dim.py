@@ -12,6 +12,7 @@ from collections import namedtuple
 import point
 import warnings
 
+DOCTEST_PRECISION = 10
 
 def posterior_pdf(parameter,
                   posterior,
@@ -219,14 +220,14 @@ def credible_region(pdf, bin_centers, alpha, region):
     >>> alpha = 0.32
 
     >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
-    >>> [credible_region(pdf.pdf, pdf.bin_centers, alpha, region)
+    >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, region), DOCTEST_PRECISION)
     ...  for region in ["lower", "upper"]]
-    [-2960.1134014129639, -980.1711118221283]
+    [-2960.113401413, -980.1711118221]
 
     >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins)
-    >>> [credible_region(pdf.pdf, pdf.bin_centers, alpha, region)
+    >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, region), DOCTEST_PRECISION)
     ...  for region in ["lower", "upper"]]
-    [-2419.849933311637, 2560.0888874131178]
+    [-2419.8499333116, 2560.0888874131]
     """
     assert region in ["lower", "upper"]
     if region is "lower":
@@ -263,13 +264,13 @@ def conf_interval(chi_sq, bin_centers, alpha):
 
     >>> prof = prof_data(data[2], data[1], nbins=nbins)
     >>> interval = conf_interval(prof.prof_chi_sq, prof.bin_centers, alpha)
-    >>> [np.nanmin(interval), np.nanmax(interval)]
-    [-2970.1131099462509, -970.17140328884125]
+    >>> [round(x, DOCTEST_PRECISION) for x in [np.nanmin(interval), np.nanmax(interval)]]
+    [-2970.1131099463, -970.1714032888]
 
     >>> prof = prof_data(data[3], data[1], nbins=nbins)
     >>> interval = conf_interval(prof.prof_chi_sq, prof.bin_centers, alpha)
-    >>> [np.nanmin(interval), np.nanmax(interval)]
-    [-2409.850056161587, 2570.0887645631674]
+    >>> [round(x, DOCTEST_PRECISION) for x in [np.nanmin(interval), np.nanmax(interval)]]
+    [-2409.8500561616, 2570.0887645632]
     """
     # Invert alpha to a delta chi-squared with an inverse cumulative
     # chi-squared distribution with one degree of freedom.
@@ -311,16 +312,16 @@ def posterior_median(pdf, bin_centers):
 
     >>> nbins = 750
     >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
-    >>> posterior_median(pdf.pdf, pdf.bin_centers)
-    -1973.4754927953081
-    >>> posterior_median(data[0], data[2])
-    -1967.5391626331061
+    >>> round(posterior_median(pdf.pdf, pdf.bin_centers), DOCTEST_PRECISION)
+    -1973.4754927953
+    >>> round(posterior_median(data[0], data[2]), DOCTEST_PRECISION)
+    -1967.5391626331
 
     >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins)
-    >>> posterior_median(pdf.pdf, pdf.bin_centers)
-    53.453015133991357
-    >>> posterior_median(data[0], data[3])
-    76.246824620369807
+    >>> round(posterior_median(pdf.pdf, pdf.bin_centers), DOCTEST_PRECISION)
+    53.453015134
+    >>> round(posterior_median(data[0], data[3]), DOCTEST_PRECISION)
+    76.2468246204
     """
     return _inverse_cdf(0.5, pdf, bin_centers)
 
@@ -354,12 +355,12 @@ def posterior_mode(pdf, bin_centers):
 
     >>> nbins = 70
     >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
-    >>> posterior_mode(pdf.pdf, pdf.bin_centers)
-    [-1857.2884031704489]
+    >>> round(posterior_mode(pdf.pdf, pdf.bin_centers)[0], DOCTEST_PRECISION)
+    -1857.2884031704
 
     >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins)
-    >>> posterior_mode(pdf.pdf, pdf.bin_centers)
-    [-142.7350508574591]
+    >>> round(posterior_mode(pdf.pdf, pdf.bin_centers)[0], DOCTEST_PRECISION)
+    -142.7350508575
     """
     # Find the maximum weighted count.
     max_count = max(pdf)

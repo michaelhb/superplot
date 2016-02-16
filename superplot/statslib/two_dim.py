@@ -14,6 +14,7 @@ import point
 import numpy as np
 import warnings
 
+DOCTEST_PRECISION = 10
 
 def posterior_pdf(paramx, paramy, posterior, nbins=50, bin_limits=None):
     r"""
@@ -187,8 +188,8 @@ def critical_density(pdf, alpha):
     >>> nbins = 100
     >>> alpha = 0.32
     >>> pdf = posterior_pdf(data[2], data[3], data[0], nbins=nbins)[0]
-    >>> critical_density(pdf, alpha)
-    0.0008100802332896318
+    >>> round(critical_density(pdf, alpha), DOCTEST_PRECISION)
+    0.0008100802
     """
     # Normalize posterior pdf so that integral is one, if it wasn't already
     pdf = pdf / pdf.sum()
@@ -269,8 +270,9 @@ def posterior_mode(pdf, bin_centers_x, bin_centers_y):
 
     >>> nbins = 70
     >>> pdf = posterior_pdf(data[2], data[3], data[0], nbins=nbins)
-    >>> posterior_mode(pdf.pdf, pdf.bin_centers_x, pdf.bin_centers_y)
-    [[-2142.9943612643647, 142.97572485824639]]
+    >>> bin_centers = posterior_mode(pdf.pdf, pdf.bin_centers_x, pdf.bin_centers_y)[0]
+    >>> [round(x, DOCTEST_PRECISION) for x in bin_centers]
+    [-2142.9943612644, 142.9757248582]
     """
     # Find the maximum weighted count
     max_count = np.max(pdf)

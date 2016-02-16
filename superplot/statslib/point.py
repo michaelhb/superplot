@@ -8,6 +8,7 @@ This module contains statistical functions that return a single data point.
 import numpy as np
 from scipy import stats
 
+DOCTEST_PRECISION = 10
 
 def _shift(bin_number, nbins):
     """
@@ -53,10 +54,10 @@ def posterior_mean(posterior, param):
 
     :Example:
 
-    >>> posterior_mean(data[0], data[2])
-    -1965.6810774827361
-    >>> posterior_mean(data[0], data[3])
-    72.740677579001883
+    >>> round(posterior_mean(data[0], data[2]), DOCTEST_PRECISION)
+    -1965.6810774827
+    >>> round(posterior_mean(data[0], data[3]), DOCTEST_PRECISION)
+    72.740677579
     """
     # Calculate posterior mean - dot product weights with parameter
     # values and normalize.
@@ -79,12 +80,12 @@ def best_fit(chi_sq, param):
 
     :Example:
 
-    >>> best_fit(data[1], data[1])
-    1.680681804128891e-06
-    >>> best_fit(data[1], data[2])
-    -1966.9007376503325
-    >>> best_fit(data[1], data[3])
-    77.66902181289332
+    >>> round(best_fit(data[1], data[1]), DOCTEST_PRECISION + 6)
+    1.6806818041e-06
+    >>> round(best_fit(data[1], data[2]), DOCTEST_PRECISION)
+    -1966.9007376503
+    >>> round(best_fit(data[1], data[3]), DOCTEST_PRECISION)
+    77.6690218129
     """
     # Calculate the best-fit - find the point that corresponds
     # to the smallest chi-squared.
@@ -107,8 +108,8 @@ def p_value(chi_sq, dof):
     :returns: A p-value for the given chi_sq, dof
     :rtype: numpy.float64
 
-    >>> p_value(data[1], 2)
-    0.99999915965945108
+    >>> round(p_value(data[1], 2), DOCTEST_PRECISION)
+    0.9999991597
     """
     # Find the associated p-value. The survival function, sf,
     # is 1 - the CDF.

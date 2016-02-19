@@ -141,7 +141,6 @@ def prof_data(parameter, chi_sq, nbins=50, bin_limits=None):
                                 "bin_centers"))
     return _prof_data(prof_chi_sq, prof_like, bin_centers)
 
-
 def _inverse_cdf(prob, pdf, bin_centers):
     r"""
     Inverse of cdf for cdf from posterior pdf, i.e. for probability :math:`p`
@@ -172,19 +171,34 @@ def _inverse_cdf(prob, pdf, bin_centers):
     # Normalize pdf so that area is one
     pdf = pdf / sum(pdf)
 
-    # Build a list of (parameter index, cumulative posterior weight)
-    cumulative = list(enumerate(np.cumsum(pdf)))
+    # Find the bin width.
+    bin_width = bin_centers[1] - bin_centers[0]
 
-    # Find the index of the last param value having
-    # cumulative posterior weight <= desired probability
-    index_lower = filter(lambda x: x[1] <= prob, cumulative)[-1][0]
+    # Shift all bins forward by 1/2 bin width (i.e. bin edges)
+    bin_edges = [bin + (0.5 * bin_width) for bin in bin_centers]
 
-    # Find the index of the first param value having
-    # cumulative posterior weight >= desired probability
-    index_upper = filter(lambda x: x[1] >= prob, cumulative)[0][0]
+    # Insert first edge so we have n + 1 edges
+    bin_edges.insert(0, bin_centers[0] - (0.5 * bin_width))
 
-    mean = 0.5 * (bin_centers[index_lower] + bin_centers[index_upper])
-    return mean
+    # Build a list of (parameter index, cumulative posterior weight).
+    # Note we insert an initial entry at index zero with cumulative weight
+    # zero to match the first bin edge.
+    cumulative = list(enumerate([0] + list(np.cumsum(pdf))))
+
+    # Special case where prob > max(cumulative): return the rightmost bin edge.
+    if prob > cumulative[-1][1]:
+        return bin_edges[-1]
+    else:
+        # Find the index of the last param value having
+        # cumulative posterior weight <= desired probability
+        index_lower = filter(lambda x: x[1] <= prob, cumulative)[-1][0]
+
+        # Find the index of the first param value having
+        # cumulative posterior weight >= desired probability
+        index_upper = filter(lambda x: x[1] >= prob, cumulative)[0][0]
+
+        mean = 0.5 * (bin_edges[index_lower] + bin_edges[index_upper])
+        return mean
 
 
 def credible_region(pdf, bin_centers, alpha, region):

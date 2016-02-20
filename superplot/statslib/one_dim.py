@@ -161,6 +161,10 @@ def _inverse_cdf(prob, pdf, bin_centers):
     :returns: Paramter value
     :rtype: float
     """
+
+    # Probabilities should be between 0 and 1
+    assert 0 <= prob <= 1
+
     # Sort pdf and bin centers - this should already be the case for
     # marginalized pdf, but not for raw sample data
     rec = np.rec.fromarrays([bin_centers, pdf])

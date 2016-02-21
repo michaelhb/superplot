@@ -318,7 +318,6 @@ class Scatter(TwoDimPlot):
     def figure(self):
         fig, ax = self._new_plot()
         opt = self.plot_options
-        summary = []
 
         # Plot scatter of points.
         sc = plt.scatter(
@@ -369,7 +368,7 @@ class Scatter(TwoDimPlot):
         # Add legend
         pm.legend(opt.leg_title, opt.leg_position)
 
-        return self.plot_data(figure=fig, summary=summary)
+        return self.plot_data(figure=fig, summary=self.summary)
 
 
 plot_types = [

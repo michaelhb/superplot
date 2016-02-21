@@ -266,7 +266,7 @@ class TwoDimPlot(Plot):
 
         # Posterior mode
         self.posterior_modes = two_dim.posterior_mode(*self.pdf_data)
-        self.summary.append("Posterior modes/s (x,y)".format(self.posterior_modes))
+        self.summary.append("Posterior modes/s (x,y): {}".format(self.posterior_modes))
 
     def _new_plot(self):
         fig, ax = super(TwoDimPlot, self)._new_plot()

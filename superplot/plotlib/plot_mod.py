@@ -74,12 +74,21 @@ def appearance(plot_name):
             style_sheet_name
         )
 
-    print style_sheet_path
-
+    # Try to use default style sheet from user directory
     default_style_sheet = os.path.join(
-        os.path.split(os.path.abspath(__file__))[0],
-        "styles/default.mplstyle"
+            appdirs.user_data_dir("superplot", ""),
+            "styles",
+            "default.mplstyle"
     )
+
+    # Fall back to installed default style sheet if not
+    # found in user directory.
+    if not os.path.exists(default_style_sheet):
+        default_style_sheet = os.path.join(
+            os.path.split(os.path.abspath(__file__))[0],
+            "styles",
+            "default.mplstyle"
+        )
 
     plt.style.use([default_style_sheet, style_sheet_path])
 

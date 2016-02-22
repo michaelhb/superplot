@@ -159,16 +159,19 @@ class OneDimPlot(Plot):
             nbins=opt.nbins,
             bin_limits=opt.bin_limits)
 
+        # Note the best-fit point is calculated using the raw data,
+        # while the mean, median and mode use the binned PDF.
+
         # Best-fit point
         self.best_fit = stats.best_fit(self.chisq, self.xdata)
         self.summary.append("Best-fit point: {}".format(self.best_fit))
 
         # Posterior mean
-        self.posterior_mean = stats.posterior_mean(self.posterior, self.xdata)
+        self.posterior_mean = stats.posterior_mean(*self.pdf_data)
         self.summary.append("Posterior mean: {}".format(self.posterior_mean))
 
         # Posterior median
-        self.posterior_median = one_dim.posterior_median(self.posterior, self.xdata)
+        self.posterior_median = one_dim.posterior_median(*self.pdf_data)
         self.summary.append("Posterior median: {}".format(self.posterior_median))
 
         # Posterior mode
@@ -250,6 +253,9 @@ class TwoDimPlot(Plot):
                 nbins=opt.nbins,
                 bin_limits=opt.bin_limits)
 
+        # As with the 1D plots we use raw data for the best-fit point,
+        # and binned data for the mean and mode.
+
         # Best-fit point
         self.best_fit_x = stats.best_fit(self.chisq, self.xdata)
         self.best_fit_y = stats.best_fit(self.chisq, self.ydata)
@@ -258,8 +264,12 @@ class TwoDimPlot(Plot):
                     self.best_fit_x, self.best_fit_y))
 
         # Posterior mean
-        self.posterior_mean_x = stats.posterior_mean(self.posterior, self.xdata)
-        self.posterior_mean_y = stats.posterior_mean(self.posterior, self.ydata)
+        self.posterior_mean_x = stats.posterior_mean(
+                np.sum(self.pdf_data.pdf, axis=1),
+                self.pdf_data.bin_centers_x)
+        self.posterior_mean_y = stats.posterior_mean(
+                np.sum(self.pdf_data.pdf, axis=0),
+                self.pdf_data.bin_centers_y)
         self.summary.append(
                 "Posterior mean (x,y): {}, {}".format(
                         self.posterior_mean_x, self.posterior_mean_y))

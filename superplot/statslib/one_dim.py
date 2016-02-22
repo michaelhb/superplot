@@ -14,6 +14,7 @@ import warnings
 
 DOCTEST_PRECISION = 10
 
+
 def posterior_pdf(parameter,
                   posterior,
                   nbins=50,
@@ -141,6 +142,7 @@ def prof_data(parameter, chi_sq, nbins=50, bin_limits=None):
                                 "bin_centers"))
     return _prof_data(prof_chi_sq, prof_like, bin_centers)
 
+
 def _inverse_cdf(prob, pdf, bin_centers):
     r"""
     Inverse of cdf for cdf from posterior pdf, i.e. for probability :math:`p`
@@ -161,48 +163,40 @@ def _inverse_cdf(prob, pdf, bin_centers):
     :returns: Paramter value
     :rtype: float
     """
-
     # Probabilities should be between 0 and 1
     assert 0 <= prob <= 1
 
-    # Sort pdf and bin centers - this should already be the case for
-    # marginalized pdf, but not for raw sample data
-    rec = np.rec.fromarrays([bin_centers, pdf])
-    rec.sort()
-    bin_centers = rec.f0
-    pdf = rec.f1
+    # Check whether data is binned. Bin centers should be uniformly spaced -
+    # this won't be the case for raw, unbinned data.
+    bin_widths = [b_2 - b_1 for b_1, b_2 in zip(bin_centers, bin_centers[1:])]
+    assert all(abs(width - bin_widths[0]) < 1E-10 for width in bin_widths)
 
     # Normalize pdf so that area is one
     pdf = pdf / sum(pdf)
 
-    # Find the bin width.
-    bin_width = bin_centers[1] - bin_centers[0]
-
     # Shift all bins forward by 1/2 bin width (i.e. bin edges)
-    bin_edges = [bin + (0.5 * bin_width) for bin in bin_centers]
+    bin_edges = [bin_ + 0.5 * bin_widths[0] for bin_ in bin_centers]
 
     # Insert first edge so we have n + 1 edges
-    bin_edges.insert(0, bin_centers[0] - (0.5 * bin_width))
+    bin_edges.insert(0, bin_centers[0] - 0.5 * bin_widths[0])
 
     # Build a list of (parameter index, cumulative posterior weight).
     # Note we insert an initial entry at index zero with cumulative weight
     # zero to match the first bin edge.
     cumulative = list(enumerate([0] + list(np.cumsum(pdf))))
+    cdf = zip(*cumulative)[1]
+    assert min(cdf) <= prob <= max(cdf)
 
-    # Special case where prob > max(cumulative): return the rightmost bin edge.
-    if prob > cumulative[-1][1]:
-        return bin_edges[-1]
-    else:
-        # Find the index of the last param value having
-        # cumulative posterior weight <= desired probability
-        index_lower = filter(lambda x: x[1] <= prob, cumulative)[-1][0]
+    # Find the index of the last param value having
+    # cumulative posterior weight <= desired probability
+    index_lower = filter(lambda x: x[1] <= prob, cumulative)[-1][0]
 
-        # Find the index of the first param value having
-        # cumulative posterior weight >= desired probability
-        index_upper = filter(lambda x: x[1] >= prob, cumulative)[0][0]
+    # Find the index of the first param value having
+    # cumulative posterior weight >= desired probability
+    index_upper = filter(lambda x: x[1] >= prob, cumulative)[0][0]
 
-        mean = 0.5 * (bin_edges[index_lower] + bin_edges[index_upper])
-        return mean
+    mean = 0.5 * (bin_edges[index_lower] + bin_edges[index_upper])
+    return mean
 
 
 def credible_region(pdf, bin_centers, alpha, region):
@@ -240,12 +234,12 @@ def credible_region(pdf, bin_centers, alpha, region):
     >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
     >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, region), DOCTEST_PRECISION)
     ...  for region in ["lower", "upper"]]
-    [-2960.113401413, -980.1711118221]
+    [-2950.1136928797, -970.1714032888]
 
     >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins)
     >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, region), DOCTEST_PRECISION)
     ...  for region in ["lower", "upper"]]
-    [-2419.8499333116, 2560.0888874131]
+    [-2409.8500561616, 2570.0887645632]
     """
     assert region in ["lower", "upper"]
     if region is "lower":
@@ -331,15 +325,11 @@ def posterior_median(pdf, bin_centers):
     >>> nbins = 750
     >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
     >>> round(posterior_median(pdf.pdf, pdf.bin_centers), DOCTEST_PRECISION)
-    -1973.4754927953
-    >>> round(posterior_median(data[0], data[2]), DOCTEST_PRECISION)
-    -1967.5391626331
+    -1960.1425480843
 
     >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins)
     >>> round(posterior_median(pdf.pdf, pdf.bin_centers), DOCTEST_PRECISION)
-    53.453015134
-    >>> round(posterior_median(data[0], data[3]), DOCTEST_PRECISION)
-    76.2468246204
+    66.7861846674
     """
     return _inverse_cdf(0.5, pdf, bin_centers)
 

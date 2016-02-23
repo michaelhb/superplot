@@ -82,6 +82,17 @@ class SuperplotInstall(install):
                         )
                     )
 
+            # Copy example data to user directory
+            example_dir = os.path.join(user_dir, "example")
+            try:
+                shutil.copytree("example", example_dir)
+            except shutil.Error as e:
+                warnings.warn(
+                    "Error copying example files to user directory: {}".format(
+                        e.strerror
+                    )
+                )
+
         print "Finished post-setup actions"
 
 setup(
@@ -109,7 +120,7 @@ setup(
         include_package_data=True,
 
         name="superplot",
-        version="1.0.6",
+        version="1.0.7",
         author="Andrew Fowlie, Michael Bardsley",
         author_email="mhbar3@student.monash.edu",
         license="GPL v2",

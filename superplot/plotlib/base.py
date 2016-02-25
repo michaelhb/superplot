@@ -277,6 +277,17 @@ class TwoDimPlot(Plot):
         # Posterior mode
         self.posterior_modes = two_dim.posterior_mode(*self.pdf_data)
         self.summary.append("Posterior modes/s (x,y): {}".format(self.posterior_modes))
+        
+        # Posterior median
+        self.posterior_median_x = one_dim.posterior_median(
+                np.sum(self.pdf_data.pdf, axis=1),
+                self.pdf_data.bin_centers_x)
+        self.posterior_median_y = one_dim.posterior_median(
+                np.sum(self.pdf_data.pdf, axis=0),
+                self.pdf_data.bin_centers_y)
+        self.summary.append(
+                "Posterior median (x,y): {}, {}".format(
+                        self.posterior_median_x, self.posterior_median_y))
 
     def _new_plot(self):
         fig, ax = super(TwoDimPlot, self)._new_plot()
@@ -294,6 +305,10 @@ class TwoDimPlot(Plot):
         if opt.show_posterior_mode:
             for bin_center_x, bin_center_y in self.posterior_modes:
                 pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode, zorder=2)
+
+        # Posterior median
+        if opt.show_posterior_median:
+            pm.plot_data(self.posterior_median_x, self.posterior_median_y, schemes.posterior_median, zorder=2)
 
         return fig, ax
 

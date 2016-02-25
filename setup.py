@@ -3,12 +3,6 @@ from setuptools.command.install import install
 import os
 import shutil
 import warnings
-import sys
-import platform
-
-# Download setuptools if it's not installed on target system
-# import ez_setup
-# ez_setup.use_setuptools()
 
 
 # Utility function to read the README file.
@@ -17,6 +11,7 @@ import platform
 # string in below ...
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 
 class SuperplotInstall(install):
     """
@@ -95,21 +90,31 @@ class SuperplotInstall(install):
 
         print "Finished post-setup actions"
 
+dependencies = [
+    "appdirs",
+    "prettytable",
+    "simpleyaml",
+    "numpy",
+    "matplotlib",
+    "scipy",
+    "pandas"
+]
+
+# Detect if pygtk is already available. Only add it to the
+# dependency list if it can't be imported. This avoids a failure
+# state on Ubuntu where pip can't see that pygtk is already installed,
+# then tries (and fails) to build it, preventing installation.
+try:
+    import pygtk
+except ImportError:
+    dependencies.append("pygtk")
+
 setup(
         cmdclass={'install': SuperplotInstall},
 
         setup_requires=["setuptools_git", "appdirs"],
 
-        install_requires=[
-            "appdirs",
-            "prettytable",
-            "simpleyaml",
-            "numpy",
-            "matplotlib",
-            "scipy",
-            "pandas",
-            "pygtk"
-        ],
+        install_requires=dependencies,
 
         packages=[
             "superplot",
@@ -120,7 +125,7 @@ setup(
         include_package_data=True,
 
         name="superplot",
-        version="1.0.8",
+        version="1.0.9",
         author="Andrew Fowlie, Michael Bardsley",
         author_email="mhbar3@student.monash.edu",
         license="GPL v2",

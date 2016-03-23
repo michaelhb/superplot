@@ -125,7 +125,7 @@ setup(
         include_package_data=True,
 
         name="superplot",
-        version="1.0.10",
+        version="1.0.11",
         author="Andrew Fowlie, Michael Bardsley",
         author_email="mhbar3@student.monash.edu",
         license="GPL v2",

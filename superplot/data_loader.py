@@ -49,7 +49,7 @@ def _read_data_file(file_name):
     data_frame = data_frame.transpose()
 
     # Find array from data-frame
-    data_array = data_frame.values
+    data_array = data_frame.values.astype('float64')
 
     return data_array
 

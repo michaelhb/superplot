@@ -46,7 +46,7 @@ On Ubuntu, this can be accomplished with the following commands::
 
 The version of matplotlib supplied by ubuntu may not be compiled with GTK support. If this is the case, building matplotlib via pip will fix the problem::
 
-    pip install --upgrade --user matplotlib
+    pip install --force-reinstall --upgrade matplotlib
 
 Note that Python(x,y) on windows also ships matplotlib without GTK support - running the above command after installing Python(x,y) also fixes this issue.
 

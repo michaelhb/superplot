@@ -10,12 +10,32 @@ import time
 import warnings
 from collections import OrderedDict
 
+import matplotlib
+from distutils.version import StrictVersion
+
+# Runtime check that correct matplotlib version is installed.
+# This is a common issue and might not be caught by setup.py
+# (i.e. if the user is running from source)
+version = StrictVersion(matplotlib.__version__)
+required_version = StrictVersion("1.4")
+if version < required_version:
+    raise ImportError("Superplot requires matplotlib %s. "
+                       "You are running matplotlib %s. "
+                       "Upgrade via e.g. pip install --force-reinstall --upgrade matplotlib"
+                       % (required_version, version))
+
 # External modules
 import gtk
 import pygtk
-from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
-# from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
-# from matplotlib.backends.backend_gtkcairo import FigureCanvasGTKCairo as FigureCanvas
+
+try:
+    from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
+except ImportError as e:
+    print "Could not load matplotlib - GTK backend. " \
+          "Your version of matplotlib may not be compiled with GTK support. " \
+          "Reinstalling matplotlib may fix this problem - see README or " \
+          "user manual for instructions"
+    raise
 
 # Superplot modules
 import data_loader

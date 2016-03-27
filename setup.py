@@ -95,7 +95,7 @@ dependencies = [
     "prettytable",
     "simpleyaml",
     "numpy",
-    "matplotlib",
+    "matplotlib >= 1.4",
     "scipy",
     "pandas"
 ]
@@ -125,7 +125,7 @@ setup(
         include_package_data=True,
 
         name="superplot",
-        version="1.0.11",
+        version="1.0.12",
         author="Andrew Fowlie, Michael Bardsley",
         author_email="mhbar3@student.monash.edu",
         license="GPL v2",

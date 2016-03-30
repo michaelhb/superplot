@@ -95,15 +95,21 @@ def open_file_gui(window_title="Open",
     dialog.add_filter(file_filter)
 
     response = dialog.run()
+
     if response == gtk.RESPONSE_OK:
-        print 'File: %s selected' % dialog.get_filename()
         # Save the file name/path
         file_name = dialog.get_filename()
     elif response == gtk.RESPONSE_CANCEL:
         warnings.warn("No file selected")
         file_name = None
+    else:
+        warnings.warn("Unexpected response")
+        file_name = None
+        exit()
 
     dialog.destroy()
+    print 'File: %s selected' % file_name
+    
     return file_name
 
 
@@ -142,16 +148,22 @@ def save_file_gui(window_title="Save As",
     dialog.add_filter(file_filter)
 
     response = dialog.run()
+    
     if response == gtk.RESPONSE_OK:
-        print 'File: %s selected' % dialog.get_filename()
+        # Save the file name/path
+        file_name = dialog.get_filename()
     elif response == gtk.RESPONSE_CANCEL:
         warnings.warn("No file selected")
+        file_name = None
+    else:
+        warnings.warn("Unexpected response")
+        file_name = None
 
-    # Save the file name/path
-    file_name = dialog.get_filename()
+    print 'File: %s selected' % file_name
     dialog.destroy()
 
     return file_name
+
 
 
 def message_dialog(message_type, message):
@@ -746,7 +758,7 @@ def main():
     """
     data_file = open_file_gui(window_title="Select a MultiNest *.txt file",
                               set_name="MultiNest *.txt file",
-                              add_pattern=["*.txt", "*.pkl"],
+                              add_pattern=["*.txt"],
                               allow_no_file=False
                               )
     info_file = open_file_gui(window_title="Select an information file",

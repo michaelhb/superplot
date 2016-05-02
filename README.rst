@@ -1,11 +1,9 @@
-Superplot
-*********
+Superplot (`arXiv:1603.00555 <http://arxiv.org/abs/1603.00555>`_)
+*****************************************************************
 
-This is a freestanding version of the plotting software previously in `superpy <https://github.com/innisfree/superpy>`_.
+This package provides two utilities: `superplot_gui` and `superplot_summary`. There is a manual, `arXiv:1603.00555 <http://arxiv.org/abs/1603.00555>`_, and  `extended documentation <http://superplot.readthedocs.io/>`_. 
 
-This package provides two utilities: superplot_gui and superplot_summary.
-
-superplot_gui is a python GUI that plots SuperPy, SuperBayeS (with its information file format) files or generally MultiNest or BAYES-X results. It can calculate and plot:
+`superplot_gui` is a Python GUI that makes plots from `MultiNest <https://ccpforge.cse.rl.ac.uk/gf/project/multinest/>`_ results (or programs that utilize MultiNest, e.g.  SuperPy, SuperBayeS and BAYES-X). It can calculate and plot:
 
 * One- and two-dimensional marginalised posterior pdf and credible regions.
 * One- and two-dimensional marginalised profile likelihood and confidence intervals.
@@ -13,19 +11,32 @@ superplot_gui is a python GUI that plots SuperPy, SuperBayeS (with its informati
 * Posterior means, medians and modes.
 * Three-dimensional scatter plots.
 
-superplot_gui can also:
+`superplot_gui` can also:
 
 * Save a plot as a PDF document.
 * Write a summary text file containing plot-specific information.
-* Export the plot as a .pkl object, which can be imported and manipulated in a python interpreter.
+* Export the plot as a pickled object, which can be imported and manipulated in a Python interpreter.
 
-superplot_summary is a command line tool that outputs a table of summary statistics - best-fit, posterior mean and credible regions for each parameter, and overall minimum chi-squared and p-value.
+`superplot_summary` is a command line tool that outputs a table of summary statistics - best-fit, posterior mean and credible regions for each parameter, and overall minimum chi-squared and p-value.
+
+This is a freestanding version of the plotting software previously in `superpy <https://github.com/innisfree/superpy>`_. If you use Superplot, please cite
+
+        @article{Fowlie:2016hew,
+              author         = "Fowlie, Andrew and Bardsley, Michael Hugh",
+              title          = "{Superplot: a graphical interface for plotting and analysing MultiNest output}",
+              year           = "2016",
+              eprint         = "1603.00555",
+              archivePrefix  = "arXiv",
+              primaryClass   = "physics.data-an",
+              reportNumber   = "COEPP-MN-16-5",
+              SLACcitation   = "%%CITATION = ARXIV:1603.00555;%%"
+        }
 
 Installing
 ==========
-Superplot is currently in development and is hosted on the pypi test server. It can be installed via pip::
+Superplot is hosted on the Pypi server. It can be installed via pip::
 
-    pip install --index=https://testpypi.python.org/pypi superplot
+    pip install superplot
 
 Superplot requires Python 2.7+ and uses the following libraries:
 
@@ -44,7 +55,7 @@ On Ubuntu, this can be accomplished with the following commands::
 
     sudo apt-get install git python-pip python-numpy python-scipy python-pandas  libfreetype6-dev python-gtk2-dev
 
-The version of matplotlib supplied by ubuntu may not be compiled with GTK support. If this is the case, building matplotlib via pip will fix the problem::
+The version of matplotlib supplied by Ubuntu may not be compiled with GTK support. If this is the case, building matplotlib via pip will fix the problem::
 
     pip install --force-reinstall --upgrade matplotlib
 
@@ -79,7 +90,7 @@ superplot_summary will then print a table of summary statistics.
 Configuring superplot
 =====================
 
-On ubuntu, the superplot configuration files are installed to ~/.local/share/superplot. On windows they can be found in $HOME\AppData\Local\superplot.
+On Ubuntu, the superplot configuration files are installed to ~/.local/share/superplot. On windows they can be found in $HOME\AppData\Local\superplot.
 
 config.yml contains a range of options controlling the appearance and labelling of plot elements, as well as technical plot options.
 

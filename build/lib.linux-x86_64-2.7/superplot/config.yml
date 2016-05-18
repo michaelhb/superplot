@@ -1,0 +1,171 @@
+####################################################################################
+#                                config.yml                                        #
+####################################################################################
+# This file contains two sections:                                                 #
+#   - schemes: colours, symbols and labels for plot elements                       #
+#   - plot_options: technical plot options                                         #
+####################################################################################
+
+####################################################################################
+# The "schemes" section is used to configure the colours, symbols and labels of
+# plot elements. Configuration is per-element-type rather than per-plot, i.e.
+# changing the symbol for the best-fit point will affect all plots that show
+# a best-fit point.
+#
+# List of available marker symbol codes: http://matplotlib.org/api/markers_api.html
+# List of HTML named colours: http://www.w3schools.com/html/html_colornames.asp
+# Matplotlib colormap reference: http://matplotlib.org/users/colormaps.html
+schemes:
+
+    # Posterior mean (point)
+    posterior_mean:
+        colour: 'SeaGreen'
+        symbol: 'o'
+        label: 'Posterior Mean'
+
+    # Posterior median (point)
+    posterior_median:
+        colour: 'MidnightBlue'
+        symbol: 's'
+        label: 'Posterior Median'
+
+    # Posterior mode (point)
+    posterior_mode:
+        colour: 'Aqua'
+        symbol: '^'
+        label: 'Posterior Mode'
+
+    # Best fit (point)
+    best_fit:
+        colour: 'Brown'
+        symbol: '*'
+        label: 'Best-fit point'
+        size: 12
+
+    # Data points for scatter plotting
+    scatter:
+        symbol: 'o'
+        colour_map: 'Reds'
+        size: 15
+
+    # Posterior PDF
+    posterior:
+        # 1D Plotting: Line colour, symbol and label
+        colour: 'RoyalBlue'
+        symbol: '-'
+        label: 'Posterior pdf'
+
+        # 2D Plotting
+        colours: ['RoyalBlue', 'SeaGreen'] # Colours for filled contour plots
+        colour_map: 'GnBu' # Colour map for full contour plots
+        colour_bar_title: 'PDF'
+        level_names: ['$2\sigma$ region', '$1\sigma$ region']
+
+    # Profile Likelihood
+    prof_like:
+        # 1D Plotting: Line colour, symbol and label
+        colour: 'DarkOrange'
+        symbol: '--'
+        label: 'Profile likelihood'
+
+        # 2D Plotting
+        colours: ['DarkOrange', 'Brown'] # Colours for filled contour plots
+        colour_map: 'Reds' # Colour map for full contour plots
+        colour_bar_title: 'PL'
+        level_names: ['$2\sigma$ region', '$1\sigma$ region']
+
+    # Profile chi-squared
+    prof_chi_sq:
+        # 1D Plotting: Line colour, symbol and label
+        colour: 'DarkOrange'
+        symbol: '--'
+        label: '$\Delta \chi^2$'
+
+        # Colours and labels for excluded regions
+        colours: ['Gold', 'Peru']
+        level_names: ['$2\sigma$ excluded', '$1\sigma$ excluded']
+
+    # Theory error band label and colour (used in chi-squared plot)
+    tau_band:
+        colour: 'RoyalBlue'
+        label: 'Theory Error'
+
+    # Two sigma confidence interval line
+    conf_interval_s2:
+        colour: 'DarkOrange'
+        symbol: 'o'
+        label: '$2\sigma$ confidence interval'
+
+    # One sigma confidence interval line
+    conf_interval_s1:
+        colour: 'Brown'
+        symbol: 'o'
+        label: '$1\sigma$ confidence interval'
+
+    # Two sigma credible region line
+    credible_region_s2:
+        colour: 'SeaGreen'
+        symbol: '-'
+        label: '$2\sigma$ credible region'
+
+    # One sigma credible region line
+    credible_region_s1:
+        colour: 'RoyalBlue'
+        symbol: '-'
+        label: '$1\sigma$ credible region'
+
+
+        
+#########################################################################
+# The "plot_options" section contains defaults for technical plot options.
+plot_options:
+
+    # Degrees of freedom for calculating chi-squared.
+    # Currently only used in summary.py.
+    dof: 10
+
+    # Values of alpha.
+    alpha: [0.045500263896, 0.31731050786]
+
+    # Default plot limits [xmin, xmax, ymin, ymax].
+    # plot_limits: [0,0.2,0,1.3]
+    plot_limits: null 
+
+    # Default bin limigs [[xmin, xmax],[ymin,ymax]].
+    # bin_limits: [[0,1000],[0,1000]]
+    bin_limits: null
+
+    # Default number of bins.
+    nbins: 70
+
+    # Default number of ticks for x & y axes.
+    xticks: 5
+    yticks: 5
+
+    # Default plot title.
+    plot_title: ''
+    
+    # Location of plot title.
+    title_position : 'center'
+
+    # For theoretical error on delta chi-squared plots.
+    tau: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

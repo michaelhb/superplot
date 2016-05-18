@@ -1,0 +1,32 @@
+# Make the lines thicker
+lines.linewidth : 4
+
+# Plot gridlines over the plot - can be useful
+axes.grid : True
+
+# Set size of plot in inches
+figure.figsize : 8, 8
+
+# Legend properties
+legend.shadow : False
+legend.fancybox : True
+legend.loc : best
+legend.borderaxespad : 1.
+legend.scatterpoints : 1
+legend.numpoints : 1
+legend.framealpha : 0.5
+
+# Font choices
+text.usetex : True
+font.family : 'serif'
+font.serif : ['Computer Modern Roman']
+font.size : 20
+
+# Saving figure options
+savefig.facecolor : white
+savefig.edgecolor : white
+savefig.orientation : portrait
+savefig.format : pdf
+savefig.transparent : False
+savefig.bbox : tight
+savefig.pad_inches : 0.1

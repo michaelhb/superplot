@@ -212,7 +212,7 @@ def plot_image(data, bin_limits, plot_limits, scheme):
                         origin='lower',
                         aspect=aspect)
     # Plot a colour bar
-    cb = plt.colorbar(plt.im, orientation='horizontal', shrink=0.5)
+    cb = plt.colorbar(plt.im, orientation='vertical')
     # Set reasonable number of ticks
     cb.locator = MaxNLocator(4)
     cb.update_ticks()

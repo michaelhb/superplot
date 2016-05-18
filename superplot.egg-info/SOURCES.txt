@@ -5,6 +5,8 @@ README.rst
 ez_setup.py
 requirements.txt
 setup.py
+.eggs/README.txt
+.eggs/setuptools_git-1.1-py2.7.egg
 doc/API.rst
 doc/Makefile
 doc/conf.py

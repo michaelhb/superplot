@@ -144,6 +144,9 @@ plot_options:
 
     # Default plot title.
     plot_title: ''
+    
+    # Location of plot title.
+    title_position : 'center'
 
     # For theoretical error on delta chi-squared plots.
     tau: 2

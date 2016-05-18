@@ -155,7 +155,7 @@ def plot_ticks(xticks, yticks, ax):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
 
 
-def plot_labels(xlabel, ylabel, plot_title=None):
+def plot_labels(xlabel, ylabel, plot_title=None, title_position='right'):
     """ 
     Plot axis labels.
 
@@ -165,11 +165,13 @@ def plot_labels(xlabel, ylabel, plot_title=None):
     :type ylabel: string
     :param plot_title: Title appearing above plot
     :type plot_title: string
+    :param title_position: Location of title
+    :type title_position: string
 
     """
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.title(plot_title)
+    plt.title(plot_title, loc=title_position)
 
 
 def plot_image(data, bin_limits, plot_limits, scheme):

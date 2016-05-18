@@ -646,6 +646,7 @@ class GUIControl(object):
                 "ylabel": self.labels[self.yindex],
                 "zlabel": self.labels[self.zindex],
                 "plot_title": self.plottitle.get_text(),
+                "title_position": default("title_position"),
                 "leg_title": self.legtitle.get_text(),
                 "leg_position": self.legpos.get_active_text(),
 

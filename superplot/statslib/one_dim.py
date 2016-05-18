@@ -6,13 +6,75 @@ This module contains all the functions for analyzing a chain (*.txt file)
 and calculating the 1D stats for a particular variable.
 """
 
-import numpy as np
 from scipy import stats
 from collections import namedtuple
+from kde import gaussian_kde
+
+import numpy as np
 import point
 import warnings
 
+
 DOCTEST_PRECISION = 10
+
+
+def kde_posterior_pdf(parameter,
+                      posterior,
+                      npoints=500,
+                      bin_limits=None,
+                      norm_area=False,
+                      bw_method='scott',
+                      ):
+    r"""
+    Kernel density estimate (KDE) for one-dimensional posterior pdf.
+
+    .. warning::
+        By default, posterior pdf normalized such that maximum value is one.
+
+    :param parameter: Data column of parameter of interest
+    :type parameter: numpy.ndarray
+    :param posterior: Data column of posterior weight
+    :type posterior: numpy.ndarray
+    :param npoints: Number of points to evaluate PDF at
+    :type npoints: integer
+    :param bin_limits: Bin limits for histogram
+    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :param norm_area: If True, normalize the pdf so that the integral over the
+        range is one. Otherwise, normalize the pdf so that the maximum value
+        is one.
+    :param bw_method: Method for determining band-width variance
+    :type bw_method: string
+
+    :returns: KDE of posterior pdf evaluated at centers
+    :rtype: named tuple (pdf: numpy.ndarray, bin_centers: numpy.ndarray)
+
+    :Example:
+
+    >>> ncenters = 1000
+    >>> pdf = kde_posterior_pdf(data[2], data[0], ncenters=ncenters)
+    >>> assert len(pdf.pdf) == ncenters
+    >>> assert len(pdf.bin_centers) == ncenters
+    """
+    if bin_limits:
+        upper = max(bin_limits)
+        lower = min(bin_limits)
+    else:
+        upper = max(parameter)
+        lower = min(parameter)
+    
+    kde_func = gaussian_kde(parameter,
+                            weights=posterior,
+                            bw_method=bw_method,
+                            )
+    
+    centers = np.linspace(lower, upper, npoints)
+    kde = kde_func(centers)
+
+    if not norm_area:
+        kde = kde / kde.max()
+    
+    _kde_posterior_pdf = namedtuple("kde_posteriorpdf_1D", ("pdf", "bin_centers"))
+    return _kde_posterior_pdf(kde, centers)
 
 
 def posterior_pdf(parameter,

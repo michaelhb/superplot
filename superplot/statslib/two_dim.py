@@ -9,12 +9,88 @@ and calculating the 2D stats for a particular pair of variables.
 from collections import namedtuple
 from scipy.optimize import bisect
 from numpy import ma
+from kde import gaussian_kde
 
 import point
 import numpy as np
 import warnings
 
 DOCTEST_PRECISION = 10
+
+
+def kde_posterior_pdf(paramx, 
+                      paramy, 
+                      posterior, 
+                      npoints=100, 
+                      bin_limits=None, 
+                      bw_method='scott'):
+    r"""
+    Kenerl density estimate of two-dimensional posterior pdf.
+
+    .. warning::
+        Outliers sometimes mess up bins. So you might want to \
+        specify the bin limits.
+
+    .. warning::
+        Posterior pdf normalized such that maximum value is one.
+
+    :param paramx: Data column of parameter x
+    :type paramx: numpy.ndarray
+    :param paramy: Data column of parameter y
+    :type paramy: numpy.ndarray
+    :param posterior: Data column of posterior weight
+    :type posterior: numpy.ndarray
+    :param npoints: Number of points to evaluate PDF at per dimension
+    :type npoints: integer
+    :param bin_limits: Bin limits for histogram
+    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :param bw_method: Method for determining band-width variance
+    :type bw_method: string
+
+    :returns: KDE of posterior pdf at x and y centers
+    :rtype: named tuple (pdf: numpy.ndarray, bin_centers_x: \
+        numpy.ndarray, bin_centers_y: numpy.ndarray)
+
+    :Example:
+
+    >>> npoints = 100
+    >>> pdf, x, y = kde_posterior_pdf(data[2], data[3], data[0], npoints=npoints)
+    >>> assert len(pdf) == npoints
+    >>> assert len(x) == npoints
+    >>> assert len(y) == npoints
+    """
+    if bin_limits:
+        upper_x = max(bin_limits[0])
+        lower_x = min(bin_limits[0])
+        upper_y = max(bin_limits[1])
+        lower_y = min(bin_limits[1])
+    else:
+        upper_x = max(paramx)
+        lower_x = min(paramx)
+        upper_y = max(paramy)
+        lower_y = min(paramy)
+    
+    kde_func = gaussian_kde(np.array((paramx, paramy)),
+                            weights=posterior,
+                            bw_method=bw_method,
+                            )
+    
+    centers_x = np.linspace(lower_x, upper_x, npoints)
+    centers_y = np.linspace(lower_y, upper_y, npoints)
+    points = np.array([[x, y] for y in centers_y for x in centers_x]).T
+    kde = kde_func(points)
+    kde = np.reshape(kde, (npoints, npoints)).T
+    
+    # Normalize the pdf so that its maximum value is one. NB in other functions,
+    # normalize such that area is one.
+    kde = kde / kde.max()
+
+    # Data type to return
+    _kde_posterior_pdf = namedtuple(
+            "kde_posteriorpdf_2D",
+            ("pdf", "bin_centers_x", "bin_centers_y"))
+    return _kde_posterior_pdf(kde, centers_x, centers_y)
+
 
 def posterior_pdf(paramx, paramy, posterior, nbins=50, bin_limits=None):
     r"""

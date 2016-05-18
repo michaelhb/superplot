@@ -144,13 +144,25 @@ class OneDimPlot(Plot):
 
         # Posterior PDF. Norm by area if not showing profile likelihood,
         # otherwise norm max value to one.
-        self.pdf_data = one_dim.posterior_pdf(
-            self.xdata,
-            self.posterior,
-            nbins=opt.nbins,
-            bin_limits=opt.bin_limits,
-            norm_area=not opt.show_prof_like
-            )
+        if opt.kde_pdf:
+        
+            # KDE estimate of PDF
+            self.pdf_data = one_dim.kde_posterior_pdf(
+                self.xdata,
+                self.posterior,
+                bin_limits=opt.bin_limits,
+                norm_area=not opt.show_prof_like
+                )
+        else:
+        
+            # Binned estimate of PDF
+            self.pdf_data = one_dim.posterior_pdf(
+                self.xdata,
+                self.posterior,
+                nbins=opt.nbins,
+                bin_limits=opt.bin_limits,
+                norm_area=not opt.show_prof_like
+                )
 
         # Profile likelihood
         self.prof_data = one_dim.prof_data(
@@ -238,12 +250,22 @@ class TwoDimPlot(Plot):
             )
 
         # Posterior PDF
-        self.pdf_data = two_dim.posterior_pdf(
-                self.xdata,
-                self.ydata,
-                self.posterior,
-                nbins=opt.nbins,
-                bin_limits=opt.bin_limits)
+        if opt.kde_pdf:
+        
+            # KDE estimate of PDF
+            self.pdf_data = two_dim.kde_posterior_pdf(
+                        self.xdata,
+                        self.ydata,
+                        self.posterior)
+        else:
+        
+            # Binned estimate of PDF
+            self.pdf_data = two_dim.posterior_pdf(
+                    self.xdata,
+                    self.ydata,
+                    self.posterior,
+                    nbins=opt.nbins,
+                    bin_limits=opt.bin_limits)
 
         # Profile likelihood
         self.prof_data = two_dim.profile_like(

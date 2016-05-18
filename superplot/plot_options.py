@@ -47,7 +47,10 @@ plot_options = namedtuple("plot_options", (
     "show_conf_intervals",
     "show_credible_regions",
     "show_posterior_pdf",
-    "show_prof_like"
+    "show_prof_like",
+    
+    # Whether to use KDE for PDF
+    "kde_pdf"
 ))
 
 

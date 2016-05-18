@@ -369,6 +369,7 @@ class GUIControl(object):
         self.show_conf_intervals = gtk.CheckButton("Confidence intervals")
         self.show_posterior_pdf = gtk.CheckButton("Posterior PDF")
         self.show_prof_like = gtk.CheckButton("Profile Likelihood")
+        self.kde_pdf = gtk.CheckButton("KDE smoothing")
         self.show_best_fit.set_active(True)
         self.show_posterior_mean.set_active(True)
         self.show_posterior_median.set_active(True)
@@ -377,6 +378,7 @@ class GUIControl(object):
         self.show_conf_intervals.set_active(True)
         self.show_posterior_pdf.set_active(True)
         self.show_prof_like.set_active(True)
+        self.kde_pdf.set_active(False)
 
         #######################################################################
 
@@ -458,6 +460,7 @@ class GUIControl(object):
 
         point_plot_container.attach(self.show_posterior_pdf, 2, 3, 0, 1)
         point_plot_container.attach(self.show_prof_like, 2, 3, 1, 2)
+        point_plot_container.attach(self.kde_pdf, 2, 3, 2, 3)
 
         self.gridbox.attach(point_plot_container,
                             0, 2, 15, 16,
@@ -657,7 +660,9 @@ class GUIControl(object):
                 "show_conf_intervals": self.show_conf_intervals.get_active(),
                 "show_credible_regions": self.show_credible_regions.get_active(),
                 "show_posterior_pdf": self.show_posterior_pdf.get_active(),
-                "show_prof_like": self.show_prof_like.get_active()
+                "show_prof_like": self.show_prof_like.get_active(),
+                
+                "kde_pdf":  self.kde_pdf.get_active()
                 }
         self.options = plot_options(**args)
 

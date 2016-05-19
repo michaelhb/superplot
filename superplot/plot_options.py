@@ -49,8 +49,9 @@ plot_options = namedtuple("plot_options", (
     "show_posterior_pdf",
     "show_prof_like",
     
-    # Whether to use KDE for PDF
-    "kde_pdf"
+    # Whether to use KDE for PDF, and if so, band-width method
+    "kde_pdf",
+    "bw_method"
 ))
 
 

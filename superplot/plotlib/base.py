@@ -151,7 +151,8 @@ class OneDimPlot(Plot):
                 self.xdata,
                 self.posterior,
                 bin_limits=opt.bin_limits,
-                norm_area=not opt.show_prof_like
+                norm_area=not opt.show_prof_like,
+                bw_method=opt.bw_method
                 )
         else:
         
@@ -256,7 +257,8 @@ class TwoDimPlot(Plot):
             self.pdf_data = two_dim.kde_posterior_pdf(
                         self.xdata,
                         self.ydata,
-                        self.posterior)
+                        self.posterior,
+                        bw_method=opt.bw_method)
         else:
         
             # Binned estimate of PDF

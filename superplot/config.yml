@@ -150,6 +150,11 @@ plot_options:
 
     # For theoretical error on delta chi-squared plots.
     tau: 2
+    
+    # Band-width method, if KDE is used for pdfs.
+    # bw_method: silverman
+    # bw_method: 0.1
+    bw_method: scott
 
 
 

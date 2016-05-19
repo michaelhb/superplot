@@ -662,7 +662,8 @@ class GUIControl(object):
                 "show_posterior_pdf": self.show_posterior_pdf.get_active(),
                 "show_prof_like": self.show_prof_like.get_active(),
                 
-                "kde_pdf":  self.kde_pdf.get_active()
+                "kde_pdf": self.kde_pdf.get_active(),
+                "bw_method": default("bw_method")
                 }
         self.options = plot_options(**args)
 

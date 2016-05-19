@@ -79,17 +79,6 @@ def get_config():
     with open(config_path) as cfile:
         return yaml.load(cfile)
 
-_defaults = get_config()["plot_options"]
-
-# Fix the types of a few options. It would also be
-# possible to directly specify the types in the YAML file,
-# but that might confuse users / be messy.
-if _defaults["alpha"] is not None:
-    _defaults["alpha"] = np.array(_defaults["alpha"])
-    _defaults["alpha"].sort()
-if _defaults["plot_limits"] is not None:
-    _defaults["plot_limits"] = np.array(_defaults["plot_limits"])
-
 
 def default(option):
     """
@@ -103,6 +92,17 @@ def default(option):
 
     :returns: Default value of specified option.
     """
+    _defaults = get_config()["plot_options"]
+
+    # Fix the types of a few options. It would also be
+    # possible to directly specify the types in the YAML file,
+    # but that might confuse users / be messy.
+    if _defaults["alpha"] is not None:
+        _defaults["alpha"] = np.array(_defaults["alpha"])
+        _defaults["alpha"].sort()
+    if _defaults["plot_limits"] is not None:
+        _defaults["plot_limits"] = np.array(_defaults["plot_limits"])
+    
     try:
         return _defaults[option]
     except KeyError:

@@ -258,7 +258,8 @@ class TwoDimPlot(Plot):
                         self.xdata,
                         self.ydata,
                         self.posterior,
-                        bw_method=opt.bw_method)
+                        bw_method=opt.bw_method,
+                        bin_limits=opt.bin_limits)
         else:
         
             # Binned estimate of PDF

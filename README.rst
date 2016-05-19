@@ -5,7 +5,7 @@ This package provides two utilities: `superplot_gui` and `superplot_summary`. Th
 
 `superplot_gui` is a Python GUI that makes plots from `MultiNest <https://ccpforge.cse.rl.ac.uk/gf/project/multinest/>`_ results (or programs that utilize MultiNest, e.g.  SuperPy, SuperBayeS and BAYES-X). It can calculate and plot:
 
-* One- and two-dimensional marginalised posterior pdf and credible regions.
+* One- and two-dimensional marginalised posterior pdf and credible regions (including Gaussian kernel density estimation).
 * One- and two-dimensional marginalised profile likelihood and confidence intervals.
 * Best-fit points.
 * Posterior means, medians and modes.

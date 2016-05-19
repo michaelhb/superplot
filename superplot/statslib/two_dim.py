@@ -23,11 +23,11 @@ DOCTEST_PRECISION = 10
 _kde_posterior_pdf_2D = namedtuple(
         "_kde_posterior_pdf_2D",
         ("pdf", "bin_centers_x", "bin_centers_y"))
-        
+
 _posterior_pdf_2D = namedtuple(
         "_posterior_pdf_2D",
         ("pdf", "bin_centers_x", "bin_centers_y"))
-        
+
 _profile_data_2D = namedtuple(
         "_profile_data_2D",
         ("prof_chi_sq", "prof_like", "bin_center_x", "bin_center_y"))
@@ -37,18 +37,29 @@ memory = Memory(cachedir=cachedir, verbose=0)
 
 
 @memory.cache
-def kde_posterior_pdf(paramx, 
-                      paramy, 
-                      posterior, 
-                      npoints=100, 
-                      bin_limits=None, 
+def kde_posterior_pdf(paramx,
+                      paramy,
+                      posterior,
+                      npoints=100,
+                      bin_limits=None,
                       bw_method='scott'):
     r"""
-    Kenerl density estimate of two-dimensional posterior pdf.
-
+    Kenerl density estimate (KDE) of two-dimensional posterior pdf with
+    Gaussian kernel.
+    
+    See e.g. 
+    `wiki <https://en.wikipedia.org/wiki/Kernel_density_estimation/>`_ and
+    `scipy <http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.gaussian_kde.html>`_
+    for more information.
+    
     .. warning::
-        Outliers sometimes mess up bins. So you might want to \
-        specify the bin limits.
+        By default, the band-width is estimated with Scott's rule of thumb. This
+        could lead to biased/inaccurate estimates of the pdf if the parent
+        distribution isn't approximately Gaussian.
+        
+    .. warning::
+        There is no special treatment for e.g. boundaries, which can be 
+        problematic.
 
     .. warning::
         Posterior pdf normalized such that maximum value is one.
@@ -63,8 +74,8 @@ def kde_posterior_pdf(paramx,
     :type npoints: integer
     :param bin_limits: Bin limits for histogram
     :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
-    :param bw_method: Method for determining band-width variance
-    :type bw_method: string
+    :param bw_method: Method for determining band-width or bandwidth
+    :type bw_method: string or float
 
     :returns: KDE of posterior pdf at x and y centers
     :rtype: named tuple (pdf: numpy.ndarray, bin_centers_x: \
@@ -88,18 +99,18 @@ def kde_posterior_pdf(paramx,
         lower_x = min(paramx)
         upper_y = max(paramy)
         lower_y = min(paramy)
-    
+
     kde_func = gaussian_kde(np.array((paramx, paramy)),
                             weights=posterior,
                             bw_method=bw_method,
                             )
-    
+
     centers_x = np.linspace(lower_x, upper_x, npoints)
     centers_y = np.linspace(lower_y, upper_y, npoints)
-    points = np.array([[x, y] for y in centers_y for x in centers_x]).T
+    points = np.array([[x, y] for x in centers_x for y in centers_y]).T
     kde = kde_func(points)
-    kde = np.reshape(kde, (npoints, npoints)).T
-    
+    kde = np.reshape(kde, (npoints, npoints))
+
     # Normalize the pdf so that its maximum value is one. NB in other functions,
     # normalize such that area is one.
     kde = kde / kde.max()

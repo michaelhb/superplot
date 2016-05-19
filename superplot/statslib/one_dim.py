@@ -37,7 +37,22 @@ def kde_posterior_pdf(parameter,
                       bw_method='scott',
                       ):
     r"""
-    Kernel density estimate (KDE) for one-dimensional posterior pdf.
+    Kernel density estimate (KDE) of one-dimensional posterior pdf with
+    Gaussian kernel.
+    
+    See e.g. 
+    `wiki <https://en.wikipedia.org/wiki/Kernel_density_estimation/>`_ and
+    `scipy <http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.gaussian_kde.html>`_
+    for more information.
+    
+    .. warning::
+        By default, the band-width is estimated with Scott's rule of thumb. This
+        could lead to biased/inaccurate estimates of the pdf if the parent
+        distribution isn't approximately Gaussian.
+        
+    .. warning::
+        There is no special treatment for e.g. boundaries, which can be 
+        problematic.
 
     .. warning::
         By default, posterior pdf normalized such that maximum value is one.
@@ -53,8 +68,8 @@ def kde_posterior_pdf(parameter,
     :param norm_area: If True, normalize the pdf so that the integral over the
         range is one. Otherwise, normalize the pdf so that the maximum value
         is one.
-    :param bw_method: Method for determining band-width variance
-    :type bw_method: string
+    :param bw_method: Method for determining band-width or bandwidth
+    :type bw_method: string or float
 
     :returns: KDE of posterior pdf evaluated at centers
     :rtype: named tuple (pdf: numpy.ndarray, bin_centers: numpy.ndarray)
@@ -72,18 +87,18 @@ def kde_posterior_pdf(parameter,
     else:
         upper = max(parameter)
         lower = min(parameter)
-    
+
     kde_func = gaussian_kde(parameter,
                             weights=posterior,
                             bw_method=bw_method,
                             )
-    
+
     centers = np.linspace(lower, upper, npoints)
     kde = kde_func(centers)
 
     if not norm_area:
         kde = kde / kde.max()
-    
+
     return _kde_posterior_pdf_1D(kde, centers)
 
 

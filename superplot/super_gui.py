@@ -606,7 +606,7 @@ class GUIControl(object):
             raise RuntimeError("Specify four floats for bin limits in 2D plot")
         elif len(self.bin_limits) != 2 and one_dim_plot:
             raise RuntimeError("Specify two floats for bin limits in 1D plot")
-        elif len(self.plot_limits) == 4 and not one_dim_plot:
+        elif len(self.bin_limits) == 4 and not one_dim_plot:
             # Convert to two-tuple format
             try:
                 self.bin_limits = [[self.bin_limits[0], self.bin_limits[1]], [

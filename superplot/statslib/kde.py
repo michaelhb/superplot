@@ -7,6 +7,7 @@ http://stackoverflow.com/questions/27623919/weighted-gaussian-kernel-density-est
 
 import numpy as np
 from scipy.spatial.distance import cdist
+from scipy.lib.six import string_types
 
 
 class gaussian_kde(object):
@@ -150,13 +151,13 @@ class gaussian_kde(object):
         if not self.dataset.size > 1:
             raise ValueError("`dataset` input should have multiple elements.")
         self.d, self.n = self.dataset.shape
-            
+
         if weights is not None:
             self.weights = weights / np.sum(weights)
         else:
             self.weights = np.ones(self.n) / self.n
-            
-        # Compute the effective sample size 
+
+        # Compute the effective sample size
         # http://surveyanalysis.org/wiki/Design_Effects_and_Effective_Sample_Size#Kish.27s_approximate_formula_for_computing_effective_sample_size
         self.neff = 1.0 / np.sum(self.weights ** 2)
 
@@ -198,7 +199,7 @@ class gaussian_kde(object):
         # compute the normalised residuals
         chi2 = cdist(points.T, self.dataset.T, 'mahalanobis', VI=self.inv_cov) ** 2
         like = np.exp(-0.5 * chi2)
-        
+
         # compute the pdf
         result = np.sum(like * self.weights, axis=1) / self._norm_factor
 

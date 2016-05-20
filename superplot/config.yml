@@ -46,6 +46,7 @@ schemes:
     scatter:
         symbol: 'o'
         colour_map: 'Reds'
+        number_colours: null # Number of colours on colour map
         size: 15
 
     # Posterior PDF
@@ -58,6 +59,7 @@ schemes:
         # 2D Plotting
         colours: ['RoyalBlue', 'SeaGreen'] # Colours for filled contour plots
         colour_map: 'GnBu' # Colour map for full contour plots
+        number_colours: null # Number of colours on colour map
         colour_bar_title: 'PDF'
         level_names: ['$2\sigma$ region', '$1\sigma$ region']
 
@@ -71,6 +73,7 @@ schemes:
         # 2D Plotting
         colours: ['DarkOrange', 'Brown'] # Colours for filled contour plots
         colour_map: 'Reds' # Colour map for full contour plots
+        number_colours: null # Number of colours on colour map
         colour_bar_title: 'PL'
         level_names: ['$2\sigma$ region', '$1\sigma$ region']
 

@@ -211,13 +211,14 @@ def plot_image(data, bin_limits, plot_limits, scheme):
                         label=scheme.label,
                         origin='lower',
                         aspect=aspect)
-    # Plot a colour bar
-    cb = plt.colorbar(plt.im, orientation='vertical')
+    # Plot a colour bar. NB "magic" values for fraction and pad taken from
+    # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
+    cb = plt.colorbar(plt.im, orientation='vertical', fraction=0.046, pad=0.04)
     # Set reasonable number of ticks
     cb.locator = MaxNLocator(4)
     cb.update_ticks()
     # Colour bar label
-    cb.ax.set_xlabel(scheme.colour_bar_title)
+    cb.ax.set_ylabel(scheme.colour_bar_title)
 
 
 def plot_contour(data, levels, scheme, bin_limits):

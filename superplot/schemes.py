@@ -32,6 +32,8 @@ class Scheme:
     :type level_names: list
     :param colour_map: Colour map for 2D plots. Must be the name of a matplotlib colour map.
     :type colour_map: string
+    :param number_colours: Number of colours to appear on colour map. If None, continuum.
+    :type number_colours: int
     :param colour_bar_title: Title for colour bar.
     :type colour_bar_title: string
     :param size: Size of points.
@@ -47,6 +49,7 @@ class Scheme:
             label=None,
             level_names=None,
             colour_map=None,
+            number_colours=None,
             colour_bar_title=None,
             size=5,
             colours=None):
@@ -55,7 +58,7 @@ class Scheme:
         self.symbol = symbol
         self.label = label
         self.level_names = level_names
-        self.colour_map = get_cmap(colour_map)
+        self.colour_map = get_cmap(colour_map, number_colours)
         self.colour_bar_title = colour_bar_title
         self.size = size
         self.colours = colours

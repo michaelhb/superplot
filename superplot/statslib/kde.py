@@ -284,12 +284,12 @@ class gaussian_kde(object):
 
             kde = interp2d(bin_centers_x,
                            bin_centers_y,
-                           pdf,
+                           pdf.T,
                            bounds_error=False,
                            fill_value=0.)
 
             def kde_func(points):
-                kde_ = np.array([max(0., kde(x, y)) for y, x in points.T])
+                kde_ = np.array([max(0., kde(x, y)) for x, y in points.T])
                 return kde_
 
             return kde_func

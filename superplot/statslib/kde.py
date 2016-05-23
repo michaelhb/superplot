@@ -6,8 +6,13 @@ http://stackoverflow.com/questions/27623919/weighted-gaussian-kernel-density-est
 """
 
 import numpy as np
+from numpy import pi
 from scipy.spatial.distance import cdist
-from scipy.lib.six import string_types
+from scipy.signal import fftconvolve
+from scipy.interpolate import interp1d
+from scipy.interpolate import interp2d
+from scipy.stats import norm
+from scipy.stats import multivariate_normal
 
 
 class gaussian_kde(object):
@@ -146,25 +151,155 @@ class gaussian_kde(object):
     >>> plt.show()
 
     """
-    def __init__(self, dataset, bw_method=None, weights=None):
+
+    def __init__(self, dataset, bw_method='scott', weights=None, fft=True):
+
+        self.fft = fft
         self.dataset = np.atleast_2d(dataset)
-        if not self.dataset.size > 1:
-            raise ValueError("`dataset` input should have multiple elements.")
-        self.d, self.n = self.dataset.shape
+        assert self.dataset.size > 1, "dataset input should have multiple elements"
+
+        self.n_dims, self.len_data = self.dataset.shape
 
         if weights is not None:
             self.weights = weights / np.sum(weights)
         else:
-            self.weights = np.ones(self.n) / self.n
+            self.weights = np.ones(self.len_data) / self.len_data
 
-        # Compute the effective sample size
-        # http://surveyanalysis.org/wiki/Design_Effects_and_Effective_Sample_Size#Kish.27s_approximate_formula_for_computing_effective_sample_size
-        self.neff = 1.0 / np.sum(self.weights ** 2)
+        self.sum_weights_squared = np.sum(self.weights**2)
 
-        self.set_bandwidth(bw_method=bw_method)
+        if bw_method == 'scott':
+            self.bandwidth = self._scott_factor()
+        elif bw_method == 'silverman':
+            self.bandwidth = self._silverman_factor()
+        elif np.isscalar(bw_method):
+            self.bandwidth = bw_method
+        elif callable(bw_method):
+            self.bandwidth = bw_method(self)
+        else:
+            error = "bw_method should be 'scott', 'silverman', a scalar or a callable"
+            raise ValueError(error)
 
-    def evaluate(self, points):
-        """Evaluate the estimated pdf on a set of points.
+        self._compute_covariance()
+
+        if self.fft:
+            self._fft_kde_func = self._fft_kde()
+
+    def __call__(self, x):
+        if self.fft:
+            return self._fft_kde_func(x)
+        else:
+            return self._kde_func(x)
+
+    def _bin_dataset(self):
+        """
+        Histogram dataset so that it is uniformly spaced. Once it is uniformly
+        spaced, one can apply a discrete fast-Fourier transform.
+
+        :returns: Binned pdf and bin centers
+        :rtype: tuple(np.array, np.array)
+        """
+        if self.n_dims == 1:
+
+            nbins = self.len_data
+            binned_pdf, bin_edges = np.histogram(self.dataset[0],
+                                                 bins=nbins,
+                                                 normed=True,
+                                                 weights=self.weights)
+            bin_centers = np.array((bin_edges[:-1] + bin_edges[1:]) * 0.5)
+
+        elif self.n_dims == 2:
+
+            nbins = self.len_data**0.5
+            binned_pdf, bin_edges_x, bin_edges_y = np.histogram2d(*self.dataset,
+                                                      bins=nbins,
+                                                      normed=True,
+                                                      weights=self.weights)
+            bin_centers_x = 0.5 * (bin_edges_x[:-1] + bin_edges_x[1:])
+            bin_centers_y = 0.5 * (bin_edges_y[:-1] + bin_edges_y[1:])
+            bin_centers = [np.array(bin_centers_x), np.array(bin_centers_y)]
+
+        else:
+            raise ValueError("Bining only implemented in 1 or 2 dimesions")
+
+        return binned_pdf, bin_centers
+
+
+    def _fft_kde(self):
+        """
+        Discrete fast-Fourier transform of binned pdf with a Gaussian kernel.
+
+        :returns: Function for interpolating binned pdf convolved with Gaussian
+        kernel
+        :rtype: func
+        """
+        if self.n_dims == 1:
+
+            binned_pdf, bin_centers = self._bin_dataset()
+            mean_bin = np.mean(bin_centers)
+
+            def gauss_kernel(x):
+                return norm.pdf(x, loc=mean_bin, scale=self.det_cov**0.5)
+
+            gauss_bin_centers = gauss_kernel(bin_centers)
+
+            pdf = fftconvolve(gauss_bin_centers, binned_pdf, mode='same')
+            pdf = np.real(pdf)
+
+            bin_width = bin_centers[1] - bin_centers[0]
+            pdf /= pdf.sum() * bin_width
+
+            kde = interp1d(bin_centers,
+                           pdf,
+                           bounds_error=False,
+                           fill_value=0.)
+
+            def kde_func(points):
+                kde_ = np.array([max(0., kde(x)) for x in points])
+                return kde_
+
+            return kde_func
+
+        elif self.n_dims == 2:
+
+            binned_pdf, (bin_centers_x, bin_centers_y) = self._bin_dataset()
+            mean_bin = [np.mean(bin_centers_x), np.mean(bin_centers_y)]
+
+            def gauss_kernel(x):
+                return multivariate_normal.pdf(x, mean=mean_bin, cov=self.cov)
+
+            grid_x, grid_y = np.meshgrid(bin_centers_x, bin_centers_y)
+            grid = np.column_stack([grid_x.flatten(), grid_y.flatten()])
+
+            gauss_bin_centers = gauss_kernel(grid)
+            gauss_bin_centers = np.reshape(gauss_bin_centers, binned_pdf.shape)
+
+            pdf = fftconvolve(gauss_bin_centers, binned_pdf, mode='same')
+            pdf = pdf.T
+            pdf = np.real(pdf)
+
+            bin_width_x = bin_centers_x[1] - bin_centers_x[0]
+            bin_width_y = bin_centers_y[1] - bin_centers_y[0]
+            bin_vol = bin_width_x * bin_width_y
+            pdf /= pdf.sum() * bin_vol
+
+            kde = interp2d(bin_centers_x,
+                           bin_centers_y,
+                           pdf,
+                           bounds_error=False,
+                           fill_value=0.)
+
+            def kde_func(points):
+                kde_ = np.array([max(0., kde(x, y)) for x, y in points.T])
+                return kde_
+
+            return kde_func
+
+        else:
+            raise ValueError("FFT only implemented in 1 or 2 dimesions")
+
+    def _kde_func(self, points):
+        """
+        Evaluate the estimated pdf on a set of points.
 
         Parameters
         ----------
@@ -184,116 +319,52 @@ class gaussian_kde(object):
 
         """
         points = np.atleast_2d(points)
+        n_dims, len_data = points.shape
 
-        d, m = points.shape
-        if d != self.d:
-            if d == 1 and m == self.d:
-                # points was passed in as a row vector
-                points = np.reshape(points, (self.d, 1))
-                m = 1
-            else:
-                msg = "points have dimension %s, dataset has dimension %s" % (d,
-                    self.d)
-                raise ValueError(msg)
+        message = "points dimension, {} != dataset dimension, {}"
+        assert n_dims == self.n_dims, message.format(n_dims, self.n_dims)
 
-        # compute the normalised residuals
-        chi2 = cdist(points.T, self.dataset.T, 'mahalanobis', VI=self.inv_cov) ** 2
-        like = np.exp(-0.5 * chi2)
+        chi_squared = cdist(points.T, self.dataset.T, 'mahalanobis', VI=self.inv_cov)**2
+        gauss_kernel = (2. * pi * self.det_cov)**-0.5 * np.exp(-0.5 * chi_squared)
+        pdf = np.sum(gauss_kernel * self.weights, axis=1)
 
-        # compute the pdf
-        result = np.sum(like * self.weights, axis=1) / self._norm_factor
+        return pdf
 
-        return result
-
-    __call__ = evaluate
-
-    def scotts_factor(self):
-        return np.power(self.neff, -1./(self.d+4))
-
-    def silverman_factor(self):
-        return np.power(self.neff*(self.d+2.0)/4.0, -1./(self.d+4))
-
-    #  Default method to calculate bandwidth, can be overwritten by subclass
-    covariance_factor = scotts_factor
-
-    def set_bandwidth(self, bw_method=None):
-        """Compute the estimator bandwidth with given method.
-
-        The new bandwidth calculated after a call to `set_bandwidth` is used
-        for subsequent evaluations of the estimated density.
-
-        Parameters
-        ----------
-        bw_method : str, scalar or callable, optional
-            The method used to calculate the estimator bandwidth.  This can be
-            'scott', 'silverman', a scalar constant or a callable.  If a
-            scalar, this will be used directly as `kde.factor`.  If a callable,
-            it should take a `gaussian_kde` instance as only parameter and
-            return a scalar.  If None (default), nothing happens; the current
-            `kde.covariance_factor` method is kept.
-
-        Notes
-        -----
-        .. versionadded:: 0.11
-
-        Examples
-        --------
-        >>> x1 = np.array([-7, -5, 1, 4, 5.])
-        >>> kde = stats.gaussian_kde(x1)
-        >>> xs = np.linspace(-10, 10, num=50)
-        >>> y1 = kde(xs)
-        >>> kde.set_bandwidth(bw_method='silverman')
-        >>> y2 = kde(xs)
-        >>> kde.set_bandwidth(bw_method=kde.factor / 3.)
-        >>> y3 = kde(xs)
-
-        >>> fig = plt.figure()
-        >>> ax = fig.add_subplot(111)
-        >>> ax.plot(x1, np.ones(x1.shape) / (4. * x1.size), 'bo',
-        ...         label='Data points (rescaled)')
-        >>> ax.plot(xs, y1, label='Scott (default)')
-        >>> ax.plot(xs, y2, label='Silverman')
-        >>> ax.plot(xs, y3, label='Const (1/3 * Silverman)')
-        >>> ax.legend()
-        >>> plt.show()
-
+    def _scott_factor(self):
         """
-        if bw_method is None:
-            pass
-        elif bw_method == 'scott':
-            self.covariance_factor = self.scotts_factor
-        elif bw_method == 'silverman':
-            self.covariance_factor = self.silverman_factor
-        elif np.isscalar(bw_method) and not isinstance(bw_method, string_types):
-            self._bw_method = 'use constant'
-            self.covariance_factor = lambda: bw_method
-        elif callable(bw_method):
-            self._bw_method = bw_method
-            self.covariance_factor = lambda: self._bw_method(self)
-        else:
-            msg = "`bw_method` should be 'scott', 'silverman', a scalar " \
-                  "or a callable."
-            raise ValueError(msg)
+        :returns: Scott's rule of thumb for the bandwidth
+        :rtype: float
+        """
+        # Compute the effective sample size
+        neff = self.sum_weights_squared**-1
+        return neff**(-1. / (self.n_dims + 4))
 
-        self._compute_covariance()
+    def _silverman_factor(self):
+        """
+        :returns: Silverman's rule of thumb for the bandwidth
+        :rtype: float
+        """
+        # Compute the effective sample size
+        neff = self.sum_weights_squared**-1
+        return (0.25 * neff * (self.n_dims + 2.))**(-1. / (self.n_dims + 4.))
 
     def _compute_covariance(self):
-        """Computes the covariance matrix for each Gaussian kernel using
-        covariance_factor().
         """
-        self.factor = self.covariance_factor()
-        # Cache covariance and inverse covariance of the data
-        if not hasattr(self, '_data_inv_cov'):
-            # Compute the mean and residuals
-            _mean = np.sum(self.weights * self.dataset, axis=1)
-            _residual = (self.dataset - _mean[:, None])
-            # Compute the biased covariance
-            self._data_covariance = np.atleast_2d(np.dot(_residual * self.weights, _residual.T))
-            # Correct for bias (http://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_covariance)
-            self._data_covariance /= (1 - np.sum(self.weights ** 2))
-            self._data_inv_cov = np.linalg.inv(self._data_covariance)
+        Covariance matrix for Gaussian kernel.
+        """
+        # Weighted mean
+        weighted_mean = np.sum(self.weights * self.dataset, axis=1)
 
-        self.covariance = self._data_covariance * self.factor**2
-        self.inv_cov = self._data_inv_cov / self.factor**2
-        self._norm_factor = np.sqrt(np.linalg.det(2*np.pi*self.covariance)) #* self.n
+        # Covariance and inverse covariance
+        residual = (self.dataset - weighted_mean[:, None])
+        residual_squared = np.atleast_2d(np.dot(residual * self.weights, residual.T))
+        unscaled_cov = residual_squared / (1. - self.sum_weights_squared)
+        unscaled_cov = np.atleast_2d(unscaled_cov)
+        unscaled_inv_cov = np.linalg.inv(unscaled_cov)
 
+        # Scale by bandwidth
+        self.cov = unscaled_cov * self.bandwidth**2
+        self.inv_cov = unscaled_inv_cov / self.bandwidth**2
+
+        # Determinant of covariance matrix
+        self.det_cov = np.linalg.det(self.cov)

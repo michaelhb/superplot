@@ -209,8 +209,9 @@ class gaussian_kde(object):
 
         elif self.n_dims == 2:
 
-            nbins = self.len_data**0.5
-            binned_pdf, bin_edges_x, bin_edges_y = np.histogram2d(*self.dataset,
+            nbins = int(self.len_data**0.5)
+            binned_pdf, bin_edges_x, bin_edges_y = np.histogram2d(self.dataset[0],
+                                                      self.dataset[1],
                                                       bins=nbins,
                                                       normed=True,
                                                       weights=self.weights)
@@ -242,7 +243,7 @@ class gaussian_kde(object):
 
             gauss_bin_centers = gauss_kernel(bin_centers)
 
-            pdf = fftconvolve(gauss_bin_centers, binned_pdf, mode='same')
+            pdf = fftconvolve(binned_pdf, gauss_bin_centers, mode='same')
             pdf = np.real(pdf)
 
             bin_width = bin_centers[1] - bin_centers[0]
@@ -271,10 +272,9 @@ class gaussian_kde(object):
             grid = np.column_stack([grid_x.flatten(), grid_y.flatten()])
 
             gauss_bin_centers = gauss_kernel(grid)
-            gauss_bin_centers = np.reshape(gauss_bin_centers, binned_pdf.shape)
+            gauss_bin_centers = np.reshape(gauss_bin_centers, binned_pdf.shape, order='F')
 
-            pdf = fftconvolve(gauss_bin_centers, binned_pdf, mode='same')
-            pdf = pdf.T
+            pdf = fftconvolve(binned_pdf, gauss_bin_centers, mode='same')
             pdf = np.real(pdf)
 
             bin_width_x = bin_centers_x[1] - bin_centers_x[0]
@@ -289,7 +289,7 @@ class gaussian_kde(object):
                            fill_value=0.)
 
             def kde_func(points):
-                kde_ = np.array([max(0., kde(x, y)) for x, y in points.T])
+                kde_ = np.array([max(0., kde(x, y)) for y, x in points.T])
                 return kde_
 
             return kde_func
@@ -325,7 +325,7 @@ class gaussian_kde(object):
         assert n_dims == self.n_dims, message.format(n_dims, self.n_dims)
 
         chi_squared = cdist(points.T, self.dataset.T, 'mahalanobis', VI=self.inv_cov)**2
-        gauss_kernel = (2. * pi * self.det_cov)**-0.5 * np.exp(-0.5 * chi_squared)
+        gauss_kernel = (2. * pi)**(-0.5 * self.n_dims) * self.det_cov**-0.5 * np.exp(-0.5 * chi_squared)
         pdf = np.sum(gauss_kernel * self.weights, axis=1)
 
         return pdf

@@ -7,13 +7,9 @@ This module contains statistical functions that return a single data point.
 
 import numpy as np
 from scipy import stats
-from joblib import Memory
-from tempfile import mkdtemp
+from patched_joblib import memory
 
 DOCTEST_PRECISION = 10
-
-cachedir = mkdtemp()
-memory = Memory(cachedir=cachedir, verbose=0)
 
 
 def _shift(bin_number, nbins):

@@ -9,8 +9,7 @@ and calculating the 1D stats for a particular variable.
 from scipy import stats
 from collections import namedtuple
 from kde import gaussian_kde
-from joblib import Memory
-from tempfile import mkdtemp
+from patched_joblib import memory
 
 import numpy as np
 import point
@@ -24,9 +23,6 @@ _kde_posterior_pdf_1D = namedtuple("_kde_posterior_pdf_1D", ("pdf", "bin_centers
 _posterior_pdf_1D = namedtuple("_posterior_pdf_1D", ("pdf", "bin_centers"))
 _prof_data_1D = namedtuple("_prof_data_1D", ("prof_chi_sq", "prof_like", "bin_centers"))
 
-cachedir = mkdtemp()
-memory = Memory(cachedir=cachedir, verbose=0)
-
 
 @memory.cache
 def kde_posterior_pdf(parameter,
@@ -35,23 +31,24 @@ def kde_posterior_pdf(parameter,
                       bin_limits=None,
                       norm_area=False,
                       bw_method='scott',
+                      fft=True
                       ):
     r"""
     Kernel density estimate (KDE) of one-dimensional posterior pdf with
     Gaussian kernel.
-    
-    See e.g. 
+
+    See e.g.
     `wiki <https://en.wikipedia.org/wiki/Kernel_density_estimation/>`_ and
     `scipy <http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.gaussian_kde.html>`_
     for more information.
-    
+
     .. warning::
         By default, the band-width is estimated with Scott's rule of thumb. This
         could lead to biased/inaccurate estimates of the pdf if the parent
         distribution isn't approximately Gaussian.
-        
+
     .. warning::
-        There is no special treatment for e.g. boundaries, which can be 
+        There is no special treatment for e.g. boundaries, which can be
         problematic.
 
     .. warning::
@@ -70,16 +67,18 @@ def kde_posterior_pdf(parameter,
         is one.
     :param bw_method: Method for determining band-width or bandwidth
     :type bw_method: string or float
+    :param fft: Whether to use Fast-Fourier transform
+    :type fft: bool
 
     :returns: KDE of posterior pdf evaluated at centers
     :rtype: named tuple (pdf: numpy.ndarray, bin_centers: numpy.ndarray)
 
     :Example:
 
-    >>> ncenters = 1000
-    >>> pdf = kde_posterior_pdf(data[2], data[0], ncenters=ncenters)
-    >>> assert len(pdf.pdf) == ncenters
-    >>> assert len(pdf.bin_centers) == ncenters
+    >>> npoints = 1000
+    >>> kde = kde_posterior_pdf(data[2], data[0], npoints=npoints)
+    >>> assert len(kde.pdf) == npoints
+    >>> assert len(kde.bin_centers) == npoints
     """
     if bin_limits:
         upper = max(bin_limits)
@@ -90,7 +89,8 @@ def kde_posterior_pdf(parameter,
 
     kde_func = gaussian_kde(parameter,
                             weights=posterior,
-                            bw_method=bw_method,
+                            bw_method=bw_method, 
+                            fft=fft
                             )
 
     centers = np.linspace(lower, upper, npoints)
@@ -317,6 +317,8 @@ def credible_region(pdf, bin_centers, alpha, region):
     >>> nbins = 1000
     >>> alpha = 0.32
 
+    Credible regions from binned pdf
+
     >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
     >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, region), DOCTEST_PRECISION)
     ...  for region in ["lower", "upper"]]
@@ -326,6 +328,33 @@ def credible_region(pdf, bin_centers, alpha, region):
     >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, region), DOCTEST_PRECISION)
     ...  for region in ["lower", "upper"]]
     [-2409.8500561616, 2570.0887645632]
+
+    Credible regions from KDE estimate of pdf
+
+    >>> kde = kde_posterior_pdf(data[2], data[0])
+    >>> [round(credible_region(kde.pdf, kde.bin_centers, alpha, region), DOCTEST_PRECISION)
+    ...  for region in ["lower", "upper"]]
+    [-2946.0055961876, -982.1349824359]
+
+    >>> kde = kde_posterior_pdf(data[3], data[0])
+    >>> [round(credible_region(kde.pdf, kde.bin_centers, alpha, region), DOCTEST_PRECISION)
+    ...  for region in ["lower", "upper"]]
+    [-2424.6995731319, 2585.258918877]
+    
+    Credible regions from KDE estimate of pdf without FFT
+
+    >>> kde_posterior_pdf(data[2], data[0]).pdf[0] == kde_posterior_pdf(data[2], data[0], fft=False).pdf[0]
+    False
+
+    >>> kde = kde_posterior_pdf(data[2], data[0], fft=False)
+    >>> [round(credible_region(kde.pdf, kde.bin_centers, alpha, region), DOCTEST_PRECISION)
+    ...  for region in ["lower", "upper"]]
+    [-2946.0055961876, -982.1349824359]
+
+    >>> kde = kde_posterior_pdf(data[3], data[0], fft=False)
+    >>> [round(credible_region(kde.pdf, kde.bin_centers, alpha, region), DOCTEST_PRECISION)
+    ...  for region in ["lower", "upper"]]
+    [-2424.6995731319, 2585.258918877]
     """
     assert region in ["lower", "upper"]
     if region is "lower":
@@ -410,6 +439,8 @@ def posterior_median(pdf, bin_centers):
 
     :Example:
 
+    Posterior median from binned pdf
+
     >>> nbins = 750
     >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
     >>> round(posterior_median(pdf.pdf, pdf.bin_centers), DOCTEST_PRECISION)
@@ -418,6 +449,16 @@ def posterior_median(pdf, bin_centers):
     >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins)
     >>> round(posterior_median(pdf.pdf, pdf.bin_centers), DOCTEST_PRECISION)
     66.7861846674
+
+    Posterior median from KDE estimate of pdf
+
+    >>> kde = kde_posterior_pdf(data[2], data[0])
+    >>> round(posterior_median(kde.pdf,kde.bin_centers), DOCTEST_PRECISION)
+    -1984.1097853705
+
+    >>> kde = kde_posterior_pdf(data[3], data[0])
+    >>> round(posterior_median(kde.pdf, kde.bin_centers), DOCTEST_PRECISION)
+    60.2398389045
     """
     return _inverse_cdf(0.5, pdf, bin_centers)
 
@@ -450,6 +491,8 @@ def posterior_mode(pdf, bin_centers):
 
     :Example:
 
+    Posterior mode from binned pdf
+
     >>> nbins = 70
     >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
     >>> round(posterior_mode(pdf.pdf, pdf.bin_centers)[0], DOCTEST_PRECISION)
@@ -458,6 +501,16 @@ def posterior_mode(pdf, bin_centers):
     >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins)
     >>> round(posterior_mode(pdf.pdf, pdf.bin_centers)[0], DOCTEST_PRECISION)
     -142.7350508575
+
+    Posterior mode from KDE estimate of pdf
+
+    >>> kde = kde_posterior_pdf(data[2], data[0])
+    >>> round(posterior_mode(kde.pdf, kde.bin_centers)[0], DOCTEST_PRECISION)
+    -1984.1097853705
+
+    >>> kde = kde_posterior_pdf(data[3], data[0])
+    >>> round(posterior_mode(kde.pdf, kde.bin_centers)[0], DOCTEST_PRECISION)
+    140.3991747766
     """
     # Find the maximum weighted count.
     max_count = max(pdf)

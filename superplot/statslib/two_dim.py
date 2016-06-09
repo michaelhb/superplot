@@ -10,8 +10,7 @@ from collections import namedtuple
 from scipy.optimize import bisect
 from numpy import ma
 from kde import gaussian_kde
-from joblib import Memory
-from tempfile import mkdtemp
+from patched_joblib import memory
 
 import point
 import numpy as np
@@ -32,9 +31,6 @@ _profile_data_2D = namedtuple(
         "_profile_data_2D",
         ("prof_chi_sq", "prof_like", "bin_center_x", "bin_center_y"))
 
-cachedir = mkdtemp()
-memory = Memory(cachedir=cachedir, verbose=0)
-
 
 @memory.cache
 def kde_posterior_pdf(paramx,
@@ -42,7 +38,8 @@ def kde_posterior_pdf(paramx,
                       posterior,
                       npoints=100,
                       bin_limits=None,
-                      bw_method='scott'):
+                      bw_method='scott',
+                      fft=True):
     r"""
     Kenerl density estimate (KDE) of two-dimensional posterior pdf with
     Gaussian kernel.
@@ -76,6 +73,8 @@ def kde_posterior_pdf(paramx,
     :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
     :param bw_method: Method for determining band-width or bandwidth
     :type bw_method: string or float
+    :param fft: Whether to use Fast-Fourier transform
+    :type fft: bool
 
     :returns: KDE of posterior pdf at x and y centers
     :rtype: named tuple (pdf: numpy.ndarray, bin_centers_x: \
@@ -103,6 +102,7 @@ def kde_posterior_pdf(paramx,
     kde_func = gaussian_kde(np.array((paramx, paramy)),
                             weights=posterior,
                             bw_method=bw_method,
+                            fft=fft
                             )
 
     centers_x = np.linspace(lower_x, upper_x, npoints)
@@ -283,11 +283,19 @@ def critical_density(pdf, alpha):
 
     :Example:
 
+    Critical density from binned pdf
+
     >>> nbins = 100
     >>> alpha = 0.32
     >>> pdf = posterior_pdf(data[2], data[3], data[0], nbins=nbins)[0]
     >>> round(critical_density(pdf, alpha), DOCTEST_PRECISION)
     0.0008100802
+    
+    Critical density from KDE estimate of pdf
+   
+    >>> kde = kde_posterior_pdf(data[2], data[3], data[0])[0]
+    >>> round(critical_density(kde, alpha), DOCTEST_PRECISION)
+    0.0008117912
     """
     # Normalize posterior pdf so that integral is one, if it wasn't already
     pdf = pdf / pdf.sum()
@@ -368,11 +376,20 @@ def posterior_mode(pdf, bin_centers_x, bin_centers_y):
         with the highest weighted count
     :rtype: list
 
+    Mode from binned pdf
+
     >>> nbins = 70
     >>> pdf = posterior_pdf(data[2], data[3], data[0], nbins=nbins)
     >>> bin_centers = posterior_mode(pdf.pdf, pdf.bin_centers_x, pdf.bin_centers_y)[0]
     >>> [round(x, DOCTEST_PRECISION) for x in bin_centers]
     [-2142.9943612644, 142.9757248582]
+    
+    Mode from KDE estimate of pdf
+    
+    >>> kde = kde_posterior_pdf(data[2], data[3], data[0])
+    >>> bin_centers = posterior_mode(kde.pdf, kde.bin_centers_x, kde.bin_centers_y)[0]
+    >>> [round(x, DOCTEST_PRECISION) for x in bin_centers]
+    [-1919.3356566959, 101.1291971019]
     """
     # Find the maximum weighted count
     max_count = np.max(pdf)

@@ -9,3 +9,9 @@
 
 # Ignore generated doc html
 /doc/_build/
+
+# Ignore build files
+/build/
+/.eggs/
+/superplot.egg-info/
+

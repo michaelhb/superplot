@@ -1,7 +1,0 @@
-appdirs
-prettytable
-simpleyaml
-numpy
-matplotlib >= 1.4
-scipy
-pandas

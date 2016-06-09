@@ -1,7 +1,13 @@
 """
-Hacked Scipy code to support weighted KDE. See
+===============================
+Kernel Density Estimation (KDE)
+===============================
+This module contains a class for implementing weighted KDE with or without
+fast Fourier transforms (FFT).
 
-http://stackoverflow.com/questions/27623919/weighted-gaussian-kernel-density-estimation-in-python
+Hacked Scipy code to support weighted KDE and Fast-fourier transforms.
+
+See `discussion on stackoverflow <http://stackoverflow.com/questions/27623919/weighted-gaussian-kernel-density-estimation-in-python>`_
 
 """
 
@@ -40,6 +46,8 @@ class gaussian_kde(object):
         An array of weights, of the same shape as `x`.  Each value in `x`
         only contributes its associated weight towards the bin count
         (instead of 1).
+    fft : bool
+        Whether to use Fast-fourier transforms. Can be much faster.
 
     Attributes
     ----------
@@ -184,11 +192,21 @@ class gaussian_kde(object):
         if self.fft:
             self._fft_kde_func = self._fft_kde()
 
-    def __call__(self, x):
+    def __call__(self, points):
+        """
+        Evaluate the estimated pdf on a set of points.
+
+        :param points: Arguments of KDE estimate of pdf
+        :type points:  np.array (# of dimensions, # of points)
+
+        :returns: KDE
+        :rtype: np.array (# of dimensions)
+        """
+
         if self.fft:
-            return self._fft_kde_func(x)
+            return self._fft_kde_func(points)
         else:
-            return self._kde_func(x)
+            return self._kde_func(points)
 
     def _bin_dataset(self):
         """
@@ -211,10 +229,10 @@ class gaussian_kde(object):
 
             nbins = int(self.len_data**0.5)
             binned_pdf, bin_edges_x, bin_edges_y = np.histogram2d(self.dataset[0],
-                                                      self.dataset[1],
-                                                      bins=nbins,
-                                                      normed=True,
-                                                      weights=self.weights)
+                                                                  self.dataset[1],
+                                                                  bins=nbins,
+                                                                  normed=True,
+                                                                  weights=self.weights)
             bin_centers_x = 0.5 * (bin_edges_x[:-1] + bin_edges_x[1:])
             bin_centers_y = 0.5 * (bin_edges_y[:-1] + bin_edges_y[1:])
             bin_centers = [np.array(bin_centers_x), np.array(bin_centers_y)]
@@ -239,6 +257,7 @@ class gaussian_kde(object):
             mean_bin = np.mean(bin_centers)
 
             def gauss_kernel(x):
+                """ 1D Gaussian kernel. """
                 return norm.pdf(x, loc=mean_bin, scale=self.det_cov**0.5)
 
             gauss_bin_centers = gauss_kernel(bin_centers)
@@ -255,6 +274,7 @@ class gaussian_kde(object):
                            fill_value=0.)
 
             def kde_func(points):
+                """ Pass array of points through KDE interpolation function. """
                 kde_ = np.array([max(0., kde(x)) for x in points])
                 return kde_
 
@@ -266,6 +286,7 @@ class gaussian_kde(object):
             mean_bin = [np.mean(bin_centers_x), np.mean(bin_centers_y)]
 
             def gauss_kernel(x):
+                """ 2D Gaussian kernel. """
                 return multivariate_normal.pdf(x, mean=mean_bin, cov=self.cov)
 
             grid_x, grid_y = np.meshgrid(bin_centers_x, bin_centers_y)
@@ -289,6 +310,7 @@ class gaussian_kde(object):
                            fill_value=0.)
 
             def kde_func(points):
+                """ Pass array of points through KDE interpolation function. """
                 kde_ = np.array([max(0., kde(x, y)) for x, y in points.T])
                 return kde_
 
@@ -319,13 +341,14 @@ class gaussian_kde(object):
 
         """
         points = np.atleast_2d(points)
-        n_dims, len_data = points.shape
+        n_dims, _ = points.shape
 
         message = "points dimension, {} != dataset dimension, {}"
         assert n_dims == self.n_dims, message.format(n_dims, self.n_dims)
 
         chi_squared = cdist(points.T, self.dataset.T, 'mahalanobis', VI=self.inv_cov)**2
-        gauss_kernel = (2. * pi)**(-0.5 * self.n_dims) * self.det_cov**-0.5 * np.exp(-0.5 * chi_squared)
+        gauss_norm = (2. * pi)**(-0.5 * self.n_dims)
+        gauss_kernel = gauss_norm * self.det_cov**-0.5 * np.exp(-0.5 * chi_squared)
         pdf = np.sum(gauss_kernel * self.weights, axis=1)
 
         return pdf

@@ -182,7 +182,7 @@ def save_plot(txt_file, info_file, output_file, plot_description, options):
         prefix = splitext(name)[0]
         all_indexes = [options.xindex, options.yindex, options.zindex]
         indexes = [str(i) for i in all_indexes if i is not None]
-        output_file = prefix + '_' + '_'.join(indexes)
+        output_file = prefix + '_' + '_'.join(indexes) + ".pdf"
 
     # Fix labels with info file
 

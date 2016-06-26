@@ -97,7 +97,8 @@ dependencies = [
     "numpy",
     "matplotlib >= 1.4",
     "scipy",
-    "pandas"
+    "pandas",
+    "joblib"
 ]
 
 # Detect if pygtk is already available. Only add it to the
@@ -125,7 +126,7 @@ setup(
         include_package_data=True,
 
         name="superplot",
-        version="1.0.13",
+        version="1.0.14",
         author="Andrew Fowlie, Michael Bardsley",
         author_email="mhbar3@student.monash.edu",
         license="GPL v2",

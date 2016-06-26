@@ -126,7 +126,7 @@ setup(
         include_package_data=True,
 
         name="superplot",
-        version="1.0.14",
+        version="1.0.15",
         author="Andrew Fowlie, Michael Bardsley",
         author_email="mhbar3@student.monash.edu",
         license="GPL v2",
@@ -138,7 +138,8 @@ setup(
         entry_points={
             'gui_scripts': [
                 'superplot_gui = superplot.super_gui:main',
-                'superplot_summary = superplot.summary:main'
+                'superplot_summary = superplot.summary:main',
+                'superplot_cli = superplot.super_command:main'
             ]
         }
 )

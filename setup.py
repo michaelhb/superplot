@@ -3,6 +3,8 @@ from setuptools.command.install import install
 import os
 import shutil
 import warnings
+from distutils.util import strtobool
+import sys
 
 
 # Utility function to read the README file.
@@ -13,11 +15,24 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
+# yes/no/y/n user prompt helper function
+def prompt(query):
+    sys.stdout.write('%s [y/n]: ' % query)
+    val = raw_input()
+    try:
+        ret = strtobool(val)
+    except ValueError:
+        sys.stdout.write('Please answer with a y/n\n')
+        return prompt(query)
+    return ret
+
+
 class SuperplotInstall(install):
     """
     Subclass the setuptools install command so we can
     run post-install actions (e.g. placing the config file).
     """
+
     def run(self):
         """
         Post-install, this script will try to place the config and
@@ -37,58 +52,91 @@ class SuperplotInstall(install):
                 os.mkdir(user_dir)
         except OSError as e:
             warnings.warn(
-                "Could not create user data directory: {}".format(
-                    e.strerror
-                )
+                    "Could not create user data directory: {}".format(
+                            e.strerror
+                    )
             )
         else:
             # Copy config.yml to user directory
             config_path = os.path.join(user_dir, "config.yml")
-    
-            # If the config file is already present,
-            # *don't* overwrite it.
+            copy_config = True
+
+            # If the config file is already present, ask the user if they would like to
+            # replace or keep it.
             if os.path.exists(config_path):
-                warnings.warn(
-                    "Config file already present - not overwriting."
-                )
-            else:
+
+                print "config.yml already present. Please note that versions of this file " \
+                      "distributed with previous versions of superplot may not work with " \
+                      "this release. If you wish to compare your customised config.yml with " \
+                      "the current defaults, an example is distributed with the source code " \
+                      "(superplot/config.yml)."
+
+                copy_config = prompt("Replace existing file: {}".format(config_path))
+
+            if copy_config:
                 try:
                     shutil.copy("superplot/config.yml", config_path)
                 except shutil.Error as e:
                     warnings.warn(
-                        "Error copying config file to user directory: {}".format(
-                            e.strerror
-                        )
+                            "Error copying config file to user directory: {}".format(
+                                    e.strerror
+                            )
                     )
 
             # Copy style sheets to user directory
             styles_dir = os.path.join(user_dir, "styles")
+            copy_style_sheets = True
+
             if os.path.isdir(styles_dir):
-                warnings.warn(
-                    "Styles dir already present - not overwriting."
-                )
-            else:
+                copy_style_sheets = prompt("Replace existing style sheets: {}".format(styles_dir))
+                if copy_style_sheets:
+                    try:
+                        shutil.rmtree(styles_dir)
+                    except shutil.Error as e:
+                        warnings.warn(
+                            "Error removing existing style sheets: {}".format(
+                                e.strerror
+                            )
+                        )
+
+            if copy_style_sheets:
                 try:
                     shutil.copytree("superplot/plotlib/styles", styles_dir)
                 except shutil.Error as e:
                     warnings.warn(
-                        "Error copying style sheets to user directory: {}".format(
-                            e.strerror
-                        )
+                            "Error copying style sheets to user directory: {}".format(
+                                    e.strerror
+                            )
                     )
 
             # Copy example data to user directory
             example_dir = os.path.join(user_dir, "example")
-            try:
-                shutil.copytree("example", example_dir)
-            except shutil.Error as e:
-                warnings.warn(
-                    "Error copying example files to user directory: {}".format(
-                        e.strerror
+            copy_examples = True
+
+            if os.path.isdir(example_dir):
+                copy_examples = prompt("Replace existing example files: {}".format(example_dir))
+                if copy_examples:
+                    try:
+                        shutil.rmtree(example_dir)
+                    except shutil.Error as e:
+                        warnings.warn(
+                            "Error removing existing example files: {}".format(
+                                e.strerror
+                            )
+                        )
+
+            if copy_examples:
+                try:
+                    shutil.copytree("example", example_dir)
+                except shutil.Error as e:
+                    warnings.warn(
+                            "Error copying example files to user directory: {}".format(
+                                    e.strerror
+                            )
                     )
-                )
 
         print "Finished post-setup actions"
+
 
 dependencies = [
     "appdirs",
@@ -126,7 +174,7 @@ setup(
         include_package_data=True,
 
         name="superplot",
-        version="1.0.15",
+        version="1.0.16",
         author="Andrew Fowlie, Michael Bardsley",
         author_email="mhbar3@student.monash.edu",
         license="GPL v2",

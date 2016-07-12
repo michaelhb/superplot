@@ -425,7 +425,7 @@ def posterior_median(pdf, bin_centers):
     .. math::
         \int_{-\infty}^m p(x) dx = \int_m^{\infty} p(x) dx = 0.5
 
-    .. warnings::
+    .. warning::
         Data could be marginalized posterior and bin centers or raw sample
         posterior weight and parameter value.
 

@@ -48,6 +48,7 @@ Superplot requires Python 2.7+ and uses the following libraries:
 * scipy
 * matplotlib
 * pandas
+* joblib
 
 While pip will attempt to download and build these libraries if they are not installed, this can be a lengthy and/or fragile process for pygtk and the scientific libraries. Installation of pygtk, numpy, scipy, matplotlib and pandas via your operating system's package manager, or by installing a scientific python distribution such as Python(x,y) *before* installing superplot is recommended.
 
@@ -83,7 +84,10 @@ The buttons etc in the GUI should be self-explanatory. You do not require an `.i
 
 Using superplot_summary
 =======================
-A GUI window will appear to select a chain file. Select e.g. the `.txt` file in the `/examples` sub-directory. A second GUI window will appear to select an information file. Select e.g. the `.info` file in the `/examples` sub-directory.
+superplot_summary is a command line tool that takes two arguments:
+
+* --data_file: chain file, e.g. the `.txt` file in the `/examples` sub-directory
+* --info_file: information file, e.g. the `.info` file in the `/examples` sub-directory
 
 superplot_summary will then print a table of summary statistics.
 

@@ -16,10 +16,25 @@ import sys
 import os
 import shlex
 
+import alabaster
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../src'))
+
+html_theme_path = [alabaster.get_path()]
+extensions = ['alabaster']
+html_theme = 'alabaster'
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+        'donate.html',
+    ]
+}
 
 # -- General configuration ------------------------------------------------
 
@@ -295,7 +310,7 @@ import sys
 import mock
 
 MOCK_MODULES = [
-    'matplotlib',
+ #   'matplotlib',
     'matplotlib.ticker',
     'matplotlib.pyplot',
     'matplotlib.pylab',
@@ -304,18 +319,24 @@ MOCK_MODULES = [
     'scipy',
     'scipy.optimize',
     'scipy.stats',
+    'scipy.spatial',
+    'scipy.spatial.distance',
+    'scipy.signal',
+    'scipy.interpolate',
     'pylab',
     'numpy',
     'pandas',
     'gtk',
     'pygtk',
-    # 'appdirs',
-    # 'simpleyaml',
     'prettytable'
 ]
 
 sys.modules.update((mod_name, mock.Mock()) for mod_name in MOCK_MODULES)
 
+mockplotlib = mock.Mock()
+mockplotlib.__version__ = '1.5'
+
+sys.modules['matplotlib'] = mockplotlib
 
 def no_namedtuple_attrib_docstring(app, what, name,
                                    obj, options, lines):

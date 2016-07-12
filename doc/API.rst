@@ -18,6 +18,9 @@ statslib
 .. automodule:: superplot.statslib.two_dim
     :members:
 
+.. automodule:: superplot.statslib.kde
+    :members:
+
 =======
 plotlib
 =======

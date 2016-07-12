@@ -4,12 +4,14 @@ Runs without arguments - GUI dialogs are used to select the
 chain and info files.
 """
 
+import os
+from argparse import ArgumentParser as arg_parser
+
 # External modules
 from prettytable import PrettyTable as pt
 
 # superplot modules
 import data_loader
-from super_gui import open_file_gui
 from plot_options import default
 import superplot.statslib.point as stats
 import superplot.statslib.one_dim as one_dim
@@ -116,8 +118,30 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
 
 def main():
     # Select chain and info file with a GUI.
-    datafile = open_file_gui(add_pattern="*.txt")
-    infofile = open_file_gui(add_pattern="*.txt")
+    # datafile = open_file_gui(add_pattern="*.txt")
+    # infofile = open_file_gui(add_pattern="*.txt")
+
+    parser = arg_parser(description='Superplot summary tool', conflict_handler='resolve')
+
+    parser.add_argument('--data_file',
+                        '-d',
+                        help='Chain file to summarise',
+                        type=str,
+                        required=True)
+    parser.add_argument('--info_file',
+                        '-i',
+                        help='Info file to summarise',
+                        type=str,
+                        default=None,
+                        required=False)
+
+    args = vars(parser.parse_args())
+
+    datafile = os.path.abspath(args['data_file'])
+
+    infofile = args['info_file']
+    if infofile:
+        infofile = os.path.abspath(infofile)
 
     # Load and label data
     labels, data = data_loader.load(infofile, datafile)

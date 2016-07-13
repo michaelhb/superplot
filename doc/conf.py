@@ -328,7 +328,8 @@ MOCK_MODULES = [
     'pandas',
     'gtk',
     'pygtk',
-    'prettytable'
+    'prettytable',
+    'joblib'
 ]
 
 sys.modules.update((mod_name, mock.Mock()) for mod_name in MOCK_MODULES)

@@ -30,6 +30,7 @@ This is a freestanding version of the plotting software previously in `superpy <
               primaryClass   = "physics.data-an",
               reportNumber   = "COEPP-MN-16-5",
               SLACcitation   = "%%CITATION = ARXIV:1603.00555;%%"
+
         }
 
 Installing

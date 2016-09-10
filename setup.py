@@ -1,5 +1,6 @@
 from setuptools import setup
 from setuptools.command.install import install
+from distutils.version import LooseVersion
 import os
 import shutil
 import warnings
@@ -143,7 +144,6 @@ dependencies = [
     "prettytable",
     "simpleyaml",
     "numpy",
-    "matplotlib >= 1.4",
     "scipy",
     "pandas",
     "joblib"
@@ -157,6 +157,27 @@ try:
     import pygtk
 except ImportError:
     dependencies.append("pygtk")
+
+# Detect if matplotlib >= 1.4 is already available. This is similar to the 
+# pygtk issue - pip doesn't see the OS version and overwrites it with 
+# a version that doesn't have GTK support.
+try:
+    import matplotlib
+
+    # We don't want to overwrite any native matplotlib, 
+    # however, we should issue a warning if there is an old version.
+
+    if LooseVersion(matplotlib.__version__) < LooseVersion("1.4"):
+	warnings.warn("Detected matplotlib {}. Superplot requires " \
+                      "version 1.4 or greater. Please upgrade manually.".format(
+                          matplotlib.__version__
+                     )
+        )
+    else:
+        warnings.warn("Detected matplotlib >= 1.4. Skipping matplotlib installation.")
+except ImportError:
+    # No version available - add to deps
+    dependencies.append("matplotlib >= 1.4")
 
 setup(
         cmdclass={'install': SuperplotInstall},

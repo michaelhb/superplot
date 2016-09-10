@@ -22,7 +22,7 @@ def prompt(query):
     return ret
 
 
-def __main__():
+def main():
     parser = arg_parser(description='Superplot home directory setup', conflict_handler='resolve')
 
     parser.add_argument('--dir',
@@ -133,4 +133,4 @@ def __main__():
             )
 
 if __name__ == '__main__':
-    __main__()
+    main()

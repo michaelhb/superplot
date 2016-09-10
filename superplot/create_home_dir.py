@@ -68,7 +68,7 @@ def __main__():
         copy_config = prompt("Replace existing file: {}".format(config_path))
 
     if copy_config:
-        copy_from = os.path.join(script_dir, "superplot/config.yml")
+        copy_from = os.path.join(script_dir, "config.yml")
         try:
             shutil.copy(copy_from, config_path)
         except shutil.Error as e:

@@ -50,7 +50,7 @@ def __main__():
     # Drop text file with user home dir location in script directory
     script_dir = os.path.dirname(os.path.realpath(__file__))
     home_dir_file = os.path.join(script_dir, "user_home.txt")
-    with open(home_dir_file, "rb") as f:
+    with open(home_dir_file, "wb") as f:
         f.write(user_dir)
 
     # Copy config.yml. Prompt user to overwrite if already present.
@@ -131,7 +131,6 @@ def __main__():
                             e.strerror
                     )
             )
-
 
 if __name__ == '__main__':
     __main__()

@@ -123,7 +123,7 @@ def __main__():
 
     if copy_examples:
         try:
-            copy_from = os.path.join(script_dir, "superplot/example")
+            copy_from = os.path.join(script_dir, "example")
             shutil.copytree(copy_from, example_dir)
         except shutil.Error as e:
             warnings.warn(

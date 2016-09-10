@@ -63,14 +63,20 @@ def get_config():
     :returns: config
     :rtype: dict
     """
-    # First try to load the config file in the
-    # user data directory
-    config_path = os.path.join(
-            appdirs.user_data_dir("superplot", ""),
-            "config.yml"
-    )
+
+    # First check whether the user has a custom home directory.
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    home_dir_locfile = os.path.join(script_dir, "user_home.txt")
+
+    config_path = None
+
+    if os.path.exists(home_dir_locfile):
+        with open(home_dir_locfile, "rb") as f:
+            home_dir_path = f.read()
+            config_path = os.path.join(home_dir_path, "config.yml")
+
     # If it doesn't exist, use the installed copy
-    if not os.path.exists(config_path):
+    if config_path is None or not os.path.exists(config_path):
         config_path = os.path.join(
             os.path.split(os.path.abspath(__file__))[0],
             "config.yml"

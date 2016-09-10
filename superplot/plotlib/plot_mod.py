@@ -59,38 +59,43 @@ def appearance(plot_name):
 
     style_sheet_name = "{}.mplstyle".format(plot_name)
 
-    # Try to use the style sheet installed in the user directory
-    style_sheet_path = os.path.join(
-            appdirs.user_data_dir("superplot", ""),
-            "styles",
-            style_sheet_name
-    )
+    # Try to use the style sheets installed in the user directory
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    home_dir_locfile = os.path.join(os.path.dirname(script_dir), "user_home.txt")
 
-    # If that doesn't exist, use the installed copy
-    if not os.path.exists(style_sheet_path):
+    style_sheet_path = None
+
+    if os.path.exists(home_dir_locfile):
+        with open(home_dir_locfile, "rb") as f:
+            home_dir_path = f.read()
+            style_sheet_path = os.path.join(
+                home_dir_path,
+                "styles",
+                style_sheet_name
+            )
+            default_style_sheet_path = os.path.join(
+                home_dir_path,
+                "styles",
+                "default.mplstyle"
+            )
+
+    # If style sheet doesn't exist, use the installed copy
+    if style_sheet_path is None or not os.path.exists(style_sheet_path):
         style_sheet_path = os.path.join(
             os.path.split(os.path.abspath(__file__))[0],
             "styles",
             style_sheet_name
         )
 
-    # Try to use default style sheet from user directory
-    default_style_sheet = os.path.join(
-            appdirs.user_data_dir("superplot", ""),
-            "styles",
-            "default.mplstyle"
-    )
-
-    # Fall back to installed default style sheet if not
-    # found in user directory.
-    if not os.path.exists(default_style_sheet):
-        default_style_sheet = os.path.join(
+    # If default style sheet doesn't exist, use installed copy
+    if default_style_sheet_path is None or not os.path.exists(default_style_sheet_path):
+        default_style_sheet_path = os.path.join(
             os.path.split(os.path.abspath(__file__))[0],
             "styles",
             "default.mplstyle"
         )
 
-    plt.style.use([default_style_sheet, style_sheet_path])
+    plt.style.use([default_style_sheet_path, style_sheet_path])
 
     if rcParams["text.usetex"]:
         # Check if LaTeX is available

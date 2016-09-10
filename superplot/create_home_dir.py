@@ -96,7 +96,7 @@ def __main__():
 
     if copy_style_sheets:
         try:
-            copy_from = os.path.join(script_dir, "superplot/plotlib/styles")
+            copy_from = os.path.join(script_dir, "plotlib/styles")
             shutil.copytree(copy_from, styles_dir)
         except shutil.Error as e:
             warnings.warn(

@@ -15,18 +15,6 @@ import sys
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-
-# yes/no/y/n user prompt helper function
-def prompt(query):
-    sys.stdout.write('%s [y/n]: ' % query)
-    val = raw_input()
-    try:
-        ret = strtobool(val)
-    except ValueError:
-        sys.stdout.write('Please answer with a y/n\n')
-        return prompt(query)
-    return ret
-
 dependencies = [
     "appdirs",
     "prettytable",
@@ -61,12 +49,11 @@ try:
                         matplotlib.__version__
                       )
         )
-
-    else:
-        warnings.warn("Detected matplotlib >= 1.4. Skipping matplotlib installation.")
 except ImportError:
     # No version available - add to deps
-    dependencies.append("matplotlib >= 1.4")
+    warnings.warn("matplotlib not detected. Please install matplotlib version 1.4 or "
+                  "greater. Note that superplot requires a version of matplotlib with "
+                  "GTK backend support.")
 
 setup(
         setup_requires=["setuptools_git", "appdirs"],
@@ -82,7 +69,7 @@ setup(
         include_package_data=True,
 
         name="superplot",
-        version="2.0.1",
+        version="2.0.2",
         author="Andrew Fowlie, Michael Bardsley",
         author_email="mhbar3@student.monash.edu",
         license="GPL v2",

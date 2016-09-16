@@ -532,7 +532,7 @@ if __name__ == "__main__":
     import doctest
     import superplot.data_loader as data_loader
 
-    GAUSS = "../../example/gaussian_.txt"
+    GAUSS = "../example/gaussian_.txt"
     GAUSS_DATA = data_loader.load(None, GAUSS)[1]
 
     doctest.testmod(extraglobs={'data': GAUSS_DATA})

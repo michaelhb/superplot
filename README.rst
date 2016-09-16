@@ -75,7 +75,7 @@ To run ``superplot_summary``::
 
     python -m superplot.summary
     
-To run ``super_command``:
+To run ``super_command``::
 
     python -m superplot.summary
 

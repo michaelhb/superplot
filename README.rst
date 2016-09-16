@@ -77,7 +77,7 @@ To run ``superplot_summary``::
     
 To run ``super_command``::
 
-    python -m superplot.summary
+    python -m superplot.super_command
 
 Superplot will also attempt to install launcher scripts in an OS-appropriate location, i.e. on Ubuntu, ``~/.local/bin/superplot_gui`` and ``~/.local/bin/superplot_summary`` are alternative ways of launching the tools.
 

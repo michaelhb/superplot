@@ -56,9 +56,9 @@ While pip will attempt to download and build these libraries if they are not ins
 
 On Ubuntu, this can be accomplished with the following commands::
 
-    sudo apt-get install git python-pip python-numpy python-scipy python-pandas  libfreetype6-dev python-gtk2-dev
+    sudo apt-get install git python-pip python-numpy python-scipy python-pandas  libfreetype6-dev python-gtk2-dev python-matplotlib
 
-The version of matplotlib supplied by Ubuntu may not be compiled with GTK support. If this is the case, building matplotlib via pip will fix the problem::
+The version of matplotlib supplied by Ubuntu may not be compiled with GTK support. If this is the case, building matplotlib via pip could fix the problem::
 
     pip install --force-reinstall --upgrade matplotlib
 

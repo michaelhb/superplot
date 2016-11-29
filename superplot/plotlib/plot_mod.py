@@ -64,6 +64,7 @@ def appearance(plot_name):
     home_dir_locfile = os.path.join(os.path.dirname(script_dir), "user_home.txt")
 
     style_sheet_path = None
+    default_style_sheet_path = None
 
     if os.path.exists(home_dir_locfile):
         with open(home_dir_locfile, "rb") as f:

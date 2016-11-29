@@ -64,6 +64,18 @@ The version of matplotlib supplied by Ubuntu may not be compiled with GTK suppor
 
 Note that Python(x,y) on Windows also ships matplotlib without GTK support - running the above command after installing Python(x,y) also fixes this issue.
 
+Installing on macOS
+-------------------
+
+On macOS, you will need to use `homebrew <http://brew.sh>`_. Specifically, you must install ``pygtk`` and ``matplotlib`` in homebrew to have proper GTK support::
+
+    brew install pygtk
+    brew install homebrew/python/matplotlib --with-pygtk
+
+Then you should be able to install ``superplot`` as usual via ``pip``::
+
+    pip install superplot
+
 Running
 =======
 

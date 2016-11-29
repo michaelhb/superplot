@@ -67,7 +67,7 @@ Note that Python(x,y) on Windows also ships matplotlib without GTK support - run
 Installing on macOS
 -------------------
 
-On macOS, you will need to use `homebrew <http://brew.sh>`. Specifically, you must install ``pygtk`` and ``matplotlib`` in homebrew to have proper GTK support.
+On macOS, you will need to use `homebrew <http://brew.sh>`_. Specifically, you must install ``pygtk`` and ``matplotlib`` in homebrew to have proper GTK support::
 
     brew install pygtk
     brew install homebrew/python/matplotlib --with-pygtk

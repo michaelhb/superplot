@@ -71,3 +71,15 @@ for scheme_name, params in plot_options.get_config()["schemes"].iteritems():
 
 credible_regions = [credible_region_s2, credible_region_s1]
 conf_intervals = [conf_interval_s2, conf_interval_s1]
+
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
+def scheme_from_yaml(yaml_file):
+    """
+    """
+    yaml = plot_options.get_config(yaml_file)
+    scheme = {scheme_name: Scheme(**params) for scheme_name, params in yaml["schemes"].iteritems()}
+    return AttrDict(scheme)

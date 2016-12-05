@@ -55,11 +55,15 @@ plot_options = namedtuple("plot_options", (
 ))
 
 
-def get_config():
+def get_config(yaml_file="config.yml"):
     """
     Load the config file, either from the user data
     directory, or if that is not available, the installed
     copy.
+    
+    :param yaml_file: Name of yaml file
+    :type yaml_file: str
+    
     :returns: config
     :rtype: dict
     """
@@ -73,13 +77,13 @@ def get_config():
     if os.path.exists(home_dir_locfile):
         with open(home_dir_locfile, "rb") as f:
             home_dir_path = f.read()
-            config_path = os.path.join(home_dir_path, "config.yml")
+            config_path = os.path.join(home_dir_path, yaml_file)
 
     # If it doesn't exist, use the installed copy
     if config_path is None or not os.path.exists(config_path):
         config_path = os.path.join(
             os.path.split(os.path.abspath(__file__))[0],
-            "config.yml"
+            yaml_file
         )
     # Load & return config
     with open(config_path) as cfile:

@@ -321,9 +321,18 @@ class GUIControl(object):
         # Combo box for legend position
         tlegpos = gtk.Button("Legend position:")
         self.legpos = gtk.combo_box_new_text()
-        for loc in ["best", "upper right", "lower left", "lower right",
-                    "right", "center left", "center right", "lower center",
-                    "upper center", "center", "no legend"]:
+        for loc in ["best", 
+                    "right",
+                    "upper right", 
+                    "center right",
+                    "lower right",
+                    "upper left", 
+                    "center left",
+                    "lower left",
+                    "upper center",
+                    "center",
+                    "lower center", 
+                    "no legend"]:
             self.legpos.append_text(loc)
         self.legpos.set_active(0)  # Default is first in above list - "best"
 

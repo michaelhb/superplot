@@ -1,0 +1,139 @@
+####################################################################################
+#                                config.yml                                        #
+####################################################################################
+# This file contains two sections:                                                 #
+#   - schemes: colours, symbols and labels for plot elements                       #
+#   - plot_options: technical plot options                                         #
+####################################################################################
+
+####################################################################################
+# The "schemes" section is used to configure the colours, symbols and labels of
+# plot elements. Configuration is per-element-type rather than per-plot, i.e.
+# changing the symbol for the best-fit point will affect all plots that show
+# a best-fit point.
+#
+# List of available marker symbol codes: http://matplotlib.org/api/markers_api.html
+# List of HTML named colours: http://www.w3schools.com/html/html_colornames.asp
+# Matplotlib colormap reference: http://matplotlib.org/users/colormaps.html
+schemes:
+
+    # Posterior mean (point)
+    posterior_mean:
+        colour: 'LightSeaGreen'
+        symbol: 'o'
+        label: 'Posterior Mean'
+        size: 10
+
+    # Posterior median (point)
+    posterior_median:
+        colour: 'LightBlue'
+        symbol: 's'
+        label: 'Posterior Median'
+        size: 10
+
+    # Posterior mode (point)
+    posterior_mode:
+        colour: 'Aquamarine'
+        symbol: '^'
+        label: 'Posterior Mode'
+        size: 10
+
+    # Best fit (point)
+    best_fit:
+        colour: 'LightSalmon'
+        symbol: '*'
+        label: 'Best-fit point'
+        size: 14
+
+    # Data points for scatter plotting
+    scatter:
+        symbol: 'o'
+        colour_map: 'Reds'
+        number_colours: null # Number of colours on colour map
+        size: 15
+
+    # Posterior PDF
+    posterior:
+        # 1D Plotting: Line colour, symbol and label
+        colour: 'SkyBlue'
+        symbol: '-'
+        label: 'Posterior pdf'
+
+        # 2D Plotting
+        colours: ['SkyBlue', 'LightSeaGreen'] # Colours for filled contour plots
+        colour_map: 'GnBu' # Colour map for full contour plots
+        number_colours: null # Number of colours on colour map
+        colour_bar_title: 'PDF'
+        level_names: ['$2\sigma$ region', '$1\sigma$ region']
+
+    # Profile Likelihood
+    prof_like:
+        # 1D Plotting: Line colour, symbol and label
+        colour: 'Goldenrod'
+        symbol: '--'
+        label: 'Profile likelihood'
+
+        # 2D Plotting
+        colours: ['DarkOrange', 'Brown'] # Colours for filled contour plots
+        colour_map: 'Reds' # Colour map for full contour plots
+        number_colours: null # Number of colours on colour map
+        colour_bar_title: 'PL'
+        level_names: ['$2\sigma$ region', '$1\sigma$ region']
+
+    # Profile chi-squared
+    prof_chi_sq:
+        # 1D Plotting: Line colour, symbol and label
+        colour: 'Goldenrod'
+        symbol: '--'
+        label: '$\Delta \chi^2$'
+
+        # Colours and labels for excluded regions
+        colours: ['Gold', 'Peru']
+        level_names: ['$2\sigma$ excluded', '$1\sigma$ excluded']
+
+    # Theory error band label and colour (used in chi-squared plot)
+    tau_band:
+        colour: 'RoyalBlue'
+        label: 'Theory Error'
+
+    # Two sigma confidence interval line
+    conf_interval_s2:
+        colour: 'Goldenrod'
+        symbol: 'o'
+        label: '$2\sigma$ confidence interval'
+
+    # One sigma confidence interval line
+    conf_interval_s1:
+        colour: 'LightSalmon'
+        symbol: 'o'
+        label: '$1\sigma$ confidence interval'
+
+    # Two sigma credible region line
+    credible_region_s2:
+        colour: 'LightSeaGreen'
+        symbol: '-'
+        label: '$2\sigma$ credible region'
+
+    # One sigma credible region line
+    credible_region_s1:
+        colour: 'LightBlue'
+        symbol: '-'
+        label: '$1\sigma$ credible region'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

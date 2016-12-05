@@ -310,7 +310,7 @@ import sys
 import mock
 
 MOCK_MODULES = [
-    'matplotlib',
+#    'matplotlib',
     'matplotlib.ticker',
     'matplotlib.pyplot',
     'matplotlib.pylab',

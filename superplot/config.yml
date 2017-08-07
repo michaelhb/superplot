@@ -45,8 +45,8 @@ schemes:
     # Data points for scatter plotting
     scatter:
         symbol: 'o'
-        colour_map: 'Reds'
-        number_colours: null # Number of colours on colour map
+        colour_map: 'PiYG'
+        number_colours: 10 # Number of colours on colour map
         size: 15
 
     # Posterior PDF

@@ -331,15 +331,16 @@ class Scatter(TwoDimPlot):
                 vmin=None,
                 vmax=None,
                 alpha=0.5,
-                linewidths=None,
+                linewidth=0.,
                 verts=None)
 
-        # Plot a colour bar
-        cb = plt.colorbar(sc, orientation='horizontal', shrink=0.5)
+        # Plot a colour bar. NB "magic" values for fraction and pad taken from
+        # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
+        cb = plt.colorbar(sc, orientation='vertical', fraction=0.046, pad=0.04)
         # Colour bar label
-        cb.ax.set_xlabel(opt.zlabel)
+        cb.ax.set_ylabel(opt.zlabel)
         # Set reasonable number of ticks
-        cb.locator = MaxNLocator(4)
+        cb.locator = MaxNLocator(8)
         cb.update_ticks()
 
         # Credible regions

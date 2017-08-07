@@ -11,6 +11,7 @@ from collections import namedtuple
 import simpleyaml as yaml
 import numpy as np
 
+
 plot_options = namedtuple("plot_options", (
     # Data
     "xindex",  # Index of x axis data
@@ -90,6 +91,9 @@ def get_config(yaml_file="config.yml"):
         return yaml.load(cfile)
 
 
+CONFIG = get_config()
+
+
 def default(option):
     """
     Retrieve the default value of a plot option.
@@ -102,7 +106,7 @@ def default(option):
 
     :returns: Default value of specified option.
     """
-    _defaults = get_config()["plot_options"]
+    _defaults = CONFIG["plot_options"]
 
     # Fix the types of a few options. It would also be
     # possible to directly specify the types in the YAML file,

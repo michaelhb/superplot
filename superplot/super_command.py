@@ -27,6 +27,7 @@ from argparse import ArgumentParser as arg_parser
 from os.path import basename, splitext
 from ast import literal_eval
 import matplotlib.pyplot as plt
+import numpy as np
 
 from superplot.plot_options import plot_options, default
 import superplot.plotlib.plots as plots
@@ -46,18 +47,19 @@ for plot_class in plots.plot_types:
 ATTRIBUTES = [attr for attr in vars(plot_options) if not attr.startswith('_')]
 COMPULSORY = ['xindex']
 
+fetch_data = lambda file_name: np.loadtxt(file_name, unpack=True)
 
-def guess_type(comand_arg):
+def guess_type(command_arg):
     """
-    :param comand_arg:
-    :type comand_arg: str
+    :param command_arg:
+    :type command_arg: str
 
     :returns: Pythonified value for string
     """
     try:
-        return literal_eval(comand_arg)
-    except:
-        return comand_arg
+        return literal_eval(command_arg)
+    except Exception:
+        return command_arg
 
 
 def __main__():
@@ -91,7 +93,19 @@ def __main__():
                         type=str,
                         default=None,
                         required=False)
-
+                        
+    parser.add_argument('--line_file',
+                        help='Add a data to be plotted as a line',
+                        type=str,
+                        default=None,
+                        required=False)
+                        
+    parser.add_argument('--line_label',
+                        help='Label of line added to plot for legend',
+                        type=str,
+                        default=None,
+                        required=False)
+                        
     # Add everything else
 
     for attr in ATTRIBUTES:
@@ -149,13 +163,15 @@ def __main__():
     info_file = args['info_file']
     plot_description = args['plot_description']
     output_file = args['output_file']
+    line_file = args['line_file']
+    line_label = args['line_label']
 
     # Make relevant plot
 
-    save_plot(txt_file, info_file, output_file, plot_description, options)
+    save_plot(txt_file, info_file, output_file, plot_description, options, line_file, line_label)
 
 
-def save_plot(txt_file, info_file, output_file, plot_description, options):
+def save_plot(txt_file, info_file, output_file, plot_description, options, line_file, line_label):
     """
     Make plot from arguments.
 
@@ -169,6 +185,10 @@ def save_plot(txt_file, info_file, output_file, plot_description, options):
     :type plot_description: str
     :param options: plot_options style arguments
     :type options: namedtuple
+    :param line_file: File name containing (x, y) columns of data to add to plot
+    :type line_file: str
+    :param line_label: Label in legend of line
+    :type line_label: str
     """
     assert plot_description in PLOT_CLASS.keys()
 
@@ -194,11 +214,28 @@ def save_plot(txt_file, info_file, output_file, plot_description, options):
         if options.zlabel is None and options.zindex:
             options = options._replace(zlabel=labels[options.zindex])
 
-    # Make and save plot
+    # Make plot
 
     figure = PLOT_CLASS[plot_description](data, options).figure()
+    
+    # Add line, if requested
+    
+    if line_file:
+    
+        x, y = fetch_data(line_file)
+        
+        if options.logy:
+            y = np.log10(y) 
+        if options.logx:
+            x = np.log10(x)
+        
+        plt.plot(x, y, label=line_label, c='Crimson', alpha=0.6, lw=3)
+        plt.legend(prop={'size': 16}, title=options.leg_title, loc=options.leg_position)  # TODO: This is a hack
+            
+    # Save plot 
+            
     plt.savefig(output_file)
-
+    
     print 'Output file = {}'.format(output_file)
     print 'Summary = {}'.format(figure.summary)
 

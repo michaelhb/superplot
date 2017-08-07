@@ -330,9 +330,9 @@ class Scatter(TwoDimPlot):
                 norm=None,
                 vmin=None,
                 vmax=None,
-                alpha=0.5,
                 linewidth=0.,
-                verts=None)
+                verts=None,
+                rasterized=True)
 
         # Plot a colour bar. NB "magic" values for fraction and pad taken from
         # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph

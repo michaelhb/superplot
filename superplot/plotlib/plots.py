@@ -319,6 +319,9 @@ class Scatter(TwoDimPlot):
         fig, ax = self._new_plot()
         opt = self.plot_options
 
+        min_ = np.percentile(self.zdata, 5.)
+        max_ = np.percentile(self.zdata, 95.)
+
         # Plot scatter of points.
         sc = plt.scatter(
                 self.xdata,
@@ -328,8 +331,8 @@ class Scatter(TwoDimPlot):
                 marker=schemes.scatter.symbol,
                 cmap=schemes.scatter.colour_map,
                 norm=None,
-                vmin=None,
-                vmax=None,
+                vmin=min_,
+                vmax=max_,
                 linewidth=0.,
                 verts=None,
                 rasterized=True)

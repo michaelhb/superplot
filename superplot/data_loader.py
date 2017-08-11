@@ -24,7 +24,7 @@ def load(info_file, data_file):
     """
     if not data_file:
         raise RuntimeWarning("Must specify a *.txt data file")
-    
+
     data = _read_data_file(data_file)
     labels = _read_info_file(info_file)
     _label_chain(data, labels)
@@ -32,18 +32,46 @@ def load(info_file, data_file):
     return labels, data
 
 
-def _read_data_file(file_name):
+def _read_data_file(file_name, fill=0.):
     """
     Read \\*.txt file into an array.
 
     :param file_name: Name of \\*.txt file
     :type file_name: string
+    :param fill: Fill value for problematic data entries
+    :type fill: float
 
     :returns: Data as an array, with first index as column number
     :rtype: numpy.array
     """
+
+    # Make converters that don't raise exceptions on problematic data entries
+
+    def safe_float(entry):
+        """
+        :param entry: String from \\*.txt file
+        :type entry: str
+
+        :returns: Float of argument
+        :rtype: float
+        """
+        try:
+            return float(entry)
+        except ValueError:
+            warnings.warn("{} filled with {}".format(entry, fill))
+            return fill
+
+    with open(file_name) as file_:
+        n_cols = len(file_.readline().split())
+
+    converters = dict.fromkeys(range(n_cols), safe_float)
+
     # Read data into a pandas data-frame
-    data_frame = pd.read_csv(file_name, header=None, sep="\s+", engine="c")
+    data_frame = pd.read_csv(file_name,
+                             header=None,
+                             sep=r"\s+",
+                             engine="c",
+                             converters=converters)
 
     # Transpose data-frame, such that first index is column rather than row
     data_frame = data_frame.transpose()

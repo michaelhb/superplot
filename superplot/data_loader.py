@@ -71,7 +71,8 @@ def _read_data_file(file_name, fill=0.):
                              header=None,
                              sep=r"\s+",
                              engine="c",
-                             converters=converters)
+                             converters=converters,
+                             na_filter=False)
 
     # Transpose data-frame, such that first index is column rather than row
     data_frame = data_frame.transpose()

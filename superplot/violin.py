@@ -43,7 +43,7 @@ def custom_violin_stats(parameter, posterior):
     return violin_stats
 
 
-def violin_plot(data, labels, index_list, output_file, y_label):
+def violin_plot(data, labels, index_list, output_file, y_label, y_range):
     """
     :param data: Chain
     :type data: np.array
@@ -79,7 +79,8 @@ def violin_plot(data, labels, index_list, output_file, y_label):
 
     # Adjust axes
 
-    ax.set_ylabel(y_label)
+    if y_label:
+        ax.set_ylabel(y_label)
     xlabels = [labels[i] for i in index_list]
     ax.set_xticks(range(1, len(index_list) + 1))
     ax.set_xticklabels(xlabels, rotation='vertical')
@@ -87,11 +88,15 @@ def violin_plot(data, labels, index_list, output_file, y_label):
 
     # Pick y-range
 
-    y_max = max([s["max"] for s in stats])
-    y_min = min([s["min"] for s in stats])
-    y_max += 0.1 * abs(y_max)
-    y_min -= 0.1 * abs(y_min)
-    ax.set_ylim(y_min, y_max)
+    if y_range is None:
+
+        y_max = max([s["max"] for s in stats])
+        y_min = min([s["min"] for s in stats])
+        y_max += 0.1 * abs(y_max)
+        y_min -= 0.1 * abs(y_min)
+        y_range = [y_min, y_max]
+
+    ax.set_ylim(y_range)
 
     # Make a  legend
 
@@ -125,7 +130,6 @@ def main():
                         default=None,
                         required=False)
     parser.add_argument('--index_list',
-                        '-i',
                         help='Indexes of columns in violin plot',
                         type=int,
                         default=None,
@@ -141,6 +145,12 @@ def main():
                         type=str,
                         default=None,
                         required=False)
+    parser.add_argument('--y_range',
+                        help='Range for y-axis',
+                        type=float,
+                        default=None,
+                        required=False,
+                        nargs='+')
 
     args = vars(parser.parse_args())
 
@@ -154,7 +164,7 @@ def main():
 
     # Make plot
 
-    violin_plot(data, labels, index_list, args['output_file'], args['y_label'])
+    violin_plot(data, labels, index_list, args['output_file'], args['y_label'], args['y_range'])
 
 
 if __name__ == "__main__":

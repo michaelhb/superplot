@@ -1,7 +1,8 @@
 """
-A stand-alone script to print summary statistics about a data file.
-Runs without arguments - GUI dialogs are used to select the
-chain and info files.
+Summary of chain
+================
+
+A stand-alone script to print summary statistics about a chain.
 """
 
 import os

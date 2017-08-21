@@ -106,7 +106,7 @@ def violin_plot(data, labels, index_list, output_file, y_label, y_range):
     plt.plot(*coords, lw=5, color="SeaGreen", ls="-", label=r"95\% credible region")
 
     handles, labels = ax.get_legend_handles_labels()
-    handles.append(mpatches.Patch(color='RoyalBlue'))
+    handles.append(mpatches.Patch(color='RoyalBlue', alpha=0.4))
     labels.append("Posterior")
     plt.legend(handles, labels)
 

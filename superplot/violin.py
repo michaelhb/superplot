@@ -9,12 +9,15 @@ https://en.wikipedia.org/wiki/Violin_plot
 
 import os
 import matplotlib.pyplot as plt
-from argparse import ArgumentParser as arg_parser
 import matplotlib.patches as mpatches
+from argparse import ArgumentParser as arg_parser
 
 import data_loader
 from superplot.statslib.point import posterior_mean
-from superplot.statslib.one_dim import posterior_pdf, posterior_median, credible_region
+from superplot.statslib.one_dim import kde_posterior_pdf, posterior_median, credible_region
+
+
+ALPHA = 0.05
 
 
 def custom_violin_stats(parameter, posterior):
@@ -28,14 +31,14 @@ def custom_violin_stats(parameter, posterior):
     :rtype: dict
     """
 
-    pdf = posterior_pdf(parameter, posterior)
+    pdf = kde_posterior_pdf(parameter, posterior)
 
     violin_stats = {"coords": pdf.bin_centers,
                     "vals": pdf.pdf,
                     "mean": posterior_mean(posterior, parameter),
                     "median": posterior_median(pdf.pdf, pdf.bin_centers),
-                    "min": credible_region(pdf.pdf, pdf.bin_centers, 0.025, "lower"),
-                    "max": credible_region(pdf.pdf, pdf.bin_centers, 0.025, "upper")}
+                    "min": credible_region(pdf.pdf, pdf.bin_centers, ALPHA, "lower"),
+                    "max": credible_region(pdf.pdf, pdf.bin_centers, ALPHA, "upper")}
 
     return violin_stats
 
@@ -61,7 +64,7 @@ def violin_plot(data, labels, index_list, output_file, y_label):
         pc.set_facecolor('RoyalBlue')
         pc.set_alpha(0.4)
         pc.set_edgecolor('DodgerBlue')
-        pc.set_linewidths(5)
+        pc.set_linewidths(1)
 
     line_prop = {'cmeans': (5, "RoyalBlue"),
                  'cmedians': (5, "Crimson"),
@@ -79,8 +82,16 @@ def violin_plot(data, labels, index_list, output_file, y_label):
     ax.set_ylabel(y_label)
     xlabels = [labels[i] for i in index_list]
     ax.set_xticks(range(1, len(index_list) + 1))
-    ax.set_xticklabels(xlabels)
+    ax.set_xticklabels(xlabels, rotation='vertical')
     ax.set_xlim(0, len(index_list) + 2)
+
+    # Pick y-range
+
+    y_max = max([s["max"] for s in stats])
+    y_min = min([s["min"] for s in stats])
+    y_max += 0.1 * abs(y_max)
+    y_min -= 0.1 * abs(y_min)
+    ax.set_ylim(y_min, y_max)
 
     # Make a  legend
 

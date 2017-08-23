@@ -17,10 +17,10 @@ from superplot.statslib.point import posterior_mean
 from superplot.statslib.one_dim import kde_posterior_pdf, posterior_median, credible_region
 
 
-ALPHA = 0.05
+ALPHA = 0.32
 
 
-def custom_violin_stats(parameter, posterior):
+def custom_violin_stats(parameter, posterior, bin_limits):
     """
     :parameter parameter: Data column of parameter of interest
     :type parameter: numpy.ndarray
@@ -31,7 +31,7 @@ def custom_violin_stats(parameter, posterior):
     :rtype: dict
     """
 
-    pdf = kde_posterior_pdf(parameter, posterior)
+    pdf = kde_posterior_pdf(parameter, posterior, bin_limits=bin_limits)
 
     violin_stats = {"coords": pdf.bin_centers,
                     "vals": pdf.pdf,
@@ -43,7 +43,13 @@ def custom_violin_stats(parameter, posterior):
     return violin_stats
 
 
-def violin_plot(data, labels, index_list, output_file, y_label, y_range):
+def violin_plot(data, 
+                index_list,
+                labels=None,
+                output_file="vilolin.pdf",
+                y_label=None,
+                y_range=None,
+                leg_title=None):
     """
     :param data: Chain
     :type data: np.array
@@ -51,7 +57,7 @@ def violin_plot(data, labels, index_list, output_file, y_label, y_range):
     """
     # Fetch data
 
-    stats = [custom_violin_stats(data[i], data[0]) for i in index_list]
+    stats = [custom_violin_stats(data[i], data[0], y_range) for i in index_list]
 
     # Make violin plot
 
@@ -81,9 +87,12 @@ def violin_plot(data, labels, index_list, output_file, y_label, y_range):
 
     if y_label:
         ax.set_ylabel(y_label)
-    xlabels = [labels[i] for i in index_list]
+        
+    if labels:
+        x_labels = [labels[i] for i in index_list]
+        ax.set_xticklabels(x_labels, rotation='vertical')
+    
     ax.set_xticks(range(1, len(index_list) + 1))
-    ax.set_xticklabels(xlabels, rotation='vertical')
     ax.set_xlim(0, len(index_list) + 2)
 
     # Pick y-range
@@ -103,12 +112,12 @@ def violin_plot(data, labels, index_list, output_file, y_label, y_range):
     coords = [[-10, -5], [0., 0.]]
     plt.plot(*coords, lw=5, color="RoyalBlue", ls="-", label="Mean")
     plt.plot(*coords, lw=5, color="Crimson", ls="-", label="Median")
-    plt.plot(*coords, lw=5, color="SeaGreen", ls="-", label=r"95\% credible region")
+    plt.plot(*coords, lw=5, color="SeaGreen", ls="-", label=r"$1\sigma$ credible region")
 
-    handles, labels = ax.get_legend_handles_labels()
-    handles.append(mpatches.Patch(color='RoyalBlue'))
-    labels.append("Posterior")
-    plt.legend(handles, labels)
+    handles, leg_labels = ax.get_legend_handles_labels()
+    handles.append(mpatches.Patch(color='RoyalBlue', alpha=0.4))
+    leg_labels.append("Posterior")
+    plt.legend(handles, leg_labels, loc='lower right', title=leg_title)
 
     plt.tight_layout()
     plt.savefig(output_file)
@@ -146,11 +155,16 @@ def main():
                         default=None,
                         required=False)
     parser.add_argument('--y_range',
-                        help='Range for y-axis',
+                        help='Range for y-axis and bin limit',
                         type=float,
                         default=None,
                         required=False,
                         nargs='+')
+    parser.add_argument('--leg_title',
+                        help='Title for legend',
+                        type=str,
+                        default=None,
+                        required=False)
 
     args = vars(parser.parse_args())
 
@@ -164,7 +178,13 @@ def main():
 
     # Make plot
 
-    violin_plot(data, labels, index_list, args['output_file'], args['y_label'], args['y_range'])
+    violin_plot(data,
+                index_list, 
+                labels,
+                args['output_file'], 
+                args['y_label'], 
+                args['y_range'],
+                args['leg_title'])
 
 
 if __name__ == "__main__":

@@ -20,14 +20,16 @@ from superplot.statslib.one_dim import kde_posterior_pdf, posterior_median, cred
 ALPHA = 0.32
 
 
-def custom_violin_stats(parameter, posterior, bin_limits):
+def custom_violin_stats(parameter, posterior, bin_limits=None):
     """
     :parameter parameter: Data column of parameter of interest
     :type parameter: numpy.ndarray
     :parameter posterior: Data column of posterior weight
     :type posterior: numpy.ndarray
+    :param bin_limits: Bin limits for histogram
+    :type bin_limits: list [xmin, xmax]
 
-    :returns: Statistic for violin plot.
+    :returns: Statistic for violin plot
     :rtype: dict
     """
 
@@ -51,9 +53,10 @@ def violin_plot(data,
                 y_range=None,
                 leg_title=None):
     """
-    :param data: Chain
+    :param data: Data e.g. chain from MultiNest
     :type data: np.array
-
+    :param index_list: List of indices from data that should be plotted
+    :type index_list: list
     """
     # Fetch data
 

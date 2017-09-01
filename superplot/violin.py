@@ -50,7 +50,9 @@ def violin_plot(data,
                 labels=None,
                 output_file="vilolin.pdf",
                 y_label=None,
+                x_range=None,
                 y_range=None,
+                leg_position='lower right',
                 leg_title=None):
     """
     :param data: Data e.g. chain from MultiNest
@@ -96,7 +98,8 @@ def violin_plot(data,
         ax.set_xticklabels(x_labels, rotation='vertical')
     
     ax.set_xticks(range(1, len(index_list) + 1))
-    ax.set_xlim(0, len(index_list) + 2)
+    x_range = x_range if x_range else [0, len(index_list) + 2]
+    ax.set_xlim(x_range)
 
     # Pick y-range
 
@@ -120,7 +123,7 @@ def violin_plot(data,
     handles, leg_labels = ax.get_legend_handles_labels()
     handles.append(mpatches.Patch(color='RoyalBlue', alpha=0.4))
     leg_labels.append("Posterior")
-    plt.legend(handles, leg_labels, loc='lower right', title=leg_title)
+    plt.legend(handles, leg_labels, loc=leg_position, title=leg_title)
 
     plt.tight_layout()
     plt.savefig(output_file)
@@ -168,7 +171,18 @@ def main():
                         type=str,
                         default=None,
                         required=False)
-
+    parser.add_argument('--x_range',
+                        help='Range for x-axis',
+                        type=float,
+                        default=None,
+                        required=False,
+                        nargs='+')
+    parser.add_argument('--leg_pos',
+                        help='Position for legend',
+                        type=str,
+                        default='lower right',
+                        required=False)
+                                                
     args = vars(parser.parse_args())
 
     datafile = os.path.abspath(args['data_file'])
@@ -186,7 +200,9 @@ def main():
                 labels,
                 args['output_file'], 
                 args['y_label'], 
+                args['x_range'],
                 args['y_range'],
+                args['leg_pos'],
                 args['leg_title'])
 
 

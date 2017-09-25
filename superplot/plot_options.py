@@ -24,9 +24,11 @@ plot_options = namedtuple("plot_options", (
     # Limits, bins, ticks
     "plot_limits",  # Plot limits [xmin, xmax, ymin, ymax]
     "bin_limits",  # Bin limits [[xmin, xmax], [ymin, ymax]]
+    "cb_limits",  # Colorbar limits [min, max]
     "nbins",  # Number of bins
     "xticks",  # Number of x ticks
     "yticks",  # Number of y ticks
+    "cbticks",  # Number of colorbar ticks
 
     "alpha",  # Values of alpha in asc. order [float, float]
     "tau",  # Theoretical error width on delta chi-squared plots.
@@ -116,6 +118,8 @@ def default(option):
         _defaults["alpha"].sort()
     if _defaults["plot_limits"] is not None:
         _defaults["plot_limits"] = np.array(_defaults["plot_limits"])
+    if _defaults["plot_limits"] is not None:
+        _defaults["cb_limits"] = np.array(_defaults["cb_limits"])
     
     try:
         return _defaults[option]

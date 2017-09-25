@@ -319,8 +319,8 @@ class Scatter(TwoDimPlot):
         fig, ax = self._new_plot()
         opt = self.plot_options
 
-        min_ = np.percentile(self.zdata, 5.)
-        max_ = np.percentile(self.zdata, 95.)
+        min_ = min(opt.cb_limits) if opt.cb_limits else np.percentile(self.zdata, 5.)
+        max_ = max(opt.cb_limits) if opt.cb_limits else np.percentile(self.zdata, 95.)
 
         # Plot scatter of points.
         sc = plt.scatter(
@@ -343,7 +343,7 @@ class Scatter(TwoDimPlot):
         # Colour bar label
         cb.ax.set_ylabel(opt.zlabel)
         # Set reasonable number of ticks
-        cb.locator = MaxNLocator(8)
+        cb.locator = MaxNLocator(opt.cbticks)
         cb.update_ticks()
 
         # Credible regions

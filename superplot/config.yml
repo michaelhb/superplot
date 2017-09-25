@@ -140,10 +140,14 @@ plot_options:
 
     # Default number of bins.
     nbins: 70
+    
+    # Default colorbar limits for scatter plots
+    cb_limits: null
 
-    # Default number of ticks for x & y axes.
+    # Default number of ticks for axes.
     xticks: 5
     yticks: 5
+    cbticks: 10
 
     # Default plot title.
     plot_title: ''

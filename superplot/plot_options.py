@@ -118,7 +118,7 @@ def default(option):
         _defaults["alpha"].sort()
     if _defaults["plot_limits"] is not None:
         _defaults["plot_limits"] = np.array(_defaults["plot_limits"])
-    if _defaults["plot_limits"] is not None:
+    if _defaults["cb_limits"] is not None:
         _defaults["cb_limits"] = np.array(_defaults["cb_limits"])
     
     try:

@@ -647,9 +647,11 @@ class GUIControl(object):
 
                 "plot_limits": self.plot_limits,
                 "bin_limits": self.bin_limits,
+                "cb_limits": default("cb_limits"),
                 "nbins": self.bins.get_value_as_int(),
                 "xticks": default("xticks"),
                 "yticks": default("yticks"),
+                "cbticks": default("cbticks"),
 
                 "tau": default("tau"),
                 "alpha": default("alpha"),

@@ -26,15 +26,13 @@ def _shift(bin_number, nbins):
     :returns: Shifted bin number
     :rtype: integer
     """
-    # First deal with outliers in 0 and nbins + 1 bins
-    if bin_number == 0:
-        bin_number = 1
-    elif bin_number == nbins + 1:
-        bin_number = nbins
-
-    # Now subtract one from all bin numbers to shift (1, n_bins) to
-    # (0, n_bins - 1).
-    bin_number -= 1
+    if bin_number == 0 or bin_number == nbins + 1:
+        # First deal with outliers in 0 and nbins + 1 bins
+        bin_number = None
+    else:
+        # Subtract one from all bin numbers to shift (1, n_bins) to
+        # (0, n_bins - 1).
+        bin_number -= 1
 
     return bin_number
 

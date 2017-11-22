@@ -234,7 +234,7 @@ def profile_like(paramx, paramy, chi_sq, nbins, bin_limits=None):
     # the chain.
     for index in range(chi_sq.size):
         bin_numbers = (bin_numbers_x[index], bin_numbers_y[index])
-        if chi_sq[index] < prof_chi_sq[bin_numbers]:
+        if bin_numbers[0] is not None and bin_numbers[1] is not None and chi_sq[index] < prof_chi_sq[bin_numbers]:
             prof_chi_sq[bin_numbers] = chi_sq[index]
 
     # Subtract minimum chi-squared (i.e. minimum profile chi-squared is zero,

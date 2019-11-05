@@ -213,7 +213,7 @@ def prof_data(parameter, chi_sq, nbins=50, bin_limits=None):
     # the chain.
     for index in range(chi_sq.size):
         bin_number = bin_numbers[index]
-        if chi_sq[index] < prof_chi_sq[bin_number]:
+        if bin_number is not None and chi_sq[index] < prof_chi_sq[bin_number]:
             prof_chi_sq[bin_number] = chi_sq[index]
 
     # Subtract minimum chi-squared (i.e. minimum profile chi-squared is zero,

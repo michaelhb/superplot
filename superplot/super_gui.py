@@ -2,16 +2,15 @@
 This module provides the superplot GUI.
 """
 
-# Standard modules
 import os
 import re
 import pickle
 import time
 import warnings
 from collections import OrderedDict
+from distutils.version import StrictVersion
 
 import matplotlib
-from distutils.version import StrictVersion
 
 # Runtime check that correct matplotlib version is installed.
 # This is a common issue and might not be caught by setup.py
@@ -20,29 +19,15 @@ version = StrictVersion(matplotlib.__version__)
 required_version = StrictVersion("1.4")
 if version < required_version:
     raise ImportError("Superplot requires matplotlib %s. "
-                       "You are running matplotlib %s. "
-                       "Upgrade via e.g. pip install --force-reinstall --upgrade matplotlib"
-                       % (required_version, version))
+                      "You are running matplotlib %s. "
+                      "Upgrade via e.g. pip install --force-reinstall --upgrade matplotlib"
+                      % (required_version, version))
 
-# External modules
-import gtk
-import pygtk
-
-try:
-    from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
-except ImportError as e:
-    print "Could not load matplotlib - GTK backend. " \
-          "Your version of matplotlib may not be compiled with GTK support. " \
-          "Reinstalling matplotlib may fix this problem - see README or " \
-          "user manual for instructions"
-    raise
-
-# Superplot modules
 import data_loader
 import superplot.plotlib.plots as plots
+import gtk_wrapper
+from gtk_wrapper import gtk
 from plot_options import plot_options, default
-
-pygtk.require('2.0')
 
 
 def open_file_gui(window_title="Open",
@@ -73,16 +58,16 @@ def open_file_gui(window_title="Open",
 
     # Make buttons, allowing for cae in which no cancel button is desired
     if allow_no_file:
-        buttons = (no_file, gtk.RESPONSE_CANCEL,
-                   gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        buttons = (no_file, gtk_wrapper.RESPONSE_CANCEL,
+                   gtk.STOCK_OPEN, gtk_wrapper.RESPONSE_OK)
     else:
-        buttons = (gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        buttons = (gtk.STOCK_OPEN, gtk_wrapper.RESPONSE_OK)
 
     # Select the file from a dialog box
     dialog = gtk.FileChooserDialog(title=window_title,
-                                   action=gtk.FILE_CHOOSER_ACTION_OPEN,
+                                   action=gtk_wrapper.FILE_CHOOSER_ACTION_OPEN,
                                    buttons=buttons)
-    dialog.set_default_response(gtk.RESPONSE_OK)
+    dialog.set_default_response(gtk_wrapper.RESPONSE_OK)
     dialog.set_current_folder(os.getcwd())
 
     # Only show particular files
@@ -96,10 +81,10 @@ def open_file_gui(window_title="Open",
 
     response = dialog.run()
 
-    if response == gtk.RESPONSE_OK:
+    if response == gtk_wrapper.RESPONSE_OK:
         # Save the file name/path
         file_name = dialog.get_filename()
-    elif response == gtk.RESPONSE_CANCEL:
+    elif response == gtk_wrapper.RESPONSE_CANCEL:
         warnings.warn("No file selected")
         file_name = None
     else:
@@ -109,7 +94,7 @@ def open_file_gui(window_title="Open",
 
     dialog.destroy()
     print 'File: %s selected' % file_name
-    
+
     return file_name
 
 
@@ -130,12 +115,12 @@ def save_file_gui(window_title="Save As",
     :rtype: string
     """
     # Select the file from a dialog box
-    buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-               gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+    buttons = (gtk.STOCK_CANCEL, gtk_wrapper.RESPONSE_CANCEL,
+               gtk.STOCK_OPEN, gtk_wrapper.RESPONSE_OK)
     dialog = gtk.FileChooserDialog(title=window_title,
-                                   action=gtk.FILE_CHOOSER_ACTION_SAVE,
+                                   action=gtk_wrapper.FILE_CHOOSER_ACTION_SAVE,
                                    buttons=buttons)
-    dialog.set_default_response(gtk.RESPONSE_OK)
+    dialog.set_default_response(gtk_wrapper.RESPONSE_OK)
     dialog.set_current_folder(os.getcwd())
 
     # Only show particular files
@@ -148,11 +133,11 @@ def save_file_gui(window_title="Save As",
     dialog.add_filter(file_filter)
 
     response = dialog.run()
-    
-    if response == gtk.RESPONSE_OK:
+
+    if response == gtk_wrapper.RESPONSE_OK:
         # Save the file name/path
         file_name = dialog.get_filename()
-    elif response == gtk.RESPONSE_CANCEL:
+    elif response == gtk_wrapper.RESPONSE_CANCEL:
         warnings.warn("No file selected")
         file_name = None
     else:
@@ -243,7 +228,7 @@ class GUIControl(object):
         # Combo-box for various plot types
 
         typetitle = gtk.Button("Plot type:")
-        self.typebox = gtk.combo_box_new_text()
+        self.typebox = gtk_wrapper.COMBO_BOX_TEXT()
         for description in self.plots.keys():
             self.typebox.append_text(description)
         self.typebox.set_active(default_plot_type)  # Set to default plot type
@@ -253,7 +238,7 @@ class GUIControl(object):
         # Combo box for selecting x-axis variable
 
         xtitle = gtk.Button("x-axis variable:")
-        self.xbox = gtk.combo_box_new_text()
+        self.xbox = gtk_wrapper.COMBO_BOX_TEXT()
         for label in self.labels.itervalues():
             self.xbox.append_text(label)
         self.xbox.set_wrap_width(5)
@@ -268,7 +253,7 @@ class GUIControl(object):
         # Combo box for selecting y-axis variable
 
         ytitle = gtk.Button("y-axis variable:")
-        self.ybox = gtk.combo_box_new_text()
+        self.ybox = gtk_wrapper.COMBO_BOX_TEXT()
         for label in self.labels.itervalues():
             self.ybox.append_text(label)
         self.ybox.set_wrap_width(5)
@@ -283,7 +268,7 @@ class GUIControl(object):
         # Combo box for selecting z-axis variable
 
         ztitle = gtk.Button("z-axis variable:")
-        self.zbox = gtk.combo_box_new_text()
+        self.zbox = gtk_wrapper.COMBO_BOX_TEXT()
         for label in self.labels.itervalues():
             self.zbox.append_text(label)
         self.zbox.set_wrap_width(5)
@@ -320,18 +305,18 @@ class GUIControl(object):
 
         # Combo box for legend position
         tlegpos = gtk.Button("Legend position:")
-        self.legpos = gtk.combo_box_new_text()
-        for loc in ["best", 
+        self.legpos = gtk_wrapper.COMBO_BOX_TEXT()
+        for loc in ["best",
                     "right",
-                    "upper right", 
+                    "upper right",
                     "center right",
                     "lower right",
-                    "upper left", 
+                    "upper left",
                     "center left",
                     "lower left",
                     "upper center",
                     "center",
-                    "lower center", 
+                    "lower center",
                     "no legend"]:
             self.legpos.append_text(loc)
         self.legpos.set_active(0)  # Default is first in above list - "best"
@@ -354,7 +339,7 @@ class GUIControl(object):
                              "x_min, x_max, y_min, y_max:")
         self.alimits = gtk.Entry()
         self.alimits.connect("changed", self._calimits)
-        self.alimits.append_text("")
+        gtk_wrapper.APPEND_TEXT(self.alimits, "")
 
         #######################################################################
 
@@ -364,7 +349,7 @@ class GUIControl(object):
                              "x_min, x_max, y_min, y_max:")
         self.blimits = gtk.Entry()
         self.blimits.connect("changed", self._cblimits)
-        self.blimits.append_text("")
+        gtk_wrapper.APPEND_TEXT(self.blimits, "")
 
         #######################################################################
 
@@ -414,44 +399,44 @@ class GUIControl(object):
 
         self.gridbox = gtk.Table(17, 5, False)
 
-        self.gridbox.attach(typetitle, 0, 1, 0, 1, xoptions=gtk.FILL)
-        self.gridbox.attach(self.typebox, 1, 2, 0, 1, xoptions=gtk.FILL)
+        self.gridbox.attach(typetitle, 0, 1, 0, 1, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.typebox, 1, 2, 0, 1, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(xtitle, 0, 1, 1, 2, xoptions=gtk.FILL)
-        self.gridbox.attach(self.xbox, 1, 2, 1, 2, xoptions=gtk.FILL)
-        self.gridbox.attach(self.xtext, 1, 2, 2, 3, xoptions=gtk.FILL)
+        self.gridbox.attach(xtitle, 0, 1, 1, 2, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.xbox, 1, 2, 1, 2, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.xtext, 1, 2, 2, 3, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(ytitle, 0, 1, 3, 4, xoptions=gtk.FILL)
-        self.gridbox.attach(self.ybox, 1, 2, 3, 4, xoptions=gtk.FILL)
-        self.gridbox.attach(self.ytext, 1, 2, 4, 5, xoptions=gtk.FILL)
+        self.gridbox.attach(ytitle, 0, 1, 3, 4, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.ybox, 1, 2, 3, 4, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.ytext, 1, 2, 4, 5, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(ztitle, 0, 1, 5, 6, xoptions=gtk.FILL)
-        self.gridbox.attach(self.zbox, 1, 2, 5, 6, xoptions=gtk.FILL)
-        self.gridbox.attach(self.ztext, 1, 2, 6, 7, xoptions=gtk.FILL)
+        self.gridbox.attach(ztitle, 0, 1, 5, 6, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.zbox, 1, 2, 5, 6, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.ztext, 1, 2, 6, 7, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(self.logx, 0, 1, 2, 3, xoptions=gtk.FILL)
-        self.gridbox.attach(self.logy, 0, 1, 4, 5, xoptions=gtk.FILL)
-        self.gridbox.attach(self.logz, 0, 1, 6, 7, xoptions=gtk.FILL)
+        self.gridbox.attach(self.logx, 0, 1, 2, 3, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.logy, 0, 1, 4, 5, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.logz, 0, 1, 6, 7, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tplottitle, 0, 1, 9, 10, xoptions=gtk.FILL)
-        self.gridbox.attach(self.plottitle, 1, 2, 9, 10, xoptions=gtk.FILL)
+        self.gridbox.attach(tplottitle, 0, 1, 9, 10, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.plottitle, 1, 2, 9, 10, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tlegtitle, 0, 1, 10, 11, xoptions=gtk.FILL)
-        self.gridbox.attach(self.legtitle, 1, 2, 10, 11, xoptions=gtk.FILL)
+        self.gridbox.attach(tlegtitle, 0, 1, 10, 11, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.legtitle, 1, 2, 10, 11, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tlegpos, 0, 1, 11, 12, xoptions=gtk.FILL)
-        self.gridbox.attach(self.legpos, 1, 2, 11, 12, xoptions=gtk.FILL)
+        self.gridbox.attach(tlegpos, 0, 1, 11, 12, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.legpos, 1, 2, 11, 12, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tbins, 0, 1, 12, 13, xoptions=gtk.FILL)
-        self.gridbox.attach(self.bins, 1, 2, 12, 13, xoptions=gtk.FILL)
+        self.gridbox.attach(tbins, 0, 1, 12, 13, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.bins, 1, 2, 12, 13, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(alimits, 0, 1, 13, 14, xoptions=gtk.FILL)
-        self.gridbox.attach(self.alimits, 1, 2, 13, 14, xoptions=gtk.FILL)
+        self.gridbox.attach(alimits, 0, 1, 13, 14, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.alimits, 1, 2, 13, 14, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(blimits, 0, 1, 14, 15, xoptions=gtk.FILL)
-        self.gridbox.attach(self.blimits, 1, 2, 14, 15, xoptions=gtk.FILL)
+        self.gridbox.attach(blimits, 0, 1, 14, 15, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.blimits, 1, 2, 14, 15, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(makeplot, 0, 2, 16, 17, xoptions=gtk.FILL)
+        self.gridbox.attach(makeplot, 0, 2, 16, 17, xoptions=gtk_wrapper.FILL)
 
         #######################################################################
 
@@ -473,7 +458,7 @@ class GUIControl(object):
 
         self.gridbox.attach(point_plot_container,
                             0, 2, 15, 16,
-                            xoptions=gtk.FILL)
+                            xoptions=gtk_wrapper.FILL)
 
         #######################################################################
 
@@ -672,10 +657,9 @@ class GUIControl(object):
                 "show_credible_regions": self.show_credible_regions.get_active(),
                 "show_posterior_pdf": self.show_posterior_pdf.get_active(),
                 "show_prof_like": self.show_prof_like.get_active(),
-                
+
                 "kde_pdf": self.kde_pdf.get_active(),
-                "bw_method": default("bw_method")
-                }
+                "bw_method": default("bw_method")}
         self.options = plot_options(**args)
 
         # Fetch the class for the selected plot type
@@ -690,7 +674,7 @@ class GUIControl(object):
         self.plot = plot_class(self.data, self.options)
 
         # Put figure in plot box
-        canvas = FigureCanvas(self.fig.figure)  # A gtk.DrawingArea
+        canvas = gtk_wrapper.FigureCanvas(self.fig.figure)
         self.gridbox.attach(canvas, 2, 5, 0, 15)
 
         # Button to save the plot
@@ -728,8 +712,7 @@ class GUIControl(object):
                                   add_pattern=["*.pdf",
                                                "*.png",
                                                "*.eps",
-                                               "*.ps"]
-                                  )
+                                               "*.ps"])
 
         if not isinstance(file_name, str):
             # Case in which no file is chosen
@@ -777,14 +760,12 @@ def main():
     data_file = open_file_gui(window_title="Select a MultiNest *.txt file",
                               set_name="MultiNest *.txt file",
                               add_pattern=["*.txt"],
-                              allow_no_file=False
-                              )
+                              allow_no_file=False)
     info_file = open_file_gui(window_title="Select an information file",
                               set_name="Information file *.info describing "
                                        "*.txt file",
                               add_pattern=["*.info"],
-                              allow_no_file=True
-                              )
+                              allow_no_file=True)
     GUIControl(data_file, info_file)
     gtk.main()
     return

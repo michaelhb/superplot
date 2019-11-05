@@ -139,7 +139,7 @@ plot_options:
     bin_limits: null
 
     # Default number of bins.
-    nbins: 70
+    nbins: 'auto'
     
     # Default colorbar limits for scatter plots
     cb_limits: null

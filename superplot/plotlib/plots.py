@@ -97,7 +97,7 @@ class OneDimStandard(OneDimPlot):
         for intervals, scheme in zip(conf_intervals, schemes.conf_intervals):
             if opt.show_conf_intervals:
                 # Plot the CI line @ the max PDF value
-                pm.plot_data(intervals, [self.pdf_data.pdf.max()] * int(opt.nbins), scheme)
+                pm.plot_data(intervals, [self.pdf_data.pdf.max()] * len(intervals), scheme)
             self.summary.append("{}:".format(scheme.label))
             for interval in intervals:
                 self.summary.append(str(interval))

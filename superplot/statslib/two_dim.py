@@ -14,6 +14,7 @@ import numpy as np
 import point
 from kde import gaussian_kde
 from patched_joblib import memory
+import one_dim
 
 
 DOCTEST_PRECISION = 10
@@ -29,6 +30,22 @@ _posterior_pdf_2D = namedtuple(
 _profile_data_2D = namedtuple(
     "_profile_data_2D",
     ("prof_chi_sq", "prof_like", "bin_center_x", "bin_center_y"))
+
+
+def auto_nbins(paramx, paramy, bin_limits, posterior=None):
+    r"""
+    @returns Number of bins using the Freedman-Diaconis Estimator on each dimension.
+    """
+    nx = one_dim.auto_nbins(paramx, bin_limits[0], posterior)
+    ny = one_dim.auto_nbins(paramy, bin_limits[1], posterior)
+    return np.array((nx, ny))
+
+
+def auto_bin_limits(paramx, paramy, posterior=None):
+    r"""
+    @returns Bin limits
+    """
+    return [one_dim.auto_bin_limits(paramx, posterior), one_dim.auto_bin_limits(paramy, posterior)]
 
 
 @memory.cache
@@ -148,10 +165,10 @@ def posterior_pdf(paramx, paramy, posterior, nbins=50, bin_limits=None):
     >>> nbins = 100
     >>> pdf, x, y = posterior_pdf(data[2], data[3], data[0], nbins=nbins)
     >>> assert len(pdf) == nbins
-    >>> assert len(x) ==  nbins
+    >>> assert len(x) == nbins
     >>> assert len(y) == nbins
     """
-    # 2D histogram the data - pdf is a matrix
+    # Two-dimensional histogram the data - pdf is a matrix
     pdf, bin_edges_x, bin_edges_y = np.histogram2d(
                                         paramx,
                                         paramy,
@@ -203,13 +220,20 @@ def profile_like(paramx, paramy, chi_sq, nbins, bin_limits=None):
     >>> assert len(x) == nbins
     >>> assert len(y) == nbins
     """
-    # Bin the data to find bin edges. nbins we discard the count
+    # Bin the data to find bin edges. NB we discard the count
     _, bin_edges_x, bin_edges_y = np.histogram2d(
                                     paramx,
                                     paramy,
                                     nbins,
                                     range=bin_limits,
                                     weights=None)
+
+    try:
+        nbins_x = nbins[0]
+        nbins_y = nbins[1]
+    except TypeError:
+        nbins_x = nbins
+        nbins_y = nbins
 
     # Find centers of bins
     bin_center_x = 0.5 * (bin_edges_x[:-1] + bin_edges_x[1:])
@@ -220,13 +244,17 @@ def profile_like(paramx, paramy, chi_sq, nbins, bin_limits=None):
     bin_numbers_y = np.digitize(paramy, bin_edges_y)
 
     # Shift bin numbers to account for outliers
-    def shift(bin_number_):
-        return point._shift(bin_number_, nbins)
-    bin_numbers_x = map(shift, bin_numbers_x)
-    bin_numbers_y = map(shift, bin_numbers_y)
+    def shift_x(bin_number_):
+        return point._shift(bin_number_, nbins_x)
+
+    def shift_y(bin_number_):
+        return point._shift(bin_number_, nbins_y)
+
+    bin_numbers_x = map(shift_x, bin_numbers_x)
+    bin_numbers_y = map(shift_y, bin_numbers_y)
 
     # Initialize the profiled chi-squared to something massive
-    prof_chi_sq = np.full((nbins, nbins), float("inf"))
+    prof_chi_sq = np.full((nbins_x, nbins_y), float("inf"))
 
     # Minimize the chi-squared in each bin by looping over all the entries in
     # the chain.

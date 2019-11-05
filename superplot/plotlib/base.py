@@ -77,16 +77,17 @@ class Plot(object):
         warnings.resetwarnings()
 
     def _new_plot(self):
-        # Private method to set up a new plot.
-        # Returns the figure and axes.
-        opt = self.plot_options
+        """
+        Private method to set up a new plot.
 
+        @returns Figure and axes
+        """
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
 
-        pm.plot_ticks(opt.xticks, opt.yticks, ax)
-        pm.plot_labels(opt.xlabel, opt.ylabel, opt.plot_title, opt.title_position)
-        pm.plot_limits(ax, opt.plot_limits)
+        pm.plot_ticks(self.plot_options.xticks, self.plot_options.yticks, ax)
+        pm.plot_labels(self.plot_options.xlabel, self.plot_options.ylabel, self.plot_options.plot_title, self.plot_options.title_position)
+        pm.plot_limits(ax, self.plot_options.plot_limits)
 
         pm.appearance(self.__class__.__name__)
 
@@ -117,15 +118,7 @@ class OneDimPlot(Plot):
 
     def __init__(self, data, plot_options):
         super(OneDimPlot, self).__init__(data, plot_options)
-        opt = self.plot_options
-
-        # If the user didn't specify bin or plot limits,
-        # we find the extent of the data and use that to set them.
-        extent = np.zeros(4)
-        extent[0] = min(self.xdata)
-        extent[1] = max(self.xdata)
-        extent[2] = 0
-        extent[3] = 1.2
+        self.plot_options = plot_options
 
         # Downside of using named tuple is they're immutable
         # so changing options is (justifiably) annoying.
@@ -133,40 +126,44 @@ class OneDimPlot(Plot):
         # using a mutable type instead...
         if self.plot_options.bin_limits is None:
             self.plot_options = self.plot_options._replace(
-                    bin_limits=[extent[0], extent[1]]
+                    bin_limits=one_dim.auto_bin_limits(self.xdata, self.posterior)
             )
         if self.plot_options.plot_limits is None:
             self.plot_options = self.plot_options._replace(
-                    plot_limits=extent
+                    plot_limits=self.plot_options.bin_limits + [0., 1.2]
+            )
+        if self.plot_options.nbins == 'auto':
+            self.plot_options = self.plot_options._replace(
+                    nbins=one_dim.auto_nbins(self.xdata, self.plot_options.bin_limits, self.posterior)
             )
 
         # Posterior PDF. Norm by area if not showing profile likelihood,
         # otherwise norm max value to one.
-        if opt.kde_pdf:
+        if self.plot_options.kde_pdf:
 
             # KDE estimate of PDF
             self.pdf_data = one_dim.kde_posterior_pdf(
                 self.xdata,
                 self.posterior,
-                bin_limits=opt.bin_limits,
-                norm_area=not opt.show_prof_like,
-                bw_method=opt.bw_method)
+                bin_limits=self.plot_options.bin_limits,
+                norm_area=not self.plot_options.show_prof_like,
+                bw_method=self.plot_options.bw_method)
         else:
 
             # Binned estimate of PDF
             self.pdf_data = one_dim.posterior_pdf(
                 self.xdata,
                 self.posterior,
-                nbins=opt.nbins,
-                bin_limits=opt.bin_limits,
-                norm_area=not opt.show_prof_like)
+                nbins=self.plot_options.nbins,
+                bin_limits=self.plot_options.bin_limits,
+                norm_area=not self.plot_options.show_prof_like)
 
         # Profile likelihood
         self.prof_data = one_dim.prof_data(
             self.xdata,
             self.chisq,
-            nbins=opt.nbins,
-            bin_limits=opt.bin_limits)
+            nbins=self.plot_options.nbins,
+            bin_limits=self.plot_options.bin_limits)
 
         # Note the best-fit point is calculated using the raw data,
         # while the mean, median and mode use the binned PDF.
@@ -195,22 +192,21 @@ class OneDimPlot(Plot):
         :type point_height: float
         """
         fig, ax = super(OneDimPlot, self)._new_plot()
-        opt = self.plot_options
 
         # Best-fit point
-        if opt.show_best_fit:
+        if self.plot_options.show_best_fit:
             pm.plot_data(self.best_fit, point_height, schemes.best_fit, zorder=2)
 
         # Posterior mean
-        if opt.show_posterior_mean:
+        if self.plot_options.show_posterior_mean:
             pm.plot_data(self.posterior_mean, point_height, schemes.posterior_mean, zorder=2)
 
         # Posterior median
-        if opt.show_posterior_median:
+        if self.plot_options.show_posterior_median:
             pm.plot_data(self.posterior_median, point_height, schemes.posterior_median, zorder=2)
 
         # Posterior mode
-        if opt.show_posterior_mode:
+        if self.plot_options.show_posterior_mode:
             for mode in self.posterior_modes:
                 pm.plot_data(mode, point_height, schemes.posterior_mode, zorder=2)
 
@@ -227,35 +223,31 @@ class TwoDimPlot(Plot):
 
     def __init__(self, data, plot_options):
         super(TwoDimPlot, self).__init__(data, plot_options)
-        opt = self.plot_options
-
-        # If the user didn't specify bin or plot limits,
-        # we find the extent of the data and use that to set them.
-        extent = np.zeros(4)
-        extent[0] = min(self.xdata)
-        extent[1] = max(self.xdata)
-        extent[2] = min(self.ydata)
-        extent[3] = max(self.ydata)
+        self.plot_options = plot_options
 
         if self.plot_options.bin_limits is None:
             self.plot_options = self.plot_options._replace(
-                    bin_limits=[[extent[0], extent[1]], [extent[2], extent[3]]]
+                    bin_limits=two_dim.auto_bin_limits(self.xdata, self.ydata, self.posterior)
             )
         if self.plot_options.plot_limits is None:
             self.plot_options = self.plot_options._replace(
-                    plot_limits=extent
+                    plot_limits=self.plot_options.bin_limits[0] + self.plot_options.bin_limits[1]
+            )
+        if self.plot_options.nbins == 'auto':
+            self.plot_options = self.plot_options._replace(
+                    nbins=two_dim.auto_nbins(self.xdata, self.ydata, self.plot_options.bin_limits, self.posterior)
             )
 
         # Posterior PDF
-        if opt.kde_pdf:
+        if self.plot_options.kde_pdf:
 
             # KDE estimate of PDF
             self.pdf_data = two_dim.kde_posterior_pdf(
                         self.xdata,
                         self.ydata,
                         self.posterior,
-                        bw_method=opt.bw_method,
-                        bin_limits=opt.bin_limits)
+                        bw_method=self.plot_options.bw_method,
+                        bin_limits=self.plot_options.bin_limits)
         else:
 
             # Binned estimate of PDF
@@ -263,16 +255,16 @@ class TwoDimPlot(Plot):
                     self.xdata,
                     self.ydata,
                     self.posterior,
-                    nbins=opt.nbins,
-                    bin_limits=opt.bin_limits)
+                    nbins=self.plot_options.nbins,
+                    bin_limits=self.plot_options.bin_limits)
 
         # Profile likelihood
         self.prof_data = two_dim.profile_like(
                 self.xdata,
                 self.ydata,
                 self.chisq,
-                nbins=opt.nbins,
-                bin_limits=opt.bin_limits)
+                nbins=self.plot_options.nbins,
+                bin_limits=self.plot_options.bin_limits)
 
         # As with the 1D plots we use raw data for the best-fit point,
         # and binned data for the mean and mode.
@@ -312,23 +304,22 @@ class TwoDimPlot(Plot):
 
     def _new_plot(self):
         fig, ax = super(TwoDimPlot, self)._new_plot()
-        opt = self.plot_options
 
         # Best-fit point
-        if opt.show_best_fit:
+        if self.plot_options.show_best_fit:
             pm.plot_data(self.best_fit_x, self.best_fit_y, schemes.best_fit, zorder=2)
 
         # Posterior mean
-        if opt.show_posterior_mean:
+        if self.plot_options.show_posterior_mean:
             pm.plot_data(self.posterior_mean_x, self.posterior_mean_y, schemes.posterior_mean, zorder=2)
 
         # Posterior mode
-        if opt.show_posterior_mode:
+        if self.plot_options.show_posterior_mode:
             for bin_center_x, bin_center_y in self.posterior_modes:
                 pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode, zorder=2)
 
         # Posterior median
-        if opt.show_posterior_median:
+        if self.plot_options.show_posterior_median:
             pm.plot_data(self.posterior_median_x, self.posterior_median_y, schemes.posterior_median, zorder=2)
 
         return fig, ax

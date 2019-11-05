@@ -27,7 +27,7 @@ import data_loader
 import superplot.plotlib.plots as plots
 import gtk_wrapper
 from gtk_wrapper import gtk
-from plot_options import plot_options, default
+from plot_options import plot_options, default, parse_nbins
 
 
 def open_file_gui(window_title="Open",
@@ -326,10 +326,10 @@ class GUIControl(object):
         # Spin button for number of bins per dimension
 
         tbins = gtk.Button("Bins per dimension:")
-        self.bins = gtk.SpinButton()
-        self.bins.set_increments(10, 10)
-        self.bins.set_range(5, 10000)
-        self.bins.set_value(default("nbins"))
+        self.nbins = default("nbins")
+        self.bins = gtk.Entry()
+        self.bins.set_text(str(self.nbins))
+        self.bins.connect("changed", self._cbins)
 
         #######################################################################
 
@@ -554,6 +554,15 @@ class GUIControl(object):
         """
         self.labels[self.zindex] = textbox.get_text()
 
+    def _cbins(self, textbox):
+        """
+        Callback function for changing number of bins
+
+        :param textbox: Box with this callback function
+        :type textbox:
+        """
+        self.nbins = parse_nbins(textbox.get_text())
+
     def _calimits(self, textbox):
         """
         Callback function for setting axes limits.
@@ -633,7 +642,7 @@ class GUIControl(object):
                 "plot_limits": self.plot_limits,
                 "bin_limits": self.bin_limits,
                 "cb_limits": default("cb_limits"),
-                "nbins": self.bins.get_value_as_int(),
+                "nbins": self.nbins,
                 "xticks": default("xticks"),
                 "yticks": default("yticks"),
                 "cbticks": default("cbticks"),

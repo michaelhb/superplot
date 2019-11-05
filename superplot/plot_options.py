@@ -7,6 +7,7 @@ TODO: This module should also do a reasonable amount of validation
 """
 import os
 from collections import namedtuple
+from ast import literal_eval
 
 import simpleyaml as yaml
 import numpy as np
@@ -57,6 +58,21 @@ plot_options = namedtuple("plot_options", (
     "bw_method"
 ))
 
+def parse_nbins(nbins):
+    """ Safely evaluate any strings representing nbins """
+    if isinstance(nbins, str):
+        try:
+            nbins = literal_eval(nbins)
+        except:
+            pass
+
+    if isinstance(nbins, float):
+        nbins = int(nbins)
+    elif isinstance(nbins, tuple):
+        nbins = np.array(nbins)
+
+    return nbins
+
 
 def get_config(yaml_file="config.yml"):
     """
@@ -88,7 +104,8 @@ def get_config(yaml_file="config.yml"):
             os.path.split(os.path.abspath(__file__))[0],
             yaml_file
         )
-    # Load & return config
+
+    # Load and return config
     with open(config_path) as cfile:
         return yaml.load(cfile)
 
@@ -120,6 +137,8 @@ def default(option):
         _defaults["plot_limits"] = np.array(_defaults["plot_limits"])
     if _defaults["cb_limits"] is not None:
         _defaults["cb_limits"] = np.array(_defaults["cb_limits"])
+    if _defaults["nbins"] is not None:
+        _defaults["nbins"]  = parse_nbins(_defaults["nbins"] )
 
     try:
         return _defaults[option]

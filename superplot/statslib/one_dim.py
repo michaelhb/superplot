@@ -25,6 +25,52 @@ _posterior_pdf_1D = namedtuple("_posterior_pdf_1D", ("pdf", "bin_centers"))
 _prof_data_1D = namedtuple("_prof_data_1D", ("prof_chi_sq", "prof_like", "bin_centers"))
 
 
+def neff(parameter, posterior=None):
+    r"""
+    @returns Effective number of samples
+    """
+    if posterior is None:
+        return len(parameter)
+    return sum(posterior**2)**-1
+
+
+def iqr(parameter, posterior=None):
+    r"""
+    @returns Inter-quartile range
+    """
+    return quantile(0.75, parameter, posterior) - quantile(0.25, parameter, posterior)
+
+
+def quantile(level, parameter, posterior=None):
+    r"""
+    @returns Quartile
+    """
+    if posterior is None:
+        return np.quantile(parameter, level) 
+
+    order = np.argsort(parameter)
+    parameter_sorted = parameter[order]
+    posterior_sorted = posterior[order] 
+    cumulative = np.cumsum(posterior_sorted) 
+    index = np.argwhere(cumulative > level)[0][0]
+    return 0.5 * (parameter_sorted[index] + parameter_sorted[index - 1])
+
+
+def auto_nbins(parameter, bin_limits, posterior=None):
+    r"""
+    @returns Number of bins using the Freedman-Diaconis Estimator.
+    """
+    h = 2. * iqr(parameter, posterior) / neff(parameter, posterior)**(1. / 3.)
+    nbins = int(np.ceil(abs(bin_limits[1] - bin_limits[0]) / h))
+    return nbins
+
+def auto_bin_limits(parameter, posterior=None):
+    r"""
+    @returns Bin limits
+    """
+    return [quantile(0.001, parameter, posterior), quantile(0.999, parameter, posterior)]
+
+
 @memory.cache
 def kde_posterior_pdf(parameter,
                       posterior,

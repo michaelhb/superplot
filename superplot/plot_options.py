@@ -6,8 +6,8 @@ TODO: This module should also do a reasonable amount of validation
       of config variables.
 """
 import os
-import appdirs
 from collections import namedtuple
+
 import simpleyaml as yaml
 import numpy as np
 
@@ -51,7 +51,7 @@ plot_options = namedtuple("plot_options", (
     "show_credible_regions",
     "show_posterior_pdf",
     "show_prof_like",
-    
+
     # Whether to use KDE for PDF, and if so, band-width method
     "kde_pdf",
     "bw_method"
@@ -63,10 +63,10 @@ def get_config(yaml_file="config.yml"):
     Load the config file, either from the user data
     directory, or if that is not available, the installed
     copy.
-    
+
     :param yaml_file: Name of yaml file
     :type yaml_file: str
-    
+
     :returns: config
     :rtype: dict
     """
@@ -120,7 +120,7 @@ def default(option):
         _defaults["plot_limits"] = np.array(_defaults["plot_limits"])
     if _defaults["cb_limits"] is not None:
         _defaults["cb_limits"] = np.array(_defaults["cb_limits"])
-    
+
     try:
         return _defaults[option]
     except KeyError:

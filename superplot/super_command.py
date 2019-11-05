@@ -44,7 +44,7 @@ for plot_class in plots.plot_types:
     PLOT_CLASS[plot_class.description] = plot_class
 
 
-ATTRIBUTES = [attr for attr in vars(plot_options) if not attr.startswith('_')]
+ATTRIBUTES = [attr_ for attr_ in vars(plot_options) if not attr_.startswith('_')]
 COMPULSORY = ['xindex']
 
 fetch_data = lambda file_name: np.loadtxt(file_name, unpack=True)
@@ -93,37 +93,37 @@ def __main__():
                         type=str,
                         default=None,
                         required=False)
-                        
+
     parser.add_argument('--line_file',
                         help='Add a data to be plotted as a line',
                         type=str,
                         default=None,
                         required=False)
-                        
+
     parser.add_argument('--line_label',
                         help='Label of line added to plot for legend',
                         type=str,
                         default=None,
                         required=False)
-                        
+
     # Add everything else
 
-    for attr in ATTRIBUTES:
+    for attr_ in ATTRIBUTES:
 
         # Fetch default value
         try:
-            default_ = default(attr)
+            default_ = default(attr_)
         except KeyError:
             # Make sure plot elements are shown if unspecified
-            if 'show' in attr:
+            if 'show' in attr_:
                 default_ = True
             else:
                 default_ = None
 
-        required = attr in COMPULSORY
+        required = attr_ in COMPULSORY
 
         # Add to command line
-        parser.add_argument('--{}'.format(attr),
+        parser.add_argument('--{}'.format(attr_),
                             required=required,
                             default=default_,
                             type=guess_type,
@@ -152,8 +152,8 @@ def __main__():
     # Make plot options
 
     plot_args = dict()
-    for attr in ATTRIBUTES:
-        plot_args[attr] = args[attr]
+    for attr_ in ATTRIBUTES:
+        plot_args[attr_] = args[attr_]
 
     options = plot_options(**plot_args)  # Convert dictionary to named tuple
 
@@ -217,25 +217,25 @@ def save_plot(txt_file, info_file, output_file, plot_description, options, line_
     # Make plot
 
     figure = PLOT_CLASS[plot_description](data, options).figure()
-    
+
     # Add line, if requested
-    
+
     if line_file:
-    
+
         x, y = fetch_data(line_file)
-        
+
         if options.logy:
-            y = np.log10(y) 
+            y = np.log10(y)
         if options.logx:
             x = np.log10(x)
-        
+
         plt.plot(x, y, label=line_label, c='Crimson', alpha=0.6, lw=3)
         plt.legend(prop={'size': 16}, title=options.leg_title, loc=options.leg_position)  # TODO: This is a hack
-            
-    # Save plot 
-            
+
+    # Save plot
+
     plt.savefig(output_file)
-    
+
     print 'Output file = {}'.format(output_file)
     print 'Summary = {}'.format(figure.summary)
 

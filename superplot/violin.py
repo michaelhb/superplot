@@ -8,9 +8,10 @@ https://en.wikipedia.org/wiki/Violin_plot
 """
 
 import os
+from argparse import ArgumentParser as arg_parser
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from argparse import ArgumentParser as arg_parser
 
 import data_loader
 from superplot.statslib.point import posterior_mean
@@ -45,7 +46,7 @@ def custom_violin_stats(parameter, posterior, bin_limits=None):
     return violin_stats
 
 
-def violin_plot(data, 
+def violin_plot(data,
                 index_list,
                 labels=None,
                 output_file="vilolin.pdf",
@@ -92,11 +93,11 @@ def violin_plot(data,
 
     if y_label:
         ax.set_ylabel(y_label)
-        
+
     if labels:
         x_labels = [labels[i] for i in index_list]
         ax.set_xticklabels(x_labels, rotation='vertical')
-    
+
     ax.set_xticks(range(1, len(index_list) + 1))
     x_range = x_range if x_range else [0, len(index_list) + 2]
     ax.set_xlim(x_range)
@@ -182,7 +183,7 @@ def main():
                         type=str,
                         default='lower right',
                         required=False)
-                                                
+
     args = vars(parser.parse_args())
 
     datafile = os.path.abspath(args['data_file'])
@@ -196,10 +197,10 @@ def main():
     # Make plot
 
     violin_plot(data,
-                index_list, 
+                index_list,
                 labels,
-                args['output_file'], 
-                args['y_label'], 
+                args['output_file'],
+                args['y_label'],
                 args['x_range'],
                 args['y_range'],
                 args['leg_pos'],

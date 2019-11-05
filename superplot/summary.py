@@ -8,10 +8,8 @@ A stand-alone script to print summary statistics about a chain.
 import os
 from argparse import ArgumentParser as arg_parser
 
-# External modules
 from prettytable import PrettyTable as pt
 
-# superplot modules
 import data_loader
 from plot_options import default
 import superplot.statslib.point as stats
@@ -21,7 +19,7 @@ import superplot.statslib.one_dim as one_dim
 def _summary(name, param, posterior, chi_sq):
     """
     Find summary statistics for a single parameter.
-    
+
     :param name: Name of parameter
     :type name: string
     :param param: Data column of parameter
@@ -30,7 +28,7 @@ def _summary(name, param, posterior, chi_sq):
     :type posterior:
     :param chi_sq:
     :type chi_sq:
-    
+
     :returns: List of summary statistics for a particular parameter
     :rtype: list
     """
@@ -45,8 +43,7 @@ def _summary(name, param, posterior, chi_sq):
     pdf_data = one_dim.posterior_pdf(param,
                                      posterior,
                                      nbins=default("nbins"),
-                                     bin_limits=default("bin_limits")
-                                     )
+                                     bin_limits=default("bin_limits"))
 
     lower_credible_region = one_dim.credible_region(pdf_data.pdf,
                                                     pdf_data.bin_centers,
@@ -61,8 +58,7 @@ def _summary(name, param, posterior, chi_sq):
                bestfit,
                post_mean,
                lower_credible_region,
-               upper_credible_region
-               ]
+               upper_credible_region]
 
     return summary
 
@@ -70,7 +66,7 @@ def _summary(name, param, posterior, chi_sq):
 def _summary_table(labels, data, names=None, datafile=None, infofile=None):
     """
     Summarize multiple parameters in a table.
-    
+
     :returns: Table of summary statistics for particular parameters
     :rtype: string
     """
@@ -88,8 +84,7 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
                 "best-fit",
                 "posterior mean",
                 credible_name,
-                ""
-                ]
+                ""]
     param_table = pt(headings)
     param_table.align = "l"
     param_table.float_format = "4.2"

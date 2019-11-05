@@ -6,17 +6,14 @@ Schemes are defined in config.yml. On import, this module loads each Scheme
 and attaches it as a module attribute with the defined name.
 """
 
-# External modules.
-import os
 import sys
-from matplotlib.pylab import get_cmap
-import simpleyaml as yaml
 
-# Superplot modules.
+from matplotlib.pylab import get_cmap
+
 import plot_options
 
 
-class Scheme:
+class Scheme(object):
     r"""
     Holds information for how a piece of data should be plotted.
     All parameters are optional - Schemes can specify any subset of the

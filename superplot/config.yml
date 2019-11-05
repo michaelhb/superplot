@@ -162,22 +162,3 @@ plot_options:
     # bw_method: silverman
     # bw_method: 0.1
     bw_method: scott
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

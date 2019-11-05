@@ -100,9 +100,7 @@ def _read_info_file(file_name):
     """
 
     # Add posterior weight and chi-squared to labels.
-    labels = {0: r'$p_i$',
-              1: r'$\chi^2$'
-              }
+    labels = {0: r'$p_i$', 1: r'$\chi^2$'}
 
     if file_name is None:
         warnings.warn("No *.info file for labels")

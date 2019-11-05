@@ -10,8 +10,8 @@ import warnings
 from distutils.util import strtobool
 
 
-# yes/no/y/n user prompt helper function
 def prompt(query):
+    """ yes/no/y/n user prompt helper function """
     sys.stdout.write('%s [y/n]: ' % query)
     val = raw_input()
     try:

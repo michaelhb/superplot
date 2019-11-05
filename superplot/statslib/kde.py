@@ -205,8 +205,7 @@ class gaussian_kde(object):
 
         if self.fft:
             return self._fft_kde_func(points)
-        else:
-            return self._kde_func(points)
+        return self._kde_func(points)
 
     def _bin_dataset(self):
         """

@@ -6,29 +6,29 @@ This module contains all the functions for analyzing a chain (*.txt file)
 and calculating the 2D stats for a particular pair of variables.
 """
 
+import warnings
 from collections import namedtuple
-from numpy import ma
-from kde import gaussian_kde
-from patched_joblib import memory
+
+import numpy as np
 
 import point
-import numpy as np
-import warnings
+from kde import gaussian_kde
+from patched_joblib import memory
 
 
 DOCTEST_PRECISION = 10
 
 _kde_posterior_pdf_2D = namedtuple(
-        "_kde_posterior_pdf_2D",
-        ("pdf", "bin_centers_x", "bin_centers_y"))
+    "_kde_posterior_pdf_2D",
+    ("pdf", "bin_centers_x", "bin_centers_y"))
 
 _posterior_pdf_2D = namedtuple(
-        "_posterior_pdf_2D",
-        ("pdf", "bin_centers_x", "bin_centers_y"))
+    "_posterior_pdf_2D",
+    ("pdf", "bin_centers_x", "bin_centers_y"))
 
 _profile_data_2D = namedtuple(
-        "_profile_data_2D",
-        ("prof_chi_sq", "prof_like", "bin_center_x", "bin_center_y"))
+    "_profile_data_2D",
+    ("prof_chi_sq", "prof_like", "bin_center_x", "bin_center_y"))
 
 
 @memory.cache
@@ -101,8 +101,7 @@ def kde_posterior_pdf(paramx,
     kde_func = gaussian_kde(np.array((paramx, paramy)),
                             weights=posterior,
                             bw_method=bw_method,
-                            fft=fft
-                            )
+                            fft=fft)
 
     centers_x = np.linspace(lower_x, upper_x, npoints)
     centers_y = np.linspace(lower_y, upper_y, npoints)
@@ -111,7 +110,7 @@ def kde_posterior_pdf(paramx,
     kde = np.reshape(kde, (npoints, npoints))
 
     # Normalize the pdf so that its maximum value is one. NB in other functions,
-    # normalize such that area is one.
+    # normalize such that sum is one.
     kde = kde / kde.max()
 
     return _kde_posterior_pdf_2D(kde, centers_x, centers_y)

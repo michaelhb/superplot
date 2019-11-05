@@ -9,6 +9,7 @@ import numpy as np
 from scipy import stats
 from patched_joblib import memory
 
+
 DOCTEST_PRECISION = 10
 
 

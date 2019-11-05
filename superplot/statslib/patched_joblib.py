@@ -4,15 +4,15 @@ doctested. For this the decorator must return a function with correct
 __doc__ attribute.
 """
 
-from joblib import Memory
 from tempfile import mkdtemp
 from functools import update_wrapper
+from joblib import Memory
 
 
 class PatchedMemory(Memory):
     """
     Patch joblib's Memory class so that it may be doctested.
-    """     
+    """
     def cache(self, func, *args, **kwargs):
         def cfunc(*fargs, **fkwargs):
             return Memory.cache(self, func, *args, **kwargs).__call__(*fargs, **fkwargs)

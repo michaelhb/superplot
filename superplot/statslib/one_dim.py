@@ -6,14 +6,15 @@ This module contains all the functions for analyzing a chain (*.txt file)
 and calculating the 1D stats for a particular variable.
 """
 
-from scipy import stats
+import warnings
 from collections import namedtuple
-from kde import gaussian_kde
-from patched_joblib import memory
 
 import numpy as np
+from scipy import stats
+
 import point
-import warnings
+from kde import gaussian_kde
+from patched_joblib import memory
 
 
 DOCTEST_PRECISION = 10
@@ -31,8 +32,7 @@ def kde_posterior_pdf(parameter,
                       bin_limits=None,
                       norm_area=False,
                       bw_method='scott',
-                      fft=True
-                      ):
+                      fft=True):
     r"""
     Kernel density estimate (KDE) of one-dimensional posterior pdf with
     Gaussian kernel.
@@ -89,9 +89,8 @@ def kde_posterior_pdf(parameter,
 
     kde_func = gaussian_kde(parameter,
                             weights=posterior,
-                            bw_method=bw_method, 
-                            fft=fft
-                            )
+                            bw_method=bw_method,
+                            fft=fft)
 
     centers = np.linspace(lower, upper, npoints)
     kde = kde_func(centers)
@@ -194,8 +193,7 @@ def prof_data(parameter, chi_sq, nbins=50, bin_limits=None):
     # Bin the data to find bins, but ignore count itself
     bin_edges = np.histogram(parameter,
                              nbins,
-                             range=bin_limits
-                             )[1]
+                             range=bin_limits)[1]
     # Find centers of bins
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) * 0.5
 
@@ -256,7 +254,7 @@ def _inverse_cdf(prob, pdf, bin_centers):
     bin_widths = [b_2 - b_1 for b_1, b_2 in zip(bin_centers, bin_centers[1:])]
     assert all(abs(width - bin_widths[0]) < 1E-10 for width in bin_widths)
 
-    # Normalize pdf so that area is one
+    # Normalize pdf so that sum is one
     pdf = pdf / sum(pdf)
 
     # Shift all bins forward by 1/2 bin width (i.e. bin edges)
@@ -340,7 +338,7 @@ def credible_region(pdf, bin_centers, alpha, region):
     >>> [round(credible_region(kde.pdf, kde.bin_centers, alpha, region), DOCTEST_PRECISION)
     ...  for region in ["lower", "upper"]]
     [-2424.6995731319, 2585.258918877]
-    
+
     Credible regions from KDE estimate of pdf without FFT
 
     >>> kde_posterior_pdf(data[2], data[0]).pdf[0] == kde_posterior_pdf(data[2], data[0], fft=False).pdf[0]
@@ -357,9 +355,9 @@ def credible_region(pdf, bin_centers, alpha, region):
     [-2424.6995731319, 2585.258918877]
     """
     assert region in ["lower", "upper"]
-    if region is "lower":
+    if region == "lower":
         desired_prob = 0.5 * alpha
-    elif region is "upper":
+    elif region == "upper":
         desired_prob = 1. - 0.5 * alpha
 
     return _inverse_cdf(desired_prob, pdf, bin_centers)

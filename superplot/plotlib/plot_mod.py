@@ -6,18 +6,18 @@ General functions for plotting data, defined once so that they can be used/edite
 in a consistent manner.
 """
 
-# Python modules
 import subprocess
 import os
-import appdirs
+import warnings
 
-# External modules.
-from matplotlib.ticker import AutoMinorLocator
-from matplotlib.pylab import *
+from matplotlib.ticker import AutoMinorLocator, MaxNLocator
+from matplotlib.pylab import rcParams, rc
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def plot_data(x, y, scheme, zorder=1):
-    """ 
+    """
     Plot a point with a particular color scheme.
 
     :param x: Data to be plotted on x-axis
@@ -111,13 +111,13 @@ def appearance(plot_name):
 
 
 def legend(leg_title=None, leg_position=None):
-    """ 
+    """
     Turn on the legend.
-    
+
     .. Warning::
         Legend properties specfied in by mplstyle, but could be
         overridden here.
-    
+
     :param leg_title: Title of legend
     :type leg_title: string
     :param leg_position: Position of legend
@@ -128,7 +128,7 @@ def legend(leg_title=None, leg_position=None):
 
 
 def plot_limits(ax, limits=None):
-    """ 
+    """
     If specified plot limits, set them.
 
     :param ax: Axis object
@@ -142,7 +142,7 @@ def plot_limits(ax, limits=None):
 
 
 def plot_ticks(xticks, yticks, ax):
-    """ 
+    """
     Set the numbers of ticks on the axis.
 
     :param ax: Axis object
@@ -162,7 +162,7 @@ def plot_ticks(xticks, yticks, ax):
 
 
 def plot_labels(xlabel, ylabel, plot_title=None, title_position='right'):
-    """ 
+    """
     Plot axis labels.
 
     :param xlabel: Label for x-axis
@@ -181,13 +181,13 @@ def plot_labels(xlabel, ylabel, plot_title=None, title_position='right'):
 
 
 def plot_image(data, bin_limits, plot_limits, scheme):
-    """ 
+    """
     Plot data as an image.
-    
+
     .. Warning::
         Interpolating perhaps misleads. If you don't want it set
-        interpolation='nearest'. 
-        
+        interpolation='nearest'.
+
     :param data: x-, y- and z-data
     :type data: numpy.ndarray
     :param bin_limits: Bin limits
@@ -208,7 +208,7 @@ def plot_image(data, bin_limits, plot_limits, scheme):
     # Set the aspect so that resulting figure is a square
     aspect = (plot_limits[1] - plot_limits[0]) / (plot_limits[3] - plot_limits[2])
 
-    # imshow is annoying - it reads (y, x) rather than (x, y) so we take 
+    # imshow is annoying - it reads (y, x) rather than (x, y) so we take
     # transpose.
     plt.im = plt.imshow(data.T,
                         cmap=scheme.colour_map,
@@ -228,7 +228,7 @@ def plot_image(data, bin_limits, plot_limits, scheme):
 
 
 def plot_contour(data, levels, scheme, bin_limits):
-    """ 
+    """
     Make unfilled contours for a plot.
 
     :param data: Data to be contoured
@@ -264,7 +264,7 @@ def plot_contour(data, levels, scheme, bin_limits):
 
     # Plot inline labels on contours.
     plt.clabel(cset, inline=True, fmt=fmt, fontsize=12, hold='on')
-    
+
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours/styles of contours.
     x_outside = 1E1 * abs(bin_limits[1])
@@ -284,7 +284,7 @@ def plot_filled_contour(
         levels,
         scheme,
         bin_limits):
-    """ 
+    """
     Make filled contours for a plot.
 
     :param data: Data to be contoured
@@ -304,10 +304,10 @@ def plot_filled_contour(
              bin_limits[1][0],
              bin_limits[1][1]))
 
-    # We need to ensure levels are in ascending order, and append the 
-    # list with highest possible value. This makes n intervals 
+    # We need to ensure levels are in ascending order, and append the
+    # list with highest possible value. This makes n intervals
     # (between n + 1 values) that will be shown with colours.
-    levels = sort(levels)
+    levels = np.sort(levels)
     levels = np.append(levels, data.max())
 
     # Filled contours.
@@ -337,9 +337,9 @@ def plot_filled_contour(
 def plot_band(x_data, y_data, width, ax, scheme):
     r"""
     Plot a band around a line.
-    
+
     This is typically for a theoretical error. Vary x by +/- width
-    and find the variation in y. Fill between these largest 
+    and find the variation in y. Fill between these largest
     and smallest y for a given x.
 
     :param x_data: x-data to be plotted

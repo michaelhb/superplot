@@ -4,16 +4,14 @@ plotlib.base
 ============
 This module contains abstract base classes, used to implement Plots.
 """
-import os
 
-# External modules.
-from abc import ABCMeta, abstractmethod
-import numpy as np
-import matplotlib.pyplot as plt
 import warnings
+from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 
-# SuperPy modules.
+import numpy as np
+import matplotlib.pyplot as plt
+
 import plot_mod as pm
 import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
@@ -145,25 +143,23 @@ class OneDimPlot(Plot):
         # Posterior PDF. Norm by area if not showing profile likelihood,
         # otherwise norm max value to one.
         if opt.kde_pdf:
-        
+
             # KDE estimate of PDF
             self.pdf_data = one_dim.kde_posterior_pdf(
                 self.xdata,
                 self.posterior,
                 bin_limits=opt.bin_limits,
                 norm_area=not opt.show_prof_like,
-                bw_method=opt.bw_method
-                )
+                bw_method=opt.bw_method)
         else:
-        
+
             # Binned estimate of PDF
             self.pdf_data = one_dim.posterior_pdf(
                 self.xdata,
                 self.posterior,
                 nbins=opt.nbins,
                 bin_limits=opt.bin_limits,
-                norm_area=not opt.show_prof_like
-                )
+                norm_area=not opt.show_prof_like)
 
         # Profile likelihood
         self.prof_data = one_dim.prof_data(
@@ -252,7 +248,7 @@ class TwoDimPlot(Plot):
 
         # Posterior PDF
         if opt.kde_pdf:
-        
+
             # KDE estimate of PDF
             self.pdf_data = two_dim.kde_posterior_pdf(
                         self.xdata,
@@ -261,7 +257,7 @@ class TwoDimPlot(Plot):
                         bw_method=opt.bw_method,
                         bin_limits=opt.bin_limits)
         else:
-        
+
             # Binned estimate of PDF
             self.pdf_data = two_dim.posterior_pdf(
                     self.xdata,
@@ -302,7 +298,7 @@ class TwoDimPlot(Plot):
         # Posterior mode
         self.posterior_modes = two_dim.posterior_mode(*self.pdf_data)
         self.summary.append("Posterior modes/s (x,y): {}".format(self.posterior_modes))
-        
+
         # Posterior median
         self.posterior_median_x = one_dim.posterior_median(
                 np.sum(self.pdf_data.pdf, axis=1),
@@ -336,20 +332,3 @@ class TwoDimPlot(Plot):
             pm.plot_data(self.posterior_median_x, self.posterior_median_y, schemes.posterior_median, zorder=2)
 
         return fig, ax
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

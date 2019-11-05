@@ -3,7 +3,7 @@
 plotlib.plots
 =============
 
-Implementation of plot classes. These inherit from the classes in 
+Implementation of plot classes. These inherit from the classes in
 plotlib.base and must specify a figure() method which returns
 a matplotlib figure object.
 
@@ -19,19 +19,22 @@ Also includes a function to save the current plot.
 """
 from itertools import groupby
 
-# SuperPy modules.
-from base import *
-
-# External modules.
+import numpy as np
 from scipy.stats import chi2
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
+from base import OneDimPlot, TwoDimPlot
+import superplot.statslib.one_dim as one_dim
+import superplot.statslib.two_dim as two_dim
+import plot_mod as pm
+import superplot.schemes as schemes
+
 
 def save_plot(name):
-    """ 
+    """
     Save a plot with a descriptive name.
-    
+
     .. Warning::
         Figure properties specfied in by mplstyle, but could be
         overridden here.
@@ -44,9 +47,9 @@ def save_plot(name):
 
 
 class OneDimStandard(OneDimPlot):
-    """ 
+    """
     Makes a one dimensional plot, showing profile likelihood,
-    marginalised posterior, and statistics. 
+    marginalised posterior, and statistics.
     """
 
     description = "One-dimensional plot."
@@ -115,9 +118,9 @@ class OneDimStandard(OneDimPlot):
 
 
 class OneDimChiSq(OneDimPlot):
-    """ 
+    """
     Makes a one dimensional plot, showing delta-chisq only,
-    and excluded regions. 
+    and excluded regions.
     """
 
     description = "One-dimensional chi-squared plot."
@@ -126,7 +129,7 @@ class OneDimChiSq(OneDimPlot):
         fig, ax = self._new_plot()
         opt = self.plot_options
 
-        # Plot the delta chi-squared 
+        # Plot the delta chi-squared
         pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, schemes.prof_chi_sq)
 
         # Alter the y-axis limit so that it extends to 10.

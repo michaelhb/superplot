@@ -12,6 +12,7 @@ import warnings
 
 from matplotlib.ticker import AutoMinorLocator, MaxNLocator
 from matplotlib.pylab import rcParams, rc
+from matplotlib import colors
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -311,26 +312,30 @@ def plot_filled_contour(
     levels = np.append(levels, data.max())
 
     # Filled contours.
-    plt.contourf(data.T,
-                 levels,
-                 colors=scheme.colours,
-                 hold='on',
-                 extent=bin_limits,
-                 interpolation='bilinear',
-                 origin=None,
-                 alpha=0.7)
+    settings = dict(colors=scheme.colours,
+                    hold='on',
+                    extent=bin_limits,
+                    interpolation='bilinear',
+                    origin=None)
+    plt.contourf(data.T, levels, alpha=0.7, **settings)
+
+    # Bold outline of contour
+    plt.contour(data.T, levels, alpha=1., linewidths=4, **settings)
 
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours of filled contours.
     x_outside = 1E1 * abs(bin_limits[1])
     y_outside = 1E1 * abs(bin_limits[3])
     for name, color in zip(scheme.level_names, scheme.colours):
+        edgecolor = colors.colorConverter.to_rgba(color, alpha=1.);
+        facecolor = colors.colorConverter.to_rgba(color, alpha=0.7);
         plt.plot(x_outside,
                  y_outside,
                  's',
-                 color=color,
+                 markerfacecolor=facecolor,
+                 markeredgecolor=edgecolor,   
                  label=name,
-                 alpha=0.7,
+                 markeredgewidth=4,
                  ms=15)
 
 

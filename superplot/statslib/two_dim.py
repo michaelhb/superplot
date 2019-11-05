@@ -7,7 +7,6 @@ and calculating the 2D stats for a particular pair of variables.
 """
 
 from collections import namedtuple
-from scipy.optimize import bisect
 from numpy import ma
 from kde import gaussian_kde
 from patched_joblib import memory
@@ -43,19 +42,19 @@ def kde_posterior_pdf(paramx,
     r"""
     Kenerl density estimate (KDE) of two-dimensional posterior pdf with
     Gaussian kernel.
-    
-    See e.g. 
+
+    See e.g.
     `wiki <https://en.wikipedia.org/wiki/Kernel_density_estimation/>`_ and
     `scipy <http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.gaussian_kde.html>`_
     for more information.
-    
+
     .. warning::
         By default, the band-width is estimated with Scott's rule of thumb. This
         could lead to biased/inaccurate estimates of the pdf if the parent
         distribution isn't approximately Gaussian.
-        
+
     .. warning::
-        There is no special treatment for e.g. boundaries, which can be 
+        There is no special treatment for e.g. boundaries, which can be
         problematic.
 
     .. warning::
@@ -289,35 +288,23 @@ def critical_density(pdf, alpha):
     >>> alpha = 0.32
     >>> pdf = posterior_pdf(data[2], data[3], data[0], nbins=nbins)[0]
     >>> round(critical_density(pdf, alpha), DOCTEST_PRECISION)
-    0.0008100802
-    
+    0.0008088721
+
     Critical density from KDE estimate of pdf
-   
+
     >>> kde = kde_posterior_pdf(data[2], data[3], data[0])[0]
     >>> round(critical_density(kde, alpha), DOCTEST_PRECISION)
-    0.0008117912
+    0.0008115551
     """
-    # Normalize posterior pdf so that integral is one, if it wasn't already
+    # Normalize posterior pdf so that sum is one, if it wasn't already
     pdf = pdf / pdf.sum()
 
-    # Minimize difference between amount of probability contained above a
-    # particular density and that desired
-    prob_desired = 1. - alpha
-
-    def prob_contained(density):
-        return ma.masked_where(pdf < density, pdf).sum()
-
-    def delta_prob(density):
-        return prob_contained(density) - prob_desired
-
-    # Critical density cannot be greater than maximum posterior pdf and must
-    # be greater than 0. The function delta_probability is monotonic on that
-    # interval. Find critical density by bisection.
-    try:
-        _critical_density = bisect(delta_prob, 0., pdf.max())
-    except Exception as error:
-        warnings.warn("Cannot bisect posterior pdf for critical density")
-        raise error
+    # Flatten and sort pdf to find critical density
+    flattened = pdf.flatten()
+    sorted_ = np.sort(flattened)
+    cumulative = np.cumsum(sorted_)
+    critical_index = np.argwhere(cumulative > alpha)[0][0]
+    _critical_density = 0.5 * (sorted_[critical_index] + sorted_[critical_index - 1])
 
     return _critical_density
 
@@ -383,9 +370,9 @@ def posterior_mode(pdf, bin_centers_x, bin_centers_y):
     >>> bin_centers = posterior_mode(pdf.pdf, pdf.bin_centers_x, pdf.bin_centers_y)[0]
     >>> [round(x, DOCTEST_PRECISION) for x in bin_centers]
     [-2142.9943612644, 142.9757248582]
-    
+
     Mode from KDE estimate of pdf
-    
+
     >>> kde = kde_posterior_pdf(data[2], data[3], data[0])
     >>> bin_centers = posterior_mode(kde.pdf, kde.bin_centers_x, kde.bin_centers_y)[0]
     >>> [round(x, DOCTEST_PRECISION) for x in bin_centers]

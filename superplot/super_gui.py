@@ -2,8 +2,8 @@
 This module provides the superplot GUI.
 """
 
+import sys
 import os
-import re
 import pickle
 import time
 import warnings
@@ -101,7 +101,8 @@ def open_file_gui(window_title="Open",
 
 def save_file_gui(window_title="Save As",
                   set_name=None,
-                  add_pattern=None):
+                  add_pattern=None,
+                  default_file_name=None):
     """
     GUI for saving a file with a file browser.
 
@@ -111,6 +112,8 @@ def save_file_gui(window_title="Save As",
     :type set_name: string
     :param add_pattern: Acceptable file patterns in filter, e.g ["\\*.pdf"]
     :type add_pattern: list
+    :param default_file_name: Default file name
+    :type default_file_name: str
 
     :returns: Name of file selected with GUI.
     :rtype: string
@@ -123,6 +126,8 @@ def save_file_gui(window_title="Save As",
                                    buttons=buttons)
     dialog.set_default_response(gtk_wrapper.RESPONSE_OK)
     dialog.set_current_folder(os.getcwd())
+    if default_file_name:
+        dialog.set_current_name(default_file_name)
 
     # Only show particular files
     file_filter = gtk.FileFilter()
@@ -151,7 +156,6 @@ def save_file_gui(window_title="Save As",
     return file_name
 
 
-
 def message_dialog(message_type, message):
     """
     Show a message dialog.
@@ -163,9 +167,9 @@ def message_dialog(message_type, message):
     :type message: string
     """
     md = gtk.MessageDialog(None,
-                           gtk.DIALOG_DESTROY_WITH_PARENT,
+                           gtk_wrapper.DIALOG_DESTROY_WITH_PARENT,
                            message_type,
-                           gtk.BUTTONS_CLOSE,
+                           gtk_wrapper.BUTTONS_CLOSE,
                            message)
     md.run()
     md.destroy()
@@ -632,6 +636,7 @@ class GUIControl(object):
         else:
             raise RuntimeError("Specify four floats for bin limits in 2D plot")
 
+
     def _pmakeplot(self, button):
         """
         Callback function for pressing make plot.
@@ -642,7 +647,6 @@ class GUIControl(object):
         :param button: Button with this callback function
         :type button:
         """
-
         # Gather up all of the plot options and put them in
         # a plot_options tuple
         args = {"xindex": self.xindex,
@@ -695,9 +699,19 @@ class GUIControl(object):
         # re-create the figure to work correctly.
         self.plot = plot_class(self.data, self.options)
 
-        # Put figure in plot box
+        # Try to remove existing box   
+        try:
+            self.gridbox.remove(self.box)
+        except:
+            pass
+    
+        # Add new box
+        self.box = gtk.VBox()
         canvas = gtk_wrapper.FigureCanvas(self.fig.figure)
-        self.gridbox.attach(canvas, 2, 5, 0, 15)
+        self.box.pack_start(canvas, True, True, 0)
+        toolbar = gtk_wrapper.NavigationToolbar(canvas, self.window)
+        self.box.pack_start(toolbar, False, False, 0)
+        self.gridbox.attach(self.box, 2, 5, 0, 15)
 
         # Button to save the plot
         save_button = gtk.Button(label='Save plot.')
@@ -711,6 +725,7 @@ class GUIControl(object):
 
         # Show new buttons etc
         self.window.show_all()
+
 
     def _psave(self, button):
         """
@@ -726,11 +741,12 @@ class GUIControl(object):
         save_pickle = self.save_pickle.get_active()
 
         if not (save_image or save_summary or save_pickle):
-            message_dialog(gtk.MESSAGE_WARNING, "Nothing to save!")
+            message_dialog(gtk_wrapper.MESSAGE_WARNING, "Nothing to save!")
             return
 
         # Get name to save to from a dialogue box.
         file_name = save_file_gui(set_name="Save plot as image",
+                                  default_file_name="image.pdf",
                                   add_pattern=["*.pdf",
                                                "*.png",
                                                "*.eps",
@@ -788,6 +804,19 @@ def main():
                                        "*.txt file",
                               add_pattern=["*.info"],
                               allow_no_file=True)
+
+    def exception_reboot(type_, message, traceback):
+        """
+        Implement `sys.excepthook` to give GUI messages and reboot
+        """
+        warnings.warn(message)
+        message_dialog(gtk_wrapper.MESSAGE_ERROR, message)
+        gtk.main_quit()
+        GUIControl(data_file, info_file)
+        gtk.main()
+
+    sys.excepthook = exception_dialog
+
     GUIControl(data_file, info_file)
     gtk.main()
     return

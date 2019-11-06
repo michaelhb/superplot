@@ -133,7 +133,7 @@ class OneDimChiSq(OneDimPlot):
         pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, schemes.prof_chi_sq)
 
         # Alter the y-axis limit so that it extends to 10.
-        opt.plot_limits[3] = 10.
+        opt.plot_limits[1][1] = 10.
         pm.plot_limits(ax, opt.plot_limits)
 
         # Confidence intervals as filled regions

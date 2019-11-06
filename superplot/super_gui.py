@@ -815,7 +815,7 @@ def main():
         GUIControl(data_file, info_file)
         gtk.main()
 
-    sys.excepthook = exception_dialog
+    sys.excepthook = exception_reboot
 
     GUIControl(data_file, info_file)
     gtk.main()

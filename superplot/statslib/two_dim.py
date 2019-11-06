@@ -38,7 +38,7 @@ def kde_posterior_pdf(paramx,
                       paramy,
                       posterior,
                       npoints=100,
-                      bin_limits=None,
+                      bin_limits='extent',
                       bw_method='scott',
                       fft=True):
     r"""
@@ -89,10 +89,10 @@ def kde_posterior_pdf(paramx,
     >>> assert len(x) == npoints
     >>> assert len(y) == npoints
     """
-    try:
+    if not isinstance(bin_limits, str):
         bin_limits_x = bins.bin_limits(bin_limits[0], paramx, posterior)
         bin_limits_y = bins.bin_limits(bin_limits[1], paramy, posterior)
-    except TypeError:
+    else:
         bin_limits_x = bins.bin_limits(bin_limits, paramx, posterior)
         bin_limits_y = bins.bin_limits(bin_limits, paramy, posterior)
 

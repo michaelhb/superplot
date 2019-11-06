@@ -154,7 +154,7 @@ def main():
     parser.add_argument('--output_file',
                         help='Name of output file for plot',
                         type=str,
-                        default=None,
+                        default="violin.pdf",
                         required=False)
     parser.add_argument('--y_label',
                         help='Label for y-axis',

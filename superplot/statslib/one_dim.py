@@ -30,7 +30,7 @@ _prof_data_1D = namedtuple("_prof_data_1D", ("prof_chi_sq", "prof_like", "bin_ce
 def kde_posterior_pdf(parameter,
                       posterior,
                       npoints=500,
-                      bin_limits='auto',
+                      bin_limits='extent',
                       norm_area=False,
                       bw_method='scott',
                       fft=True):
@@ -82,7 +82,6 @@ def kde_posterior_pdf(parameter,
     >>> assert len(kde.bin_centers) == npoints
     """
     bin_limits = bins.bin_limits(bin_limits, parameter, posterior)
-
     kde_func = gaussian_kde(parameter,
                             weights=posterior,
                             bw_method=bw_method,

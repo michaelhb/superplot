@@ -5,17 +5,23 @@ GTK wrapper
 Attempt compatibility with gtk2 and gtk3, since gtk2 is now deprecated, but common.
 """
 
+import warnings
+
+
 try:
     import gi
     gi.require_version('Gtk', '3.0')
     from gi.repository import Gtk as gtk
+    from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
     GTK_MAJOR_VERSION = 3
-except ImportError:
+except ImportError as e:
+    warnings.warn("Falling back to gtk2 - {}".format(e.message))
     try:
         import gtk
+        from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
         GTK_MAJOR_VERSION = 2
-    except ImportError:
-        raise ImportError("Could not import gi or gtk")
+    except ImportError as e:
+        raise ImportError("Could not import gtk2 - {}".format(e.message))
 
 if GTK_MAJOR_VERSION == 3:
     RESPONSE_OK = gtk.ResponseType.OK
@@ -33,15 +39,3 @@ else:
     COMBO_BOX_TEXT = gtk.combo_box_new_text
     APPEND_TEXT = lambda obj, str_: obj.append_text(str_)
     FILL = gtk.FILL
-
-try:
-    if GTK_MAJOR_VERSION == 3:
-        from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
-    else:
-        from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
-except ImportError as e:
-    print "Could not load matplotlib - GTK backend for GTK major version = %s. " \
-          "Your version of matplotlib may not be compiled with GTK support. " \
-          "Reinstalling matplotlib may fix this problem - see README or " \
-          "user manual for instructions" % GTK_MAJOR_VERSION
-    raise

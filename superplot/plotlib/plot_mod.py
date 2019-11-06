@@ -135,11 +135,11 @@ def plot_limits(ax, limits=None):
     :param ax: Axis object
     :type ax: matplotlib.axes.Axes
     :param limits: Plot limits
-    :type limits: list [xmin,xmax,ymin,ymax]
+    :type limits: list [[xmin, xmax], [ymin, ymax]]
     """
     if limits is not None:
-        ax.set_xlim([limits[0], limits[1]])
-        ax.set_ylim([limits[2], limits[3]])
+        ax.set_xlim(limits[0])
+        ax.set_ylim(limits[1])
 
 
 def plot_ticks(xticks, yticks, ax):
@@ -200,20 +200,20 @@ def plot_image(data, bin_limits, plot_limits, scheme):
     """
 
     # Flatten bin limits
-    bin_limits = np.array(
+    extent = np.array(
             (bin_limits[0][0],
              bin_limits[0][1],
              bin_limits[1][0],
              bin_limits[1][1]))
 
     # Set the aspect so that resulting figure is a square
-    aspect = (plot_limits[1] - plot_limits[0]) / (plot_limits[3] - plot_limits[2])
+    aspect = (plot_limits[0][1] - plot_limits[0][0]) / (plot_limits[1][1] - plot_limits[1][0])
 
     # imshow is annoying - it reads (y, x) rather than (x, y) so we take
     # transpose.
     plt.im = plt.imshow(data.T,
                         cmap=scheme.colour_map,
-                        extent=bin_limits,
+                        extent=extent,
                         interpolation='bilinear',
                         label=scheme.label,
                         origin='lower',
@@ -243,7 +243,7 @@ def plot_contour(data, levels, scheme, bin_limits):
     """
 
     # Flatten bin limits.
-    bin_limits = np.array(
+    extent = np.array(
             (bin_limits[0][0],
              bin_limits[0][1],
              bin_limits[1][0],
@@ -255,7 +255,7 @@ def plot_contour(data, levels, scheme, bin_limits):
             levels,
             colors=scheme.colour,
             hold='on',
-            extent=bin_limits,
+            extent=extent,
             interpolation='bilinear',
             origin=None,
             linestyles=['--', '-'])
@@ -268,8 +268,8 @@ def plot_contour(data, levels, scheme, bin_limits):
 
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours/styles of contours.
-    x_outside = 1E1 * abs(bin_limits[1])
-    y_outside = 1E1 * abs(bin_limits[3])
+    x_outside = 1E1 * abs(bin_limits[0][1])
+    y_outside = 1E1 * abs(bin_limits[1][1])
     for name, style in zip(scheme.level_names, ['--', '-']):
         plt.plot(x_outside,
                  y_outside,
@@ -299,7 +299,7 @@ def plot_filled_contour(
     """
 
     # Flatten bin limits
-    bin_limits = np.array(
+    extent = np.array(
             (bin_limits[0][0],
              bin_limits[0][1],
              bin_limits[1][0],
@@ -314,7 +314,7 @@ def plot_filled_contour(
     # Filled contours.
     settings = dict(colors=scheme.colours,
                     hold='on',
-                    extent=bin_limits,
+                    extent=extent,
                     interpolation='bilinear',
                     origin=None)
     plt.contourf(data.T, levels, alpha=0.7, **settings)
@@ -324,8 +324,8 @@ def plot_filled_contour(
 
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours of filled contours.
-    x_outside = 1E1 * abs(bin_limits[1])
-    y_outside = 1E1 * abs(bin_limits[3])
+    x_outside = 1E1 * abs(bin_limits[0][1])
+    y_outside = 1E1 * abs(bin_limits[1][1])
     for name, color in zip(scheme.level_names, scheme.colours):
         edgecolor = colors.colorConverter.to_rgba(color, alpha=1.);
         facecolor = colors.colorConverter.to_rgba(color, alpha=0.7);

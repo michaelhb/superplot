@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import plot_mod as pm
 import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
+import superplot.statslib.bins as bins
 import superplot.statslib.point as stats
 import superplot.schemes as schemes
 
@@ -124,18 +125,15 @@ class OneDimPlot(Plot):
         # so changing options is (justifiably) annoying.
         # If this happens a lot (it shouldn't), consider
         # using a mutable type instead...
-        if self.plot_options.bin_limits is None:
-            self.plot_options = self.plot_options._replace(
-                    bin_limits=one_dim.auto_bin_limits(self.xdata, self.posterior)
-            )
-        if self.plot_options.plot_limits is None:
-            self.plot_options = self.plot_options._replace(
-                    plot_limits=self.plot_options.bin_limits + [0., 1.2]
-            )
-        if self.plot_options.nbins == 'auto':
-            self.plot_options = self.plot_options._replace(
-                    nbins=one_dim.auto_nbins(self.xdata, self.plot_options.bin_limits, self.posterior)
-            )
+        self.plot_options = self.plot_options._replace(
+            bin_limits=bins.bin_limits(self.plot_options.bin_limits, self.xdata, posterior=self.posterior))
+
+        plot_limits_y = [0., 1.2]
+        self.plot_options = self.plot_options._replace(
+            plot_limits=(bins.plot_limits(self.plot_options.plot_limits, self.plot_options.bin_limits, self.xdata), plot_limits_y))
+
+        self.plot_options = self.plot_options._replace(
+            nbins=bins.nbins(self.plot_options.nbins, self.plot_options.bin_limits, self.xdata, posterior=self.posterior))
 
         # Posterior PDF. Norm by area if not showing profile likelihood,
         # otherwise norm max value to one.
@@ -225,18 +223,35 @@ class TwoDimPlot(Plot):
         super(TwoDimPlot, self).__init__(data, plot_options)
         self.plot_options = plot_options
 
-        if self.plot_options.bin_limits is None:
-            self.plot_options = self.plot_options._replace(
-                    bin_limits=two_dim.auto_bin_limits(self.xdata, self.ydata, self.posterior)
-            )
-        if self.plot_options.plot_limits is None:
-            self.plot_options = self.plot_options._replace(
-                    plot_limits=self.plot_options.bin_limits[0] + self.plot_options.bin_limits[1]
-            )
-        if self.plot_options.nbins == 'auto':
-            self.plot_options = self.plot_options._replace(
-                    nbins=two_dim.auto_nbins(self.xdata, self.ydata, self.plot_options.bin_limits, self.posterior)
-            )
+        if not isinstance(self.plot_options.bin_limits, str):
+            bin_limits_x = bins.bin_limits(self.plot_options.bin_limits[0], self.xdata, self.posterior)
+            bin_limits_y = bins.bin_limits(self.plot_options.bin_limits[1], self.ydata, self.posterior)
+        else:
+            bin_limits_x = bins.bin_limits(self.plot_options.bin_limits, self.xdata, self.posterior)
+            bin_limits_y = bins.bin_limits(self.plot_options.bin_limits, self.ydata, self.posterior)
+
+        if not isinstance(self.plot_options.plot_limits, str):
+            plot_limits_x = bins.bin_limits(self.plot_options.plot_limits[:2], bin_limits_x, self.xdata)
+            plot_limits_y = bins.bin_limits(self.plot_options.plot_limits[2:], bin_limits_y, self.ydata)
+        else:
+            plot_limits_x = bins.plot_limits(self.plot_options.plot_limits, bin_limits_x, self.xdata)
+            plot_limits_y = bins.plot_limits(self.plot_options.plot_limits, bin_limits_y, self.ydata)
+
+        if not isinstance(self.plot_options.nbins, (int, str)):
+            nbins_x = bins.nbins(self.plot_options.nbins[0], bin_limits_x, self.xdata, self.posterior)
+            nbins_y = bins.nbins(self.plot_options.nbins[1], bin_limits_y, self.ydata, self.posterior)
+        else:
+            nbins_x = bins.nbins(self.plot_options.nbins, bin_limits_x, self.xdata, self.posterior)
+            nbins_y = bins.nbins(self.plot_options.nbins, bin_limits_y, self.ydata, self.posterior)
+
+        self.plot_options = self.plot_options._replace(
+            bin_limits=(bin_limits_x, bin_limits_y))
+
+        self.plot_options = self.plot_options._replace(
+            plot_limits=(plot_limits_x, plot_limits_y))
+
+        self.plot_options = self.plot_options._replace(
+            nbins=(nbins_x, nbins_y))
 
         # Posterior PDF
         if self.plot_options.kde_pdf:

@@ -9,6 +9,7 @@ import time
 import warnings
 from collections import OrderedDict
 from distutils.version import StrictVersion
+from ast import literal_eval
 
 import matplotlib
 
@@ -339,7 +340,8 @@ class GUIControl(object):
                              "x_min, x_max, y_min, y_max:")
         self.alimits = gtk.Entry()
         self.alimits.connect("changed", self._calimits)
-        gtk_wrapper.APPEND_TEXT(self.alimits, "")
+        if isinstance(default("plot_limits"), str):
+            gtk_wrapper.APPEND_TEXT(self.alimits, default("plot_limits"))
 
         #######################################################################
 
@@ -349,7 +351,8 @@ class GUIControl(object):
                              "x_min, x_max, y_min, y_max:")
         self.blimits = gtk.Entry()
         self.blimits.connect("changed", self._cblimits)
-        gtk_wrapper.APPEND_TEXT(self.blimits, "")
+        if isinstance(default("bin_limits"), str):
+            gtk_wrapper.APPEND_TEXT(self.blimits, default("bin_limits"))
 
         #######################################################################
 
@@ -570,21 +573,28 @@ class GUIControl(object):
         :param textbox: Box with this callback function
         :type textbox:
         """
-        # If no limits, return default
-        if not textbox.get_text().strip():
-            self.plot_limits = default("plot_limits")
+        text = textbox.get_text().strip()
+
+        # If no limits, use default
+        if not text:
+            self.bin_limits = default("bin_limits")
             return
 
-        # Split text by commas etc
-        self.plot_limits = re.split(r"\s*[,;]\s*", textbox.get_text())
-        # Convert to floats
-        self.plot_limits = [float(i) for i in self.plot_limits if i]
+        try:
+            self.bin_limits = literal_eval(text)
+        except:
+            self.bin_limits = text
+            return
 
         # Permit only two floats, if it is a one-dimensional plot
         if len(self.plot_limits) == 2 and "One-dimensional" in self.typebox.get_active_text():
             self.plot_limits += [None, None]
         elif len(self.plot_limits) != 4:
             raise RuntimeError("Must specify four floats for axes limits")
+
+        # Convert to two tuple format
+        self.plot_limits = [[self.plot_limits[0], self.plot_limits[1]],
+                            [self.plot_limits[2], self.plot_limits[3]]]
 
     def _cblimits(self, textbox):
         """
@@ -593,15 +603,18 @@ class GUIControl(object):
         :param textbox: Box with this callback function
         :type textbox:
         """
-        # If no limits, return default
-        if not textbox.get_text().strip():
+        text = textbox.get_text().strip()
+
+        # If no limits, use default
+        if not text:
             self.bin_limits = default("bin_limits")
             return
 
-        # Split text by commas etc
-        self.bin_limits = re.split(r"\s*[,;]\s*", textbox.get_text())
-        # Convert to floats
-        self.bin_limits = [float(i) for i in self.bin_limits if i]
+        try:
+            self.bin_limits = literal_eval(text)
+        except:
+            self.bin_limits = text
+            return
 
         # Permit only two floats, if it is a one-dimensional plot
         one_dim_plot = "One-dimensional" in self.typebox.get_active_text()
@@ -612,8 +625,8 @@ class GUIControl(object):
         elif len(self.bin_limits) == 4 and not one_dim_plot:
             # Convert to two-tuple format
             try:
-                self.bin_limits = [[self.bin_limits[0], self.bin_limits[1]], [
-                    self.bin_limits[2], self.bin_limits[3]]]
+                self.bin_limits = [[self.bin_limits[0], self.bin_limits[1]],
+                                   [self.bin_limits[2], self.bin_limits[3]]]
             except:
                 raise IndexError("Specify four floats for bin limits in 2D plot")
         else:

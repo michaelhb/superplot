@@ -130,16 +130,16 @@ plot_options:
     # Values of alpha.
     alpha: [0.045500263896, 0.31731050786]
 
-    # Default plot limits [xmin, xmax, ymin, ymax].
-    # plot_limits: [0,0.2,0,1.3]
-    plot_limits: null 
+    # Default plot limits [[xmin, xmax], [ymin, ymax]].
+    # plot_limits: [[0,0.2], [0,1.3]]
+    plot_limits: bins
 
-    # Default bin limigs [[xmin, xmax],[ymin,ymax]].
-    # bin_limits: [[0,1000],[0,1000]]
-    bin_limits: null
+    # Default bin limits [[xmin, xmax], [ymin, ymax]].
+    # bin_limits: [[0,1000], [0,1000]]
+    bin_limits: quantile
 
     # Default number of bins.
-    nbins: 'auto'
+    nbins: auto
     
     # Default colorbar limits for scatter plots
     cb_limits: null

@@ -12,12 +12,13 @@ from collections import namedtuple
 import numpy as np
 
 import point
+import bins
 from kde import gaussian_kde
 from patched_joblib import memory
-import one_dim
 
 
 DOCTEST_PRECISION = 10
+
 
 _kde_posterior_pdf_2D = namedtuple(
     "_kde_posterior_pdf_2D",
@@ -30,22 +31,6 @@ _posterior_pdf_2D = namedtuple(
 _profile_data_2D = namedtuple(
     "_profile_data_2D",
     ("prof_chi_sq", "prof_like", "bin_center_x", "bin_center_y"))
-
-
-def auto_nbins(paramx, paramy, bin_limits, posterior=None):
-    r"""
-    @returns Number of bins using the Freedman-Diaconis Estimator on each dimension.
-    """
-    nx = one_dim.auto_nbins(paramx, bin_limits[0], posterior)
-    ny = one_dim.auto_nbins(paramy, bin_limits[1], posterior)
-    return np.array((nx, ny))
-
-
-def auto_bin_limits(paramx, paramy, posterior=None):
-    r"""
-    @returns Bin limits
-    """
-    return [one_dim.auto_bin_limits(paramx, posterior), one_dim.auto_bin_limits(paramy, posterior)]
 
 
 @memory.cache
@@ -104,24 +89,20 @@ def kde_posterior_pdf(paramx,
     >>> assert len(x) == npoints
     >>> assert len(y) == npoints
     """
-    if bin_limits:
-        upper_x = max(bin_limits[0])
-        lower_x = min(bin_limits[0])
-        upper_y = max(bin_limits[1])
-        lower_y = min(bin_limits[1])
-    else:
-        upper_x = max(paramx)
-        lower_x = min(paramx)
-        upper_y = max(paramy)
-        lower_y = min(paramy)
+    try:
+        bin_limits_x = bins.bin_limits(bin_limits[0], paramx, posterior)
+        bin_limits_y = bins.bin_limits(bin_limits[1], paramy, posterior)
+    except TypeError:
+        bin_limits_x = bins.bin_limits(bin_limits, paramx, posterior)
+        bin_limits_y = bins.bin_limits(bin_limits, paramy, posterior)
 
     kde_func = gaussian_kde(np.array((paramx, paramy)),
                             weights=posterior,
                             bw_method=bw_method,
                             fft=fft)
 
-    centers_x = np.linspace(lower_x, upper_x, npoints)
-    centers_y = np.linspace(lower_y, upper_y, npoints)
+    centers_x = np.linspace(bin_limits_x[0], bin_limits_x[1], npoints)
+    centers_y = np.linspace(bin_limits_y[0], bin_limits_y[1], npoints)
     points = np.array([[x, y] for x in centers_x for y in centers_y]).T
     kde = kde_func(points)
     kde = np.reshape(kde, (npoints, npoints))
@@ -134,7 +115,7 @@ def kde_posterior_pdf(paramx,
 
 
 @memory.cache
-def posterior_pdf(paramx, paramy, posterior, nbins=50, bin_limits=None):
+def posterior_pdf(paramx, paramy, posterior, nbins='auto', bin_limits='auto'):
     r"""
     Weighted histogram of data for two-dimensional posterior pdf.
 
@@ -168,12 +149,27 @@ def posterior_pdf(paramx, paramy, posterior, nbins=50, bin_limits=None):
     >>> assert len(x) == nbins
     >>> assert len(y) == nbins
     """
+    if not isinstance(bin_limits, str):
+        bin_limits_x = bins.bin_limits(bin_limits[0], paramx, posterior)
+        bin_limits_y = bins.bin_limits(bin_limits[1], paramy, posterior)
+    else:
+        bin_limits_x = bins.bin_limits(bin_limits, paramx, posterior)
+        bin_limits_y = bins.bin_limits(bin_limits, paramy, posterior)
+
+    if not isinstance(nbins, (int, str)):
+        nbins_x = bins.nbins(nbins[0], bin_limits_x, paramx, posterior)
+        nbins_y = bins.nbins(nbins[1], bin_limits_y, paramy, posterior)
+    else:
+        nbins_x = bins.nbins(nbins, bin_limits_x, paramx, posterior)
+        nbins_y = bins.nbins(nbins, bin_limits_y, paramy, posterior)
+
     # Two-dimensional histogram the data - pdf is a matrix
+    print (nbins_x, nbins_y), (bin_limits_x, bin_limits_y)
     pdf, bin_edges_x, bin_edges_y = np.histogram2d(
                                         paramx,
                                         paramy,
-                                        nbins,
-                                        range=bin_limits,
+                                        (nbins_x, nbins_y),
+                                        range=np.array((bin_limits_x, bin_limits_y)),
                                         weights=posterior)
 
     # Normalize the pdf so that its maximum value is one. NB in other functions,
@@ -188,7 +184,7 @@ def posterior_pdf(paramx, paramy, posterior, nbins=50, bin_limits=None):
 
 
 @memory.cache
-def profile_like(paramx, paramy, chi_sq, nbins, bin_limits=None):
+def profile_like(paramx, paramy, chi_sq, nbins='auto', bin_limits='auto'):
     """
     Maximizes the likelihood in each bin to obtain the profile likelihood and
     profile chi-squared.
@@ -220,20 +216,27 @@ def profile_like(paramx, paramy, chi_sq, nbins, bin_limits=None):
     >>> assert len(x) == nbins
     >>> assert len(y) == nbins
     """
+    if not isinstance(bin_limits, str):
+        bin_limits_x = bins.bin_limits(bin_limits[0], paramx)
+        bin_limits_y = bins.bin_limits(bin_limits[1], paramy)
+    else:
+        bin_limits_x = bins.bin_limits(bin_limits, paramx)
+        bin_limits_y = bins.bin_limits(bin_limits, paramy)
+
+    if not isinstance(nbins, (int, str)):
+        nbins_x = bins.nbins(nbins[0], bin_limits_x, paramx)
+        nbins_y = bins.nbins(nbins[1], bin_limits_y, paramy)
+    else:
+        nbins_x = bins.nbins(nbins, bin_limits_x, paramx)
+        nbins_y = bins.nbins(nbins, bin_limits_y, paramy)
+
     # Bin the data to find bin edges. NB we discard the count
     _, bin_edges_x, bin_edges_y = np.histogram2d(
                                     paramx,
                                     paramy,
-                                    nbins,
-                                    range=bin_limits,
+                                    (nbins_x, nbins_y),
+                                    range=np.array((bin_limits_x, bin_limits_y)),
                                     weights=None)
-
-    try:
-        nbins_x = nbins[0]
-        nbins_y = nbins[1]
-    except TypeError:
-        nbins_x = nbins
-        nbins_y = nbins
 
     # Find centers of bins
     bin_center_x = 0.5 * (bin_edges_x[:-1] + bin_edges_x[1:])

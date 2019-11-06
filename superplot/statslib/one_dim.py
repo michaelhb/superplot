@@ -13,6 +13,7 @@ import numpy as np
 from scipy import stats
 
 import point
+import bins
 from kde import gaussian_kde
 from patched_joblib import memory
 
@@ -25,57 +26,11 @@ _posterior_pdf_1D = namedtuple("_posterior_pdf_1D", ("pdf", "bin_centers"))
 _prof_data_1D = namedtuple("_prof_data_1D", ("prof_chi_sq", "prof_like", "bin_centers"))
 
 
-def neff(parameter, posterior=None):
-    r"""
-    @returns Effective number of samples
-    """
-    if posterior is None:
-        return len(parameter)
-    return sum(posterior**2)**-1
-
-
-def iqr(parameter, posterior=None):
-    r"""
-    @returns Inter-quartile range
-    """
-    return quantile(0.75, parameter, posterior) - quantile(0.25, parameter, posterior)
-
-
-def quantile(level, parameter, posterior=None):
-    r"""
-    @returns Quartile
-    """
-    if posterior is None:
-        return np.quantile(parameter, level) 
-
-    order = np.argsort(parameter)
-    parameter_sorted = parameter[order]
-    posterior_sorted = posterior[order] 
-    cumulative = np.cumsum(posterior_sorted) 
-    index = np.argwhere(cumulative > level)[0][0]
-    return 0.5 * (parameter_sorted[index] + parameter_sorted[index - 1])
-
-
-def auto_nbins(parameter, bin_limits, posterior=None):
-    r"""
-    @returns Number of bins using the Freedman-Diaconis Estimator.
-    """
-    h = 2. * iqr(parameter, posterior) / neff(parameter, posterior)**(1. / 3.)
-    nbins = int(np.ceil(abs(bin_limits[1] - bin_limits[0]) / h))
-    return nbins
-
-def auto_bin_limits(parameter, posterior=None):
-    r"""
-    @returns Bin limits
-    """
-    return [quantile(0.001, parameter, posterior), quantile(0.999, parameter, posterior)]
-
-
 @memory.cache
 def kde_posterior_pdf(parameter,
                       posterior,
                       npoints=500,
-                      bin_limits=None,
+                      bin_limits='auto',
                       norm_area=False,
                       bw_method='scott',
                       fft=True):
@@ -126,19 +81,14 @@ def kde_posterior_pdf(parameter,
     >>> assert len(kde.pdf) == npoints
     >>> assert len(kde.bin_centers) == npoints
     """
-    if bin_limits:
-        upper = max(bin_limits)
-        lower = min(bin_limits)
-    else:
-        upper = max(parameter)
-        lower = min(parameter)
+    bin_limits = bins.bin_limits(bin_limits, parameter, posterior)
 
     kde_func = gaussian_kde(parameter,
                             weights=posterior,
                             bw_method=bw_method,
                             fft=fft)
 
-    centers = np.linspace(lower, upper, npoints)
+    centers = np.linspace(bin_limits[0], bin_limits[1], npoints)
     kde = kde_func(centers)
 
     if not norm_area:
@@ -150,8 +100,8 @@ def kde_posterior_pdf(parameter,
 @memory.cache
 def posterior_pdf(parameter,
                   posterior,
-                  nbins=50,
-                  bin_limits=None,
+                  nbins='auto',
+                  bin_limits='auto',
                   norm_area=False):
     r"""
     Weighted histogram of data for one-dimensional posterior pdf.
@@ -185,6 +135,10 @@ def posterior_pdf(parameter,
     >>> assert len(pdf.pdf) == nbins
     >>> assert len(pdf.bin_centers) == nbins
     """
+    # Deduce bin limits and number of bins
+    bin_limits = bins.bin_limits(bin_limits, parameter, posterior)
+    nbins = bins.nbins(nbins, bin_limits, parameter, posterior)
+
     # Histogram the data
     pdf, bin_edges = np.histogram(parameter,
                                   nbins,
@@ -203,7 +157,7 @@ def posterior_pdf(parameter,
 
 
 @memory.cache
-def prof_data(parameter, chi_sq, nbins=50, bin_limits=None):
+def prof_data(parameter, chi_sq, nbins='auto', bin_limits='auto'):
     r"""
     Maximizes the likelihood in each bin to obtain the profile likelihood and
     profile chi-squared.
@@ -236,6 +190,10 @@ def prof_data(parameter, chi_sq, nbins=50, bin_limits=None):
     >>> assert len(prof.bin_centers) == nbins
     >>> assert len(prof.prof_like) == nbins
     """
+    # Deduce bin limits and number of bins
+    bin_limits = bins.bin_limits(bin_limits, parameter)
+    nbins = bins.nbins(nbins, bin_limits, parameter)
+
     # Bin the data to find bins, but ignore count itself
     bin_edges = np.histogram(parameter,
                              nbins,

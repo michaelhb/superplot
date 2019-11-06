@@ -68,8 +68,6 @@ def parse_nbins(nbins):
 
     if isinstance(nbins, float):
         nbins = int(nbins)
-    elif isinstance(nbins, tuple):
-        nbins = np.array(nbins)
 
     return nbins
 
@@ -133,8 +131,10 @@ def default(option):
     if _defaults["alpha"] is not None:
         _defaults["alpha"] = np.array(_defaults["alpha"])
         _defaults["alpha"].sort()
-    if _defaults["plot_limits"] is not None:
+    if _defaults["plot_limits"] is not None and not isinstance(_defaults["plot_limits"], str):
         _defaults["plot_limits"] = np.array(_defaults["plot_limits"])
+    if _defaults["bin_limits"] is not None and not isinstance(_defaults["bin_limits"], str):
+        _defaults["bin_limits"] = np.array(_defaults["bin_limits"])
     if _defaults["cb_limits"] is not None:
         _defaults["cb_limits"] = np.array(_defaults["cb_limits"])
     if _defaults["nbins"] is not None:

@@ -228,7 +228,7 @@ class GUIControl(object):
 
         # Combo-box for various plot types
 
-        typetitle = gtk.Button("Plot type:")
+        typetitle = gtk.Button(label="Plot type:")
         self.typebox = gtk_wrapper.COMBO_BOX_TEXT()
         for description in self.plots.keys():
             self.typebox.append_text(description)
@@ -238,7 +238,7 @@ class GUIControl(object):
 
         # Combo box for selecting x-axis variable
 
-        xtitle = gtk.Button("x-axis variable:")
+        xtitle = gtk.Button(label="x-axis variable:")
         self.xbox = gtk_wrapper.COMBO_BOX_TEXT()
         for label in self.labels.itervalues():
             self.xbox.append_text(label)
@@ -253,7 +253,7 @@ class GUIControl(object):
 
         # Combo box for selecting y-axis variable
 
-        ytitle = gtk.Button("y-axis variable:")
+        ytitle = gtk.Button(label="y-axis variable:")
         self.ybox = gtk_wrapper.COMBO_BOX_TEXT()
         for label in self.labels.itervalues():
             self.ybox.append_text(label)
@@ -268,7 +268,7 @@ class GUIControl(object):
 
         # Combo box for selecting z-axis variable
 
-        ztitle = gtk.Button("z-axis variable:")
+        ztitle = gtk.Button(label="z-axis variable:")
         self.zbox = gtk_wrapper.COMBO_BOX_TEXT()
         for label in self.labels.itervalues():
             self.zbox.append_text(label)
@@ -291,7 +291,7 @@ class GUIControl(object):
 
         # Text boxt for plot title
 
-        tplottitle = gtk.Button("Plot title:")
+        tplottitle = gtk.Button(label="Plot title:")
         self.plottitle = gtk.Entry()
         self.plottitle.set_text(default("plot_title"))
 
@@ -300,12 +300,12 @@ class GUIControl(object):
         # Legend properties
 
         # Text box for legend title
-        tlegtitle = gtk.Button("Legend title:")
+        tlegtitle = gtk.Button(label="Legend title:")
         self.legtitle = gtk.Entry()
         self.legtitle.set_text("")
 
         # Combo box for legend position
-        tlegpos = gtk.Button("Legend position:")
+        tlegpos = gtk.Button(label="Legend position:")
         self.legpos = gtk_wrapper.COMBO_BOX_TEXT()
         for loc in ["best",
                     "right",
@@ -326,7 +326,7 @@ class GUIControl(object):
 
         # Spin button for number of bins per dimension
 
-        tbins = gtk.Button("Bins per dimension:")
+        tbins = gtk.Button(label="Bins per dimension:")
         self.nbins = default("nbins")
         self.bins = gtk.Entry()
         self.bins.set_text(str(self.nbins))
@@ -336,7 +336,7 @@ class GUIControl(object):
 
         # Axes limits
 
-        alimits = gtk.Button("Comma separated plot limits\n"
+        alimits = gtk.Button(label="Comma separated plot limits\n"
                              "x_min, x_max, y_min, y_max:")
         self.alimits = gtk.Entry()
         self.alimits.connect("changed", self._calimits)
@@ -347,7 +347,7 @@ class GUIControl(object):
 
         # Bin limits
 
-        blimits = gtk.Button("Comma separated bin limits\n"
+        blimits = gtk.Button(label="Comma separated bin limits\n"
                              "x_min, x_max, y_min, y_max:")
         self.blimits = gtk.Entry()
         self.blimits.connect("changed", self._cblimits)
@@ -381,7 +381,7 @@ class GUIControl(object):
 
         # Make plot button
 
-        makeplot = gtk.Button('Make plot.')
+        makeplot = gtk.Button(label='Make plot.')
         makeplot.connect("clicked", self._pmakeplot)
 
         #######################################################################
@@ -700,7 +700,7 @@ class GUIControl(object):
         self.gridbox.attach(canvas, 2, 5, 0, 15)
 
         # Button to save the plot
-        save_button = gtk.Button('Save plot.')
+        save_button = gtk.Button(label='Save plot.')
         save_button.connect("clicked", self._psave)
         self.gridbox.attach(save_button, 2, 5, 16, 17)
 

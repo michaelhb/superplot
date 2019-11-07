@@ -45,18 +45,19 @@ Superplot requires Python 2.7+ and uses the following libraries:
 * prettytable
 * simpleyaml
 * appdirs
-* pygtk
 * numpy
 * scipy
 * matplotlib
 * pandas
 * joblib
+* PyGObject or PyGtk
 
-While pip will attempt to download and build these libraries if they are not installed (with the exception of matplotlib), this can be a lengthy and/or fragile process for pygtk and the scientific libraries. Installation of pygtk, numpy, scipy, matplotlib and pandas via your operating system's package manager, or by installing a scientific python distribution such as Python(x,y) *before* installing superplot is recommended (and in the case of matplotlib, required).
+The GUI should work with either PyGObject (gtk3, preferred) or PyGtk (gtk2, deprecated). While pip will attempt to download and build these libraries if they are not installed (with the exception of matplotlib), this can be a lengthy and/or fragile process for PyGObject/PyGtk and the scientific libraries. Installation of PyGObject/PyGtk, numpy, scipy, matplotlib and pandas via your operating system's package manager, or by installing a scientific python distribution such as Python(x,y) *before* installing superplot is recommended (and in the case of matplotlib, required).
 
 On Ubuntu, this can be accomplished with the following commands::
-
-    sudo apt-get install git python-pip python-numpy python-scipy python-pandas  libfreetype6-dev python-gtk2-dev python-matplotlib
+    sudo apt-get install python-gi python-gi-cairo gir1.2-gtk-3.0  # PyGObject
+    sudo apt-get install python-gtk2-dev  # PyGtk
+    sudo apt-get install libfreetype6-dev git python-pip python-numpy python-scipy python-pandas python-matplotlib
 
 The version of matplotlib supplied by Ubuntu may not be compiled with GTK support. If this is the case, building matplotlib via pip could fix the problem::
 
@@ -67,7 +68,7 @@ Note that Python(x,y) on Windows also ships matplotlib without GTK support - run
 Installing on macOS
 -------------------
 
-On macOS, you will need to use `homebrew <http://brew.sh>`_. Specifically, you must install ``pygtk`` and ``matplotlib`` in homebrew to have proper GTK support::
+On macOS, you will need to use `homebrew <http://brew.sh>`_. Specifically, you must install ``matplotlib`` to have proper GTK support, e.g. in homebrew::
 
     brew install pygtk
     brew install homebrew/python/matplotlib --with-pygtk

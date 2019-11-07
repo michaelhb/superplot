@@ -1,2 +1,7 @@
 appdirs
+numpy
 simpleyaml
+joblib
+scipy
+prettytable
+pandas

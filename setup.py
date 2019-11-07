@@ -1,20 +1,14 @@
-from setuptools import setup
-from setuptools.command.install import install
-from distutils.version import LooseVersion
 import os
-import shutil
 import warnings
-from distutils.util import strtobool
-import sys
+
+from distutils.version import LooseVersion
+from setuptools import setup
 
 
-# Utility function to read the README file.
-# Used for the long_description.  It's nice, because now 1) we have a top level
-# README file and 2) it's easier to type in the README file than to put a raw
-# string in below ...
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+# Dependencies that do not require any special treatment
 dependencies = [
     "appdirs",
     "prettytable",
@@ -25,22 +19,28 @@ dependencies = [
     "joblib"
 ]
 
-# Detect if pygtk is already available. Only add it to the
+# Detect if gi or pygtk are already available. Only add it to the
 # dependency list if it can't be imported. This avoids a failure
 # state on Ubuntu where pip can't see that pygtk is already installed,
-# then tries (and fails) to build it, preventing installation.
-try:
-    import pygtk
-except ImportError:
-    dependencies.append("pygtk")
+# then tries (and fails) to build it, preventing installation. If neither
+# gi or pygtk are available, add PyGObject to dependencies.
 
-# Detect if matplotlib >= 1.4 is already available. This is similar to the 
-# pygtk issue - pip doesn't see the OS version and overwrites it with 
+try:
+    import gi
+except ImportError:
+    try:
+        import gtk
+    except ImportError:
+        dependencies.append("PyGObject")
+
+# Detect if matplotlib >= 1.4 is already available. This is similar to the
+# pygtk issue - pip doesn't see the OS version and overwrites it with
 # a version that doesn't have GTK support.
+
 try:
     import matplotlib
 
-    # We don't want to overwrite any native matplotlib, 
+    # We don't want to overwrite any native matplotlib,
     # however, we should issue a warning if there is an old version.
 
     if LooseVersion(matplotlib.__version__) < LooseVersion("1.4"):
@@ -50,7 +50,7 @@ try:
                       )
         )
 except ImportError:
-    # No version available - add to deps
+    # No version available - issue a warning
     warnings.warn("matplotlib not detected. Please install matplotlib version 1.4 or "
                   "greater. Note that superplot requires a version of matplotlib with "
                   "GTK backend support.")

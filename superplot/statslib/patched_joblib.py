@@ -5,7 +5,7 @@ __doc__ attribute.
 """
 
 from tempfile import mkdtemp
-from functools import update_wrapper
+from functools import wraps
 from joblib import Memory
 
 
@@ -14,9 +14,9 @@ class PatchedMemory(Memory):
     Patch joblib's Memory class so that it may be doctested.
     """
     def cache(self, func, *args, **kwargs):
+        @wraps(func)
         def cfunc(*fargs, **fkwargs):
             return Memory.cache(self, func, *args, **kwargs).__call__(*fargs, **fkwargs)
-        update_wrapper(cfunc, func)
         return cfunc
 
 

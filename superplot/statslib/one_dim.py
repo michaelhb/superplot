@@ -2,7 +2,7 @@
 =====================================
 One Dimensional Statistical Functions
 =====================================
-This module contains all the functions for analyzing a chain (*.txt file)
+This module contains all the functions for analyzing a chain (\*.txt file)
 and calculating the 1D stats for a particular variable.
 """
 
@@ -62,7 +62,7 @@ def kde_posterior_pdf(parameter,
     :param npoints: Number of points to evaluate PDF at
     :type npoints: integer
     :param bin_limits: Bin limits for histogram
-    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
     :param norm_area: If True, normalize the pdf so that the integral over the
         range is one. Otherwise, normalize the pdf so that the maximum value
         is one.
@@ -119,7 +119,7 @@ def posterior_pdf(parameter,
     :param nbins: Number of bins for histogram
     :type nbins: integer
     :param bin_limits: Bin limits for histogram
-    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
     :param norm_area: If True, normalize the pdf so that the integral over the
         range is one. Otherwise, normalize the pdf so that the maximum value
         is one.
@@ -175,7 +175,7 @@ def prof_data(parameter, chi_sq, nbins='auto', bin_limits='auto'):
     :param nbins: Number of bins for histogram
     :type nbins: integer
     :param bin_limits: Bin limits for histogram
-    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
 
     :returns: Profile chi squared, profile likelihood, and bin centers.
     :rtype: named tuple (prof_chi_sq: numpy.ndarray, prof_like: numpy.ndarray, \

@@ -192,7 +192,7 @@ def plot_image(data, bin_limits, plot_limits, scheme):
     :param data: x-, y- and z-data
     :type data: numpy.ndarray
     :param bin_limits: Bin limits
-    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
     :param plot_limits: Plot limits
     :type plot_limits: list [xmin,xmax,ymin,ymax]
     :param scheme: Object containing appearance options, colours etc
@@ -239,7 +239,7 @@ def plot_contour(data, levels, scheme, bin_limits):
     :param scheme: Object containing appearance options, colours etc
     :type scheme: :py:class:`schemes.Scheme`
     :param bin_limits: Bin limits
-    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
     """
 
     # Flatten bin limits.
@@ -295,7 +295,7 @@ def plot_filled_contour(
     :param scheme: Object containing appearance options, colours etc
     :type scheme: :py:class:`schemes.Scheme`
     :param bin_limits: Bin limits
-    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
     """
 
     # Flatten bin limits

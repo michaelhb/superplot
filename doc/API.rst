@@ -21,6 +21,9 @@ statslib
 .. automodule:: superplot.statslib.kde
     :members:
 
+.. automodule:: superplot.statslib.bins
+    :members:
+
 =======
 plotlib
 =======

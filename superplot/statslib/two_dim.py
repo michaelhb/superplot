@@ -2,7 +2,7 @@
 =====================================
 Two Dimensional Statistical Functions
 =====================================
-This module contains all the functions for analyzing a chain (*.txt file)
+This module contains all the functions for analyzing a chain (\*.txt file)
 and calculating the 2D stats for a particular pair of variables.
 """
 
@@ -71,7 +71,7 @@ def kde_posterior_pdf(paramx,
     :param npoints: Number of points to evaluate PDF at per dimension
     :type npoints: integer
     :param bin_limits: Bin limits for histogram
-    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
     :param bw_method: Method for determining band-width or bandwidth
     :type bw_method: string or float
     :param fft: Whether to use Fast-Fourier transform
@@ -135,7 +135,7 @@ def posterior_pdf(paramx, paramy, posterior, nbins='auto', bin_limits='auto'):
     :param nbins: Number of bins for histogram
     :type nbins: integer
     :param bin_limits: Bin limits for histogram
-    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
 
     :returns: Posterior pdf, x and y bin centers
     :rtype: named tuple (pdf: numpy.ndarray, bin_centers_x: \
@@ -198,7 +198,7 @@ def profile_like(paramx, paramy, chi_sq, nbins='auto', bin_limits='auto'):
     :param nbins: Number of bins for histogram
     :type nbins: integer
     :param bin_limits: Bin limits for histogram
-    :type bin_limits: list [[xmin,xmax],[ymin,ymax]]
+    :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
 
     :returns: Profile chi squared, profile likelihood, x and y bin centers
     :rtype: named tuple (\

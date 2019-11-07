@@ -94,14 +94,14 @@ To run ``super_command``::
 Superplot will also attempt to install launcher scripts in an OS-appropriate location, i.e. on Ubuntu, ``~/.local/bin/superplot_gui`` and ``~/.local/bin/superplot_summary`` are alternative ways of launching the tools.
 
 Using ``superplot_gui``
-=====================
+=======================
 
 A GUI window will appear to select a chain file. Select e.g. the ``.txt`` file in the ``/examples`` sub-directory. A second GUI window will appear to select an information file. Select e.g. the ``.info`` file in the ``/examples`` sub-directory. Finally, select the variables and the plot type in the resulting GUI, and click ``Make Plot``.
 
 The buttons etc in the GUI should be self-explanatory. You do not require an ``.info`` file - if you don't have one, press cancel when asked for one, and the chain will be labelled in integers (within the GUI, you can change the axis labels etc anyway).
 
 Using ``superplot_summary``
-=========================
+===========================
 ``superplot_summary`` is a command line tool that takes two arguments:
 
 * ``--data_file``: chain file, e.g. the ``.txt`` file in the ``/examples`` sub-directory

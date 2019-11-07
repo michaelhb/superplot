@@ -101,7 +101,7 @@ def p_value(chi_sq, dof):
     Calculate the :math:`\textrm{$p$-value}` from a chi-squared distribution:
 
     .. math::
-        \textrm{$p$-value} \equiv \int_\chi^2^\infty f(x; k) dx
+        \textrm{$p$-value} \equiv \int_{\chi^2}^{\infty} f(x; k) dx
 
     :param chi_sq: Data column of chi-squared
     :type chi_sq: numpy.ndarray

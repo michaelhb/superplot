@@ -2,13 +2,12 @@
 ===============================
 Kernel Density Estimation (KDE)
 ===============================
-This module contains a class for implementing weighted KDE with or without
-fast Fourier transforms (FFT).
+This module contains a class for implementing weighted Kernel Density Estimation 
+(KDE) with or without fast Fourier transforms (FFT).
 
-Hacked Scipy code to support weighted KDE and Fast-fourier transforms.
+Hacked Scipy code to support weighted KDE and FFT.
 
 See `discussion on stackoverflow <http://stackoverflow.com/questions/27623919/weighted-gaussian-kernel-density-estimation-in-python>`_
-
 """
 
 import numpy as np

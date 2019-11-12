@@ -28,7 +28,7 @@ import data_loader
 import superplot.plotlib.plots as plots
 import gtk_wrapper
 from gtk_wrapper import gtk
-from plot_options import plot_options, default, parse_nbins
+from plot_options import defaults
 
 
 def open_file_gui(window_title="Open",
@@ -196,15 +196,13 @@ class GUIControl(object):
 
     def __init__(self, data_file, info_file, default_plot_type=0):
 
+        self.options = defaults
+
         self.data_file = data_file
         self.info_file = info_file
 
-        self.plot_limits = default("plot_limits")
-        self.bin_limits = default("bin_limits")
-
         self.fig = None
         self.plot = None
-        self.options = None
 
         # Load data from files
         self.labels, self.data = data_loader.load(info_file, data_file)
@@ -216,9 +214,9 @@ class GUIControl(object):
         # Set x, y & z indices to first three data columns after the
         # posterior and chisq. If there are less than three such columns
         # assign to the rightmost available column.
-        self.xindex = 2
-        self.yindex = min(3, data_columns - 1)
-        self.zindex = min(4, data_columns - 1)
+        self.options.xindex = 2
+        self.options.yindex = min(3, data_columns - 1)
+        self.options.zindex = min(4, data_columns - 1)
 
         # Enumerate available plot types and keep an ordered
         # dict mapping descriptions to classes.
@@ -249,9 +247,9 @@ class GUIControl(object):
         self.xbox.set_wrap_width(5)
         self.xbox.connect('changed', self._cx)
         self.xtext = gtk.Entry()
-        self.xtext.set_text(self.labels[self.xindex])
+        self.xtext.set_text(self.labels[self.options.xindex])
         self.xtext.connect("changed", self._cxtext)
-        self.xbox.set_active(self.xindex)
+        self.xbox.set_active(self.options.xindex)
 
         #######################################################################
 
@@ -264,9 +262,9 @@ class GUIControl(object):
         self.ybox.set_wrap_width(5)
         self.ybox.connect('changed', self._cy)
         self.ytext = gtk.Entry()
-        self.ytext.set_text(self.labels[self.yindex])
+        self.ytext.set_text(self.labels[self.options.yindex])
         self.ytext.connect("changed", self._cytext)
-        self.ybox.set_active(self.yindex)
+        self.ybox.set_active(self.options.yindex)
 
         #######################################################################
 
@@ -279,9 +277,9 @@ class GUIControl(object):
         self.zbox.set_wrap_width(5)
         self.zbox.connect('changed', self._cz)
         self.ztext = gtk.Entry()
-        self.ztext.set_text(self.labels[self.zindex])
+        self.ztext.set_text(self.labels[self.options.zindex])
         self.ztext.connect("changed", self._cztext)
-        self.zbox.set_active(self.zindex)
+        self.zbox.set_active(self.options.zindex)
 
         #######################################################################
 
@@ -297,7 +295,7 @@ class GUIControl(object):
 
         tplottitle = gtk.Button(label="Plot title:")
         self.plottitle = gtk.Entry()
-        self.plottitle.set_text(default("plot_title"))
+        self.plottitle.set_text(self.options.plot_title)
 
         #######################################################################
 
@@ -331,9 +329,9 @@ class GUIControl(object):
         # Spin button for number of bins per dimension
 
         tbins = gtk.Button(label="Bins per dimension:")
-        self.nbins = default("nbins")
+        self.options.nbins = self.options.nbins
         self.bins = gtk.Entry()
-        self.bins.set_text(str(self.nbins))
+        self.bins.set_text(str(self.options.nbins))
         self.bins.connect("changed", self._cbins)
 
         #######################################################################
@@ -344,8 +342,8 @@ class GUIControl(object):
                              "x_min, x_max, y_min, y_max:")
         self.alimits = gtk.Entry()
         self.alimits.connect("changed", self._calimits)
-        if isinstance(default("plot_limits"), str):
-            gtk_wrapper.APPEND_TEXT(self.alimits, default("plot_limits"))
+        if isinstance(self.options.plot_limits, str):
+            gtk_wrapper.APPEND_TEXT(self.alimits, self.options.plot_limits)
 
         #######################################################################
 
@@ -355,8 +353,8 @@ class GUIControl(object):
                              "x_min, x_max, y_min, y_max:")
         self.blimits = gtk.Entry()
         self.blimits.connect("changed", self._cblimits)
-        if isinstance(default("bin_limits"), str):
-            gtk_wrapper.APPEND_TEXT(self.blimits, default("bin_limits"))
+        if isinstance(self.options.bin_limits, str):
+            gtk_wrapper.APPEND_TEXT(self.blimits, self.options.bin_limits)
 
         #######################################################################
 
@@ -509,8 +507,8 @@ class GUIControl(object):
         :param combobox: Box with this callback function
         :type combobox:
         """
-        self.xindex = combobox.get_active()
-        self.xtext.set_text(self.labels[self.xindex])
+        self.options.xindex = combobox.get_active()
+        self.xtext.set_text(self.labels[self.options.xindex])
 
     def _cy(self, combobox):
         """
@@ -520,8 +518,8 @@ class GUIControl(object):
         :param combobox: Box with this callback function
         :type combobox:
         """
-        self.yindex = combobox.get_active()
-        self.ytext.set_text(self.labels[self.yindex])
+        self.options.yindex = combobox.get_active()
+        self.ytext.set_text(self.labels[self.options.yindex])
 
     def _cz(self, combobox):
         """
@@ -531,8 +529,8 @@ class GUIControl(object):
         :param combobox: Box with this callback function
         :type combobox:
         """
-        self.zindex = combobox.get_active()
-        self.ztext.set_text(self.labels[self.zindex])
+        self.options.zindex = combobox.get_active()
+        self.ztext.set_text(self.labels[self.options.zindex])
 
     def _cxtext(self, textbox):
         """
@@ -541,7 +539,7 @@ class GUIControl(object):
         :param textbox: Box with this callback function
         :type textbox:
         """
-        self.labels[self.xindex] = textbox.get_text()
+        self.labels[self.options.xindex] = textbox.get_text()
 
     def _cytext(self, textbox):
         """
@@ -550,7 +548,7 @@ class GUIControl(object):
         :param textbox: Box with this callback function
         :type textbox:
         """
-        self.labels[self.yindex] = textbox.get_text()
+        self.labels[self.options.yindex] = textbox.get_text()
 
     def _cztext(self, textbox):
         """
@@ -559,7 +557,7 @@ class GUIControl(object):
         :param textbox: Box with this callback function
         :type textbox:
         """
-        self.labels[self.zindex] = textbox.get_text()
+        self.labels[self.options.zindex] = textbox.get_text()
 
     def _cbins(self, textbox):
         """
@@ -568,7 +566,10 @@ class GUIControl(object):
         :param textbox: Box with this callback function
         :type textbox:
         """
-        self.nbins = parse_nbins(textbox.get_text())
+        try:
+            self.options.nbins = literal_eval(textbox.get_text())
+        except:
+            self.options.nbins = textbox.get_text()
 
     def _calimits(self, textbox):
         """
@@ -579,26 +580,25 @@ class GUIControl(object):
         """
         text = textbox.get_text().strip()
 
-        # If no limits, use default
+        # If no limits, don't change
         if not text:
-            self.bin_limits = default("bin_limits")
             return
 
         try:
-            self.bin_limits = literal_eval(text)
+            self.options.plot_limits = literal_eval(text)
         except:
-            self.bin_limits = text
+            self.options.plot_limits = text
             return
 
         # Permit only two floats, if it is a one-dimensional plot
-        if len(self.plot_limits) == 2 and "One-dimensional" in self.typebox.get_active_text():
-            self.plot_limits += [None, None]
-        elif len(self.plot_limits) != 4:
+        if len(self.options.plot_limits) == 2 and "One-dimensional" in self.typebox.get_active_text():
+            self.options.plot_limits += [None, None]
+        elif len(self.options.plot_limits) != 4:
             raise RuntimeError("Must specify four floats for axes limits")
 
         # Convert to two tuple format
-        self.plot_limits = [[self.plot_limits[0], self.plot_limits[1]],
-                            [self.plot_limits[2], self.plot_limits[3]]]
+        self.options.plot_limits = [[self.options.plot_limits[0], self.options.plot_limits[1]],
+                            [self.options.plot_limits[2], self.options.plot_limits[3]]]
 
     def _cblimits(self, textbox):
         """
@@ -609,28 +609,27 @@ class GUIControl(object):
         """
         text = textbox.get_text().strip()
 
-        # If no limits, use default
+        # If no limits, don't change
         if not text:
-            self.bin_limits = default("bin_limits")
             return
 
         try:
-            self.bin_limits = literal_eval(text)
+            self.options.bin_limits = literal_eval(text)
         except:
-            self.bin_limits = text
+            self.options.bin_limits = text
             return
 
         # Permit only two floats, if it is a one-dimensional plot
         one_dim_plot = "One-dimensional" in self.typebox.get_active_text()
-        if len(self.bin_limits) == 2 and not one_dim_plot:
+        if len(self.options.bin_limits) == 2 and not one_dim_plot:
             raise RuntimeError("Specify four floats for bin limits in 2D plot")
-        elif len(self.bin_limits) != 2 and one_dim_plot:
+        elif len(self.options.bin_limits) != 2 and one_dim_plot:
             raise RuntimeError("Specify two floats for bin limits in 1D plot")
-        elif len(self.bin_limits) == 4 and not one_dim_plot:
+        elif len(self.options.bin_limits) == 4 and not one_dim_plot:
             # Convert to two-tuple format
             try:
-                self.bin_limits = [[self.bin_limits[0], self.bin_limits[1]],
-                                   [self.bin_limits[2], self.bin_limits[3]]]
+                self.options.bin_limits = [[self.options.bin_limits[0], self.options.bin_limits[1]],
+                                   [self.options.bin_limits[2], self.options.bin_limits[3]]]
             except:
                 raise IndexError("Specify four floats for bin limits in 2D plot")
         else:
@@ -647,46 +646,29 @@ class GUIControl(object):
         :param button: Button with this callback function
         :type button:
         """
-        # Gather up all of the plot options and put them in
-        # a plot_options tuple
-        args = {"xindex": self.xindex,
-                "yindex": self.yindex,
-                "zindex": self.zindex,
-                "logx": self.logx.get_active(),
-                "logy": self.logy.get_active(),
-                "logz": self.logz.get_active(),
+        # Gather up all of the plot options
 
-                "plot_limits": self.plot_limits,
-                "bin_limits": self.bin_limits,
-                "cb_limits": default("cb_limits"),
-                "nbins": self.nbins,
-                "xticks": default("xticks"),
-                "yticks": default("yticks"),
-                "cbticks": default("cbticks"),
+        self.options.logx = self.logx.get_active()
+        self.options.logy = self.logy.get_active()
+        self.options.logz = self.logz.get_active()
 
-                "tau": default("tau"),
-                "alpha": default("alpha"),
+        self.options.xlabel = self.labels[self.options.xindex]
+        self.options.ylabel = self.labels[self.options.yindex]
+        self.options.zlabel = self.labels[self.options.zindex]
+        self.options.plot_title =  self.plottitle.get_text()
 
-                "xlabel": self.labels[self.xindex],
-                "ylabel": self.labels[self.yindex],
-                "zlabel": self.labels[self.zindex],
-                "plot_title": self.plottitle.get_text(),
-                "title_position": default("title_position"),
-                "leg_title": self.legtitle.get_text(),
-                "leg_position": self.legpos.get_active_text(),
+        self.options.leg_title = self.legtitle.get_text()
+        self.options.leg_position = self.legpos.get_active_text()
 
-                "show_best_fit": self.show_best_fit.get_active(),
-                "show_posterior_mean": self.show_posterior_mean.get_active(),
-                "show_posterior_median": self.show_posterior_median.get_active(),
-                "show_posterior_mode": self.show_posterior_mode.get_active(),
-                "show_conf_intervals": self.show_conf_intervals.get_active(),
-                "show_credible_regions": self.show_credible_regions.get_active(),
-                "show_posterior_pdf": self.show_posterior_pdf.get_active(),
-                "show_prof_like": self.show_prof_like.get_active(),
-
-                "kde_pdf": self.kde_pdf.get_active(),
-                "bw_method": default("bw_method")}
-        self.options = plot_options(**args)
+        self.options.show_best_fit = self.show_best_fit.get_active()
+        self.options.show_posterior_mean = self.show_posterior_mean.get_active()
+        self.options.show_posterior_median = self.show_posterior_median.get_active()
+        self.options.show_posterior_mode = self.show_posterior_mode.get_active()
+        self.options.show_conf_intervals = self.show_conf_intervals.get_active()
+        self.options.show_credible_regions = self.show_credible_regions.get_active()
+        self.options.show_posterior_pdf = self.show_posterior_pdf.get_active()
+        self.options.show_prof_like = self.show_prof_like.get_active()
+        self.options.kde_pdf = self.kde_pdf.get_active()
 
         # Fetch the class for the selected plot type
         plot_class = self.plots[self.typebox.get_active_text()]

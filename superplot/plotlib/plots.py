@@ -23,12 +23,13 @@ import numpy as np
 from scipy.stats import chi2
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
+from matplotlib.pylab import get_cmap
 
-from base import OneDimPlot, TwoDimPlot
 import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
 import plot_mod as pm
-import superplot.schemes as schemes
+from superplot.schemes import schemes
+from base import OneDimPlot, TwoDimPlot
 
 
 def save_plot(name):
@@ -332,7 +333,7 @@ class Scatter(TwoDimPlot):
                 s=schemes.scatter.size,
                 c=self.zdata,
                 marker=schemes.scatter.symbol,
-                cmap=schemes.scatter.colour_map,
+                cmap=get_cmap(schemes.scatter.colour_map, schemes.scatter.number_colours),
                 norm=None,
                 vmin=min_,
                 vmax=max_,

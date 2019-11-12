@@ -117,7 +117,7 @@ def auto_nbins(bin_limits, parameter, posterior=None):
     nbins = max(fd, sturges)
 
     if nbins > 1000:
-        warnings.warn("Using more than 1000 bins per dimension")
+        warnings.warn("Using more than 1000 bins per dimension", RuntimeWarning)
     return nbins
 
 

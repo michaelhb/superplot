@@ -39,7 +39,7 @@ def kde_posterior_pdf(paramx,
                       posterior,
                       npoints=100,
                       bin_limits='extent',
-                      bw_method='scott',
+                      bandwidth='scott',
                       fft=True):
     r"""
     Kenerl density estimate (KDE) of two-dimensional posterior pdf with
@@ -72,8 +72,8 @@ def kde_posterior_pdf(paramx,
     :type npoints: integer
     :param bin_limits: Bin limits for histogram
     :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
-    :param bw_method: Method for determining band-width or bandwidth
-    :type bw_method: string or float
+    :param bandwidth: Method for determining band-width or bandwidth
+    :type bandwidth: string or float
     :param fft: Whether to use Fast-Fourier transform
     :type fft: bool
 
@@ -98,7 +98,7 @@ def kde_posterior_pdf(paramx,
 
     kde_func = gaussian_kde(np.array((paramx, paramy)),
                             weights=posterior,
-                            bw_method=bw_method,
+                            bandwidth=bandwidth,
                             fft=fft)
 
     centers_x = np.linspace(bin_limits_x[0], bin_limits_x[1], npoints)
@@ -164,7 +164,6 @@ def posterior_pdf(paramx, paramy, posterior, nbins='auto', bin_limits='auto'):
         nbins_y = bins.nbins(nbins, bin_limits_y, paramy, posterior)
 
     # Two-dimensional histogram the data - pdf is a matrix
-    print (nbins_x, nbins_y), (bin_limits_x, bin_limits_y)
     pdf, bin_edges_x, bin_edges_y = np.histogram2d(
                                         paramx,
                                         paramy,
@@ -418,7 +417,7 @@ def posterior_mode(pdf, bin_centers_x, bin_centers_y):
     if len(max_indices) > 1:
         warnings.warn("posterior mode: max count shared by {} bins".format(
             len(max_indices)
-        ))
+        ), RuntimeWarning)
 
     # Return the (x,y) bin centers of the corresponding cells
     return [[bin_centers_x[x], bin_centers_y[y]] for x, y in max_indices]

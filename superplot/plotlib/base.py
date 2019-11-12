@@ -6,6 +6,7 @@ This module contains abstract base classes, used to implement Plots.
 """
 
 import warnings
+import copy
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 
@@ -17,7 +18,7 @@ import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
 import superplot.statslib.bins as bins
 import superplot.statslib.point as stats
-import superplot.schemes as schemes
+from superplot.schemes import schemes
 
 
 class Plot(object):
@@ -35,7 +36,7 @@ class Plot(object):
     __metaclass__ = ABCMeta
 
     def __init__(self, data, plot_options):
-        self.plot_options = plot_options
+        self.plot_options = copy.deepcopy(plot_options)
 
         # NB we make copies of the data so there's
         # no way for a plot to mess things up for other plots
@@ -119,21 +120,12 @@ class OneDimPlot(Plot):
 
     def __init__(self, data, plot_options):
         super(OneDimPlot, self).__init__(data, plot_options)
-        self.plot_options = plot_options
+        self.plot_options = copy.deepcopy(plot_options)
 
-        # Downside of using named tuple is they're immutable
-        # so changing options is (justifiably) annoying.
-        # If this happens a lot (it shouldn't), consider
-        # using a mutable type instead...
-        self.plot_options = self.plot_options._replace(
-            bin_limits=bins.bin_limits(self.plot_options.bin_limits, self.xdata, posterior=self.posterior))
-
+        self.plot_options.bin_limits = bins.bin_limits(self.plot_options.bin_limits, self.xdata, posterior=self.posterior)
         plot_limits_y = [0., 1.2]
-        self.plot_options = self.plot_options._replace(
-            plot_limits=(bins.plot_limits(self.plot_options.plot_limits, self.plot_options.bin_limits, self.xdata), plot_limits_y))
-
-        self.plot_options = self.plot_options._replace(
-            nbins=bins.nbins(self.plot_options.nbins, self.plot_options.bin_limits, self.xdata, posterior=self.posterior))
+        self.plot_options.plot_limits = (bins.plot_limits(self.plot_options.plot_limits, self.plot_options.bin_limits, self.xdata), plot_limits_y)
+        self.plot_options.nbins = bins.nbins(self.plot_options.nbins, self.plot_options.bin_limits, self.xdata, posterior=self.posterior)
 
         # Posterior PDF. Norm by area if not showing profile likelihood,
         # otherwise norm max value to one.
@@ -145,7 +137,7 @@ class OneDimPlot(Plot):
                 self.posterior,
                 bin_limits=self.plot_options.bin_limits,
                 norm_area=not self.plot_options.show_prof_like,
-                bw_method=self.plot_options.bw_method)
+                bandwidth=self.plot_options.bandwidth)
         else:
 
             # Binned estimate of PDF
@@ -221,7 +213,7 @@ class TwoDimPlot(Plot):
 
     def __init__(self, data, plot_options):
         super(TwoDimPlot, self).__init__(data, plot_options)
-        self.plot_options = plot_options
+        self.plot_options = copy.deepcopy(plot_options)
 
         if not isinstance(self.plot_options.bin_limits, str):
             bin_limits_x = bins.bin_limits(self.plot_options.bin_limits[0], self.xdata, self.posterior)
@@ -244,15 +236,10 @@ class TwoDimPlot(Plot):
             nbins_x = bins.nbins(self.plot_options.nbins, bin_limits_x, self.xdata, self.posterior)
             nbins_y = bins.nbins(self.plot_options.nbins, bin_limits_y, self.ydata, self.posterior)
 
-        self.plot_options = self.plot_options._replace(
-            bin_limits=(bin_limits_x, bin_limits_y))
-
-        self.plot_options = self.plot_options._replace(
-            plot_limits=(plot_limits_x, plot_limits_y))
-
-        self.plot_options = self.plot_options._replace(
-            nbins=(nbins_x, nbins_y))
-
+        self.plot_options.bin_limits = (bin_limits_x, bin_limits_y)
+        self.plot_options.plot_limits = (plot_limits_x, plot_limits_y)
+        self.plot_options.nbins = (nbins_x, nbins_y)
+        print self.plot_options
         # Posterior PDF
         if self.plot_options.kde_pdf:
 
@@ -261,7 +248,7 @@ class TwoDimPlot(Plot):
                         self.xdata,
                         self.ydata,
                         self.posterior,
-                        bw_method=self.plot_options.bw_method,
+                        bandwidth=self.plot_options.bandwidth,
                         bin_limits=self.plot_options.bin_limits)
         else:
 

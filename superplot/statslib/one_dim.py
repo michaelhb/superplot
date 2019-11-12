@@ -32,7 +32,7 @@ def kde_posterior_pdf(parameter,
                       npoints=500,
                       bin_limits='extent',
                       norm_area=False,
-                      bw_method='scott',
+                      bandwidth='scott',
                       fft=True):
     r"""
     Kernel density estimate (KDE) of one-dimensional posterior pdf with
@@ -66,8 +66,8 @@ def kde_posterior_pdf(parameter,
     :param norm_area: If True, normalize the pdf so that the integral over the
         range is one. Otherwise, normalize the pdf so that the maximum value
         is one.
-    :param bw_method: Method for determining band-width or bandwidth
-    :type bw_method: string or float
+    :param bandwidth: Method for determining band-width or bandwidth
+    :type bandwidth: string or float
     :param fft: Whether to use Fast-Fourier transform
     :type fft: bool
 
@@ -84,7 +84,7 @@ def kde_posterior_pdf(parameter,
     bin_limits = bins.bin_limits(bin_limits, parameter, posterior)
     kde_func = gaussian_kde(parameter,
                             weights=posterior,
-                            bw_method=bw_method,
+                            bandwidth=bandwidth,
                             fft=fft)
 
     centers = np.linspace(bin_limits[0], bin_limits[1], npoints)
@@ -523,7 +523,7 @@ def posterior_mode(pdf, bin_centers):
     if len(max_indices) > 1:
         warnings.warn("posterior_mode: max count shared by {} bins".format(
             len(max_indices)
-        ))
+        ), RuntimeWarning)
 
     return [bin_centers[i] for i in max_indices]
 

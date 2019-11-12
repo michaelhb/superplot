@@ -6,8 +6,10 @@ This module contains code for:
 - Using the \\*.info file to label the data.
 """
 
+import os
 import warnings
 import pandas as pd
+import simpleyaml as yaml
 
 
 def load(info_file, data_file):
@@ -23,7 +25,7 @@ def load(info_file, data_file):
     :rtype: dict (labels), array (data)
     """
     if not data_file:
-        raise RuntimeWarning("Must specify a *.txt data file")
+        raise RuntimeError("Must specify a *.txt data file")
 
     data = _read_data_file(data_file)
     labels = _read_info_file(info_file)
@@ -58,7 +60,7 @@ def _read_data_file(file_name, fill=0.):
         try:
             return float(entry)
         except ValueError:
-            warnings.warn("{} filled with {}".format(entry, fill))
+            warnings.warn("{} filled with {}".format(entry, fill), RuntimeWarning)
             return fill
 
     with open(file_name) as file_:
@@ -152,5 +154,40 @@ def _label_chain(data, labels):
     for index in range(len(data)):
         if not labels.get(index):
             warnings.warn("Labels did not match data. "
-                          "Missing labels are integers.")
+                          "Missing labels are integers.", RuntimeWarning)
             labels[index] = str(index)
+
+
+def load_yaml(yaml_file):
+    """
+    Load a yaml file, either from the user data
+    directory, or if that is not available, the installed
+    copy.
+
+    :param yaml_file: Name of yaml file
+    :type yaml_file: str
+
+    :returns: Data in yaml file
+    :rtype: dict
+    """
+    # First check whether the user has a custom home directory.
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    home_dir_locfile = os.path.join(script_dir, "user_home.txt")
+
+    config_path = None
+
+    if os.path.exists(home_dir_locfile):
+        with open(home_dir_locfile, "rb") as f:
+            home_dir_path = f.read()
+            config_path = os.path.join(home_dir_path, yaml_file)
+
+    # If it doesn't exist, use the installed copy
+    if config_path is None or not os.path.exists(config_path):
+        config_path = os.path.join(
+            os.path.split(os.path.abspath(__file__))[0],
+            yaml_file
+        )
+
+    # Load and return config
+    with open(config_path) as cfile:
+        return yaml.load(cfile)

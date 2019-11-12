@@ -1,4 +1,5 @@
-include superplot/config.yml
+include superplot/options.yml
+include superplot/schemes.yml
 include superplot/plotlib/styles/*.mplstyle
 include superplot/example/gaussian_.txt
 include superplot/example/load_pkl.py

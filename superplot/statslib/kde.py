@@ -35,7 +35,7 @@ class gaussian_kde(object):
     dataset : array_like
         Datapoints to estimate from. In case of univariate data this is a 1-D
         array, otherwise a 2-D array with shape (# of dims, # of data).
-    bw_method : str, scalar or callable, optional
+    bandwidth : str, scalar or callable, optional
         The method used to calculate the estimator bandwidth.  This can be
         'scott', 'silverman', a scalar constant or a callable.  If a scalar,
         this will be used directly as `kde.factor`.  If a callable, it should
@@ -75,7 +75,7 @@ class gaussian_kde(object):
         Same as kde.evaluate(points)
     kde.pdf(points) : ndarray
         Alias for ``kde.evaluate(points)``.
-    kde.set_bandwidth(bw_method='scott') : None
+    kde.set_bandwidth(bandwidth='scott') : None
         Computes the bandwidth, i.e. the coefficient that multiplies the data
         covariance matrix to obtain the kernel covariance matrix.
         .. versionadded:: 0.11.0
@@ -159,7 +159,7 @@ class gaussian_kde(object):
 
     """
 
-    def __init__(self, dataset, bw_method='scott', weights=None, fft=True):
+    def __init__(self, dataset, bandwidth='scott', weights=None, fft=True):
 
         self.fft = fft
         self.dataset = np.atleast_2d(dataset)
@@ -174,16 +174,16 @@ class gaussian_kde(object):
 
         self.sum_weights_squared = np.sum(self.weights**2)
 
-        if bw_method == 'scott':
+        if bandwidth == 'scott':
             self.bandwidth = self._scott_factor()
-        elif bw_method == 'silverman':
+        elif bandwidth == 'silverman':
             self.bandwidth = self._silverman_factor()
-        elif np.isscalar(bw_method):
-            self.bandwidth = bw_method
-        elif callable(bw_method):
-            self.bandwidth = bw_method(self)
+        elif np.isscalar(bandwidth):
+            self.bandwidth = bandwidth
+        elif callable(bandwidth):
+            self.bandwidth = bandwidth(self)
         else:
-            error = "bw_method should be 'scott', 'silverman', a scalar or a callable"
+            error = "bandwidth should be 'scott', 'silverman', a scalar or a callable"
             raise ValueError(error)
 
         self._compute_covariance()

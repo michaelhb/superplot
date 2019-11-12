@@ -11,7 +11,7 @@ import os
 import warnings
 
 from matplotlib.ticker import AutoMinorLocator, MaxNLocator
-from matplotlib.pylab import rcParams, rc
+from matplotlib.pylab import rcParams, rc, get_cmap
 from matplotlib import colors
 import matplotlib.pyplot as plt
 import numpy as np
@@ -212,7 +212,7 @@ def plot_image(data, bin_limits, plot_limits, scheme):
     # imshow is annoying - it reads (y, x) rather than (x, y) so we take
     # transpose.
     plt.im = plt.imshow(data.T,
-                        cmap=scheme.colour_map,
+                        cmap=get_cmap(scheme.colour_map, scheme.number_colours),
                         extent=extent,
                         interpolation='bilinear',
                         label=scheme.label,

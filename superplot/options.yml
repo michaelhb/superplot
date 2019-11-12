@@ -1,0 +1,34 @@
+# Values of alpha.
+alpha: [0.045500263896, 0.31731050786]
+
+# Default plot limits [[xmin, xmax], [ymin, ymax]] or bins or extent.
+plot_limits: bins
+
+# Default bin limits [[xmin, xmax], [ymin, ymax]] or quantile or extent.
+bin_limits: quantile
+
+# Default number of bins, int or auto.
+nbins: auto
+
+# Default colorbar limits for scatter plots
+cb_limits: null
+
+# Default number of ticks for axes.
+xticks: 5
+yticks: 5
+cbticks: 10
+
+# Default plot title.
+plot_title: null
+
+# Location of plot title.
+title_position : center
+
+# For theoretical error on delta chi-squared plots.
+tau: 2
+
+# Band-width method, if KDE is used for pdfs. scott, silverman or float.
+bandwidth: scott
+
+# Degrees of freedom for calculating chi-squared. Currently only used in summary.py.
+dof: 10

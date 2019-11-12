@@ -16,7 +16,8 @@ try:
     from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
     GTK_MAJOR_VERSION = 3
 except ImportError as e:
-    warnings.warn("Falling back to gtk2 - {}".format(e.message))
+    warnings.warn("Falling back to gtk2 - {}".format(e.message), ImportWarning)
+    warnings.warn("We may end gtk2 support soon", PendingDeprecationWarning)
     try:
         import gtk
         from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
@@ -46,6 +47,6 @@ else:
     APPEND_TEXT = lambda obj, str_: obj.append_text(str_)
     FILL = gtk.FILL
     MESSAGE_ERROR = gtk.MESSAGE_ERROR
-    MESSAGE_WARNING =gtk.MESSAGE_WARNING
-    DIALOG_DESTROY_WITH_PARENT= gtk.DIALOG_DESTROY_WITH_PARENT
+    MESSAGE_WARNING = gtk.MESSAGE_WARNING
+    DIALOG_DESTROY_WITH_PARENT = gtk.DIALOG_DESTROY_WITH_PARENT
     BUTTONS_CLOSE = gtk.BUTTONS_CLOSE

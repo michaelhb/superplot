@@ -316,14 +316,12 @@ def plot_filled_contour(
 
     # Filled contours.
     settings = dict(colors=scheme.colours,
-                    hold='on',
                     extent=extent,
-                    interpolation='bilinear',
                     origin=None)
     plt.contourf(data.T, levels, alpha=0.7, **settings)
 
     # Bold outline of contour
-    plt.contour(data.T, levels, alpha=1., linewidths=4, **settings)
+    plt.contour(data.T, levels, alpha=1., linewidths=4, zorder=0, **settings)
 
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours of filled contours.

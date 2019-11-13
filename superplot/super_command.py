@@ -23,14 +23,16 @@ An information file may be supplied via `--info_file`. The e.g. `--xlabel`
 arguments override any labels in the information file.
 """
 
+import copy
 from argparse import ArgumentParser as arg_parser
 from os.path import basename, splitext
 from ast import literal_eval
 import matplotlib.pyplot as plt
 import numpy as np
 
-from superplot.plot_options import plot_options, default
+from superplot.plot_options import defaults
 import superplot.plotlib.plots as plots
+import superplot.plotlib.plot_mod as pm
 import superplot.data_loader as data_loader
 
 
@@ -39,12 +41,8 @@ TWO_DIM_PLOT = 'Two-dimensional posterior pdf, filled contours only.'
 THREE_DIM_PLOT = 'Three-dimensional scatter plot.'
 
 
-PLOT_CLASS = dict()
-for plot_class in plots.plot_types:
-    PLOT_CLASS[plot_class.description] = plot_class
-
-
-ATTRIBUTES = [attr_ for attr_ in vars(plot_options) if not attr_.startswith('_')]
+PLOT_CLASS = {plot_class.description: plot_class for plot_class in plots.plot_types}
+ATTRIBUTES = defaults.keys
 COMPULSORY = ['xindex']
 
 fetch_data = lambda file_name: np.loadtxt(file_name, unpack=True)
@@ -110,11 +108,10 @@ def __main__():
 
     for attr_ in ATTRIBUTES:
 
-        # Fetch default value
-        try:
-            default_ = default(attr_)
-        except KeyError:
-            # Make sure plot elements are shown if unspecified
+        default_ = getattr(defaults, attr_)
+
+        # Make sure plot elements are shown if unspecified
+        if default_ is None:
             if 'show' in attr_:
                 default_ = True
             else:
@@ -151,13 +148,12 @@ def __main__():
 
     # Make plot options
 
-    plot_args = dict()
+    options = copy.deepcopy(defaults)
+
     for attr_ in ATTRIBUTES:
-        plot_args[attr_] = args[attr_]
+        setattr(options, attr_, args[attr_])
 
-    options = plot_options(**plot_args)  # Convert dictionary to named tuple
-
-    # Fetch options not inside named tuple
+    # Fetch options not inside options object
 
     txt_file = args['txt_file']
     info_file = args['info_file']
@@ -167,7 +163,6 @@ def __main__():
     line_label = args['line_label']
 
     # Make relevant plot
-
     save_plot(txt_file, info_file, output_file, plot_description, options, line_file, line_label)
 
 
@@ -208,15 +203,17 @@ def save_plot(txt_file, info_file, output_file, plot_description, options, line_
 
     if info_file:
         if options.xlabel is None and options.xindex:
-            options = options._replace(xlabel=labels[options.xindex])
+            options.xlabel = labels[options.xindex]
         if options.ylabel is None and options.yindex:
-            options = options._replace(ylabel=labels[options.yindex])
+            options.ylabel = labels[options.yindex]
         if options.zlabel is None and options.zindex:
-            options = options._replace(zlabel=labels[options.zindex])
+            options.zlabel = labels[options.zindex]
 
     # Make plot
 
-    figure = PLOT_CLASS[plot_description](data, options).figure()
+    plot = PLOT_CLASS[plot_description](data, options)
+    pm.appearance(plot.__class__.__name__)
+    figure = plot.figure()
 
     # Add line, if requested
 

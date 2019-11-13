@@ -39,5 +39,7 @@ class Schemes(object):
         elif attr == "conf_intervals":
             return [self.conf_interval_s2, self.conf_interval_s1]
         return Scheme(attr, self._yaml_file)
+    def __str__(self):
+        return str(load_yaml(self._yaml_file))
 
 schemes = Schemes("schemes.yml")

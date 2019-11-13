@@ -53,30 +53,33 @@ def main():
     with open(home_dir_file, "wb") as f:
         f.write(user_dir)
 
-    # Copy config.yml. Prompt user to overwrite if already present.
-    config_path = os.path.join(user_dir, "config.yml")
+    # Copy yaml files. Prompt user to overwrite if already present.
+    yaml_names = ["schemes.yml", "options.yml"]
+    config_paths = [os.path.join(user_dir, name) for name in yaml_names]
     copy_config = True
 
-    if os.path.exists(config_path):
+    if any([os.path.exists(path) for path in config_paths]):
 
-        print "config.yml already present. Please note that versions of this file " \
+        print "yaml files already present. Please note that yamls files " \
               "distributed with previous versions of superplot may not work with " \
-              "this release. If you wish to compare your customised config.yml with " \
-              "the current defaults, an example is distributed with the source code " \
-              "(superplot/config.yml)."
+              "this release. If you wish to compare your customised yamls with " \
+              "the current defaults, they are distributed with the source code " \
+              "(superplot/{}).".format(yaml_names)
 
-        copy_config = prompt("Replace existing file: {}".format(config_path))
+        copy_config = prompt("Replace existing files: {}".format(config_paths))
+
+    copy_from = [os.path.join(script_dir, name) for name in yaml_names]
 
     if copy_config:
-        copy_from = os.path.join(script_dir, "config.yml")
-        try:
-            shutil.copy(copy_from, config_path)
-        except shutil.Error as e:
-            warnings.warn(
-                    "Error copying config file to user directory: {}".format(
-                            e.strerror
-                    )
-            )
+        for (from_, to) in zip(copy_from, config_paths):
+            try:
+                shutil.copy(from_, to)
+            except shutil.Error as e:
+                warnings.warn(
+                        "Error copying yaml file to user directory: {}".format(
+                                e.strerror
+                        )
+                )
 
     # Copy style sheets to user directory
     styles_dir = os.path.join(user_dir, "styles")

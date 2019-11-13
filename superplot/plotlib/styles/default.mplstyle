@@ -9,12 +9,17 @@ figure.figsize : 8, 8
 
 # Legend properties
 legend.shadow : False
-legend.fancybox : True
+legend.fancybox : False
 legend.loc : best
 legend.borderaxespad : 1.
 legend.scatterpoints : 1
 legend.numpoints : 1
-legend.framealpha : 0.5
+legend.framealpha : 0.9
+patch.linewidth : 1.
+patch.edgecolor : 'black'
+legend.handlelength : 1.5
+legend.handletextpad : 0.5
+legend.fontsize : x-small
 
 # Font choices
 text.usetex : True

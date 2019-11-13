@@ -125,7 +125,10 @@ def legend(leg_title=None, leg_position=None):
     :type leg_position: string
     """
     if leg_position != "no legend":
-        plt.legend(title=leg_title, loc=leg_position)
+        leg = plt.legend(title=leg_title, loc=leg_position)
+        frame = leg.get_frame()
+        frame.set_linewidth(rcParams["patch.linewidth"])
+        frame.set_edgecolor(rcParams["patch.edgecolor"])
 
 
 def plot_limits(ax, limits=None):

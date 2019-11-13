@@ -188,6 +188,10 @@ def load_yaml(yaml_file):
             yaml_file
         )
 
+    # If that doesn't exist, try a local copy
+    if config_path is None or not os.path.exists(config_path):
+        config_path = yaml_file
+
     # Load and return config
     with open(config_path) as cfile:
         return yaml.load(cfile)

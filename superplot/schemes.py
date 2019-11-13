@@ -33,6 +33,7 @@ class Schemes(object):
     """
     def __init__(self, yaml_file):
         self._yaml_file = yaml_file
+        load_yaml(self._yaml_file)
     def __getattr__(self, attr):
         if attr == "credible_regions":
             return [self.credible_region_s2, self.credible_region_s1]

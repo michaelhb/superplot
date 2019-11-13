@@ -12,7 +12,7 @@ import superplot.plotlib.plot_mod as pm
 import superplot.statslib.two_dim as two_dim
 import superplot.statslib.one_dim as one_dim
 import superplot.statslib.point as stats
-from superplot.schemes import scheme_from_yaml
+from superplot.schemes import Schemes
 
 
 BIN_LIMITS = [[-10000, 10000], [-10000, 10000]]
@@ -22,7 +22,7 @@ YINDEX = 3
 XLABEL = '$x$'
 YLABEL = '$y$'
 TEXTS = ["gaussian_.txt", "SB_MO_log_allpost.txt"]
-YAMLS = ["config.yml", "alt_config.yml"]
+YAMLS = ["schemes.yml", "../alt_schemes.yml"]
 LEG_LOCS = ["upper right", "lower right"]
 LEG_TITLES = ["Gaussian", "CMSSM"]
 
@@ -93,7 +93,7 @@ def add_data(data, scheme, leg_loc, leg_title):
 
 # Load two data sets and schemes
 
-schemes = map(scheme_from_yaml, YAMLS)
+schemes = map(Schemes, YAMLS)
 datas = map(data_loader._read_data_file, TEXTS)
 
 # Make a plot

@@ -239,7 +239,7 @@ class TwoDimPlot(Plot):
         self.plot_options.bin_limits = (bin_limits_x, bin_limits_y)
         self.plot_options.plot_limits = (plot_limits_x, plot_limits_y)
         self.plot_options.nbins = (nbins_x, nbins_y)
-        print self.plot_options
+
         # Posterior PDF
         if self.plot_options.kde_pdf:
 

@@ -41,7 +41,7 @@ def plot_data(x, y, scheme, zorder=1):
             zorder=zorder)
 
 
-def appearance(plot_name):
+def appearance(plot_name="default"):
     """
     Specify the plot's appearance, with e.g. font types etc.
     from an mplstyle file.

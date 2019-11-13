@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 import data_loader
+from superplot.plotlib.plot_mod import appearance
 from superplot.statslib.point import posterior_mean
 from superplot.statslib.one_dim import kde_posterior_pdf, posterior_median, credible_region
 
@@ -67,6 +68,7 @@ def violin_plot(data,
 
     # Make violin plot
 
+    appearance()
     fig, ax = plt.subplots()
     violin = ax.violin(stats, vert=True, showmeans=True, showextrema=True, showmedians=True)
 

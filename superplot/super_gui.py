@@ -1,6 +1,7 @@
 """
 This module provides the superplot GUI.
 """
+from __future__ import print_function
 
 import sys
 import os
@@ -94,7 +95,7 @@ def open_file_gui(window_title="Open",
         exit()
 
     dialog.destroy()
-    print 'File: %s selected' % file_name
+    print('File: {} selected'.format(file_name))
 
     return file_name
 
@@ -150,8 +151,8 @@ def save_file_gui(window_title="Save As",
         warnings.warn("Unexpected response")
         file_name = None
 
-    print 'File: %s selected' % file_name
     dialog.destroy()
+    print('File: {} selected'.format(file_name))
 
     return file_name
 
@@ -681,12 +682,12 @@ class GUIControl(object):
         # re-create the figure to work correctly.
         self.plot = plot_class(self.data, self.options)
 
-        # Try to remove existing box   
+        # Try to remove existing box
         try:
             self.gridbox.remove(self.box)
         except:
             pass
-    
+
         # Add new box
         self.box = gtk.VBox()
         canvas = gtk_wrapper.FigureCanvas(self.fig.figure)

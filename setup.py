@@ -12,7 +12,7 @@ def read(fname):
 dependencies = [
     "appdirs",
     "prettytable",
-    "simpleyaml",
+    "pyyaml",
     "numpy",
     "scipy",
     "pandas",

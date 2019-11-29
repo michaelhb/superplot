@@ -1,6 +1,6 @@
 appdirs
 numpy
-simpleyaml
+pyyaml
 joblib
 scipy
 prettytable

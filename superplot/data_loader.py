@@ -9,7 +9,7 @@ This module contains code for:
 import os
 import warnings
 import pandas as pd
-import simpleyaml as yaml
+import pyyaml as yaml
 
 
 def load(info_file, data_file):

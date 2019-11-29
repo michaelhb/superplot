@@ -1,7 +1,7 @@
 Superplot (`arXiv:1603.00555 <http://arxiv.org/abs/1603.00555>`_)
 *****************************************************************
 
-This package provides three utilities: ``superplot_gui``, ``superplot_summary`` and ``super_command``. There is a manual, `arXiv:1603.00555 <http://arxiv.org/abs/1603.00555>`_, and  `extended documentation <http://superplot.readthedocs.io/>`_. 
+This package provides three utilities: ``superplot_gui``, ``superplot_summary`` and ``super_command``. There is a manual, `arXiv:1603.00555 <http://arxiv.org/abs/1603.00555>`_, and  `extended documentation <http://superplot.readthedocs.io/>`_.
 
 ``superplot_gui`` is a Python GUI that makes plots from `MultiNest <https://ccpforge.cse.rl.ac.uk/gf/project/multinest/>`_
 or `PolyChord <https://ccpforge.cse.rl.ac.uk/gf/project/polychord/>`_ results (or programs that utilize them). It can calculate and plot:
@@ -43,7 +43,7 @@ Superplot is hosted on the Pypi server. It can be installed via pip::
 Superplot requires Python 2.7+ and uses the following libraries:
 
 * prettytable
-* simpleyaml
+* pyyaml
 * appdirs
 * numpy
 * scipy
@@ -87,7 +87,7 @@ To run ``superplot_gui``::
 To run ``superplot_summary``::
 
     python -m superplot.summary
-    
+
 To run ``super_command``::
 
     python -m superplot.super_command
@@ -114,8 +114,8 @@ Using ``super_command``
 =========================
 ``super_command`` is a command line interface to the plotting functionality in ``superplot_gui`` that takes multiple arguments; see::
 
-    python -m superplot.super_command --help 
-    
+    python -m superplot.super_command --help
+
 for usage.
 
 Configuring superplot

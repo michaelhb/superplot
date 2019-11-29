@@ -4,6 +4,7 @@ Summary of chain
 
 A stand-alone script to print summary statistics about a chain.
 """
+from __future__ import print_function
 
 import os
 from argparse import ArgumentParser as arg_parser
@@ -113,10 +114,6 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
 
 
 def main():
-    # Select chain and info file with a GUI.
-    # datafile = open_file_gui(add_pattern="*.txt")
-    # infofile = open_file_gui(add_pattern="*.txt")
-
     parser = arg_parser(description='Superplot summary tool', conflict_handler='resolve')
 
     parser.add_argument('--data_file',
@@ -147,4 +144,4 @@ def main():
 
 
 if __name__ == "__main__":
-    print main()
+    print(main())

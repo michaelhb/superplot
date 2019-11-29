@@ -4,6 +4,7 @@ plotlib.base
 ============
 This module contains abstract base classes, used to implement Plots.
 """
+from __future__ import print_function
 
 import warnings
 import copy
@@ -62,17 +63,17 @@ class Plot(object):
             try:
                 self.xdata = np.log10(self.xdata)
             except RuntimeWarning:
-                print "x-data not logged: probably logging a negative."
+                print("x-data not logged: probably logging a negative.")
         if plot_options.logy:
             try:
                 self.ydata = np.log10(self.ydata)
             except RuntimeWarning:
-                print "y-data not logged: probably logging a negative."
+                print("y-data not logged: probably logging a negative.")
         if plot_options.logz:
             try:
                 self.zdata = np.log10(self.zdata)
             except RuntimeWarning:
-                print "z-data not logged: probably logging a negative."
+                print("z-data not logged: probably logging a negative.")
 
         # Reset warnings, else future warnings will be treated as exceptions.
         # Omitting this line was the source of annoying bugs!

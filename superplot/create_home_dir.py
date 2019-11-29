@@ -60,11 +60,11 @@ def main():
 
     if any([os.path.exists(path) for path in config_paths]):
 
-        print "yaml files already present. Please note that yamls files " \
-              "distributed with previous versions of superplot may not work with " \
-              "this release. If you wish to compare your customised yamls with " \
-              "the current defaults, they are distributed with the source code " \
-              "(superplot/{}).".format(yaml_names)
+        warnings.warn("yaml files already present. Please note that yamls files "
+                     "distributed with previous versions of superplot may not work with "
+                     "this release. If you wish to compare your customised yamls with "
+                     "the current defaults, they are distributed with the source code "
+                     "(superplot/{}).".format(yaml_names))
 
         copy_config = prompt("Replace existing files: {}".format(config_paths))
 

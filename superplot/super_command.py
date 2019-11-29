@@ -22,6 +22,7 @@ one of
 An information file may be supplied via `--info_file`. The e.g. `--xlabel`
 arguments override any labels in the information file.
 """
+from __future__ import print_function
 
 import copy
 from argparse import ArgumentParser as arg_parser
@@ -233,8 +234,8 @@ def save_plot(txt_file, info_file, output_file, plot_description, options, line_
 
     plt.savefig(output_file)
 
-    print 'Output file = {}'.format(output_file)
-    print 'Summary = {}'.format(figure.summary)
+    print('Output file = {}'.format(output_file))
+    print('Summary = {}'.format(figure.summary))
 
 
 if __name__ == '__main__':

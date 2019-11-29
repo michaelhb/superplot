@@ -4,7 +4,7 @@ about how individual elements should appear in a plot.
 """
 
 import warnings
-from data_loader import load_yaml
+from superplot.data_loader import load_yaml
 
 
 class Scheme(object):
@@ -12,7 +12,7 @@ class Scheme(object):
     Fetch data about a scheme from a yaml.
     """
     def __init__(self, name, yaml_file):
-        self._yaml_file = yaml_file 
+        self._yaml_file = yaml_file
         self._name = name
     def __getattr__(self, attr):
         yaml = load_yaml(self._yaml_file)

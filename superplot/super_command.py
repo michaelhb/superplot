@@ -31,7 +31,7 @@ from ast import literal_eval
 import matplotlib.pyplot as plt
 import numpy as np
 
-from superplot.plot_options import defaults
+from superplot.plot_options import defaults, keys
 import superplot.plotlib.plots as plots
 import superplot.plotlib.plot_mod as pm
 import superplot.data_loader as data_loader
@@ -43,7 +43,7 @@ THREE_DIM_PLOT = 'Three-dimensional scatter plot.'
 
 
 PLOT_CLASS = {plot_class.description: plot_class for plot_class in plots.plot_types}
-ATTRIBUTES = defaults.keys
+ATTRIBUTES = keys
 COMPULSORY = ['xindex']
 
 fetch_data = lambda file_name: np.loadtxt(file_name, unpack=True)

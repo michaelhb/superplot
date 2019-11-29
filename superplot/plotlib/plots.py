@@ -27,9 +27,9 @@ from matplotlib.pylab import get_cmap
 
 import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
-import plot_mod as pm
 from superplot.schemes import schemes
-from base import OneDimPlot, TwoDimPlot
+from . import plot_mod as pm
+from .base import OneDimPlot, TwoDimPlot
 
 
 def save_plot(name):

@@ -11,10 +11,10 @@ from collections import namedtuple
 
 import numpy as np
 
-import point
-import bins
-from kde import gaussian_kde
-from patched_joblib import memory
+from . import point
+from . import bins
+from .kde import gaussian_kde
+from .patched_joblib import memory
 
 
 DOCTEST_PRECISION = 10
@@ -252,8 +252,8 @@ def profile_like(paramx, paramy, chi_sq, nbins='auto', bin_limits='auto'):
     def shift_y(bin_number_):
         return point._shift(bin_number_, nbins_y)
 
-    bin_numbers_x = map(shift_x, bin_numbers_x)
-    bin_numbers_y = map(shift_y, bin_numbers_y)
+    bin_numbers_x = [shift_x(n) for n in bin_numbers_x]
+    bin_numbers_y = [shift_y(n) for n in bin_numbers_y]
 
     # Initialize the profiled chi-squared to something massive
     prof_chi_sq = np.full((nbins_x, nbins_y), float("inf"))

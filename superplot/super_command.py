@@ -213,7 +213,6 @@ def save_plot(txt_file, info_file, output_file, plot_description, options, line_
     # Make plot
 
     plot = PLOT_CLASS[plot_description](data, options)
-    pm.appearance(plot.__class__.__name__)
     figure = plot.figure()
 
     # Add line, if requested

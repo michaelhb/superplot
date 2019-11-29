@@ -14,7 +14,7 @@ from collections import namedtuple
 import numpy as np
 import matplotlib.pyplot as plt
 
-import plot_mod as pm
+from . import plot_mod as pm
 import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
 import superplot.statslib.bins as bins
@@ -85,14 +85,13 @@ class Plot(object):
 
         @returns Figure and axes
         """
+        pm.appearance(self.__class__.__name__)
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
 
         pm.plot_ticks(self.plot_options.xticks, self.plot_options.yticks, ax)
         pm.plot_labels(self.plot_options.xlabel, self.plot_options.ylabel, self.plot_options.plot_title, self.plot_options.title_position)
         pm.plot_limits(ax, self.plot_options.plot_limits)
-
-        pm.appearance(self.__class__.__name__)
 
         return fig, ax
 

@@ -243,7 +243,7 @@ class GUIControl(object):
 
         xtitle = gtk.Button(label="x-axis variable:")
         self.xbox = gtk_wrapper.COMBO_BOX_TEXT()
-        for label in self.labels.itervalues():
+        for label in self.labels.values():
             self.xbox.append_text(label)
         self.xbox.set_wrap_width(5)
         self.xbox.connect('changed', self._cx)
@@ -258,7 +258,7 @@ class GUIControl(object):
 
         ytitle = gtk.Button(label="y-axis variable:")
         self.ybox = gtk_wrapper.COMBO_BOX_TEXT()
-        for label in self.labels.itervalues():
+        for label in self.labels.values():
             self.ybox.append_text(label)
         self.ybox.set_wrap_width(5)
         self.ybox.connect('changed', self._cy)
@@ -273,7 +273,7 @@ class GUIControl(object):
 
         ztitle = gtk.Button(label="z-axis variable:")
         self.zbox = gtk_wrapper.COMBO_BOX_TEXT()
-        for label in self.labels.itervalues():
+        for label in self.labels.values():
             self.zbox.append_text(label)
         self.zbox.set_wrap_width(5)
         self.zbox.connect('changed', self._cz)

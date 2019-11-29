@@ -257,9 +257,7 @@ def plot_contour(data, levels, scheme, bin_limits):
             data.T,
             levels,
             colors=scheme.colour,
-            hold='on',
             extent=extent,
-            interpolation='bilinear',
             origin=None,
             linestyles=['--', '-'])
 
@@ -267,7 +265,7 @@ def plot_contour(data, levels, scheme, bin_limits):
     fmt = dict(zip(cset.levels, scheme.level_names))
 
     # Plot inline labels on contours.
-    plt.clabel(cset, inline=True, fmt=fmt, fontsize=12, hold='on')
+    plt.clabel(cset, inline=True, fmt=fmt, fontsize=12)
 
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours/styles of contours.
@@ -334,7 +332,7 @@ def plot_filled_contour(
                  y_outside,
                  's',
                  markerfacecolor=facecolor,
-                 markeredgecolor=edgecolor,   
+                 markeredgecolor=edgecolor,
                  label=name,
                  markeredgewidth=4,
                  ms=15)

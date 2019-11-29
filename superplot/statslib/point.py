@@ -7,7 +7,7 @@ This module contains statistical functions that return a single data point.
 
 import numpy as np
 from scipy import stats
-from patched_joblib import memory
+from .patched_joblib import memory
 
 
 DOCTEST_PRECISION = 10

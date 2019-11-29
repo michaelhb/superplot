@@ -5,7 +5,7 @@ Loads default settings from a yaml and makes them available.
 import warnings
 import numpy as np
 from data_loader import load_yaml
- 
+
 
 # Converters for data in yaml
 converters = {"alpha": lambda x: np.sort(np.array(x)),
@@ -59,13 +59,12 @@ class Defaults(object):
     """
     def __init__(self, yaml_file):
         self.__dict__['_yaml_file'] = yaml_file
-        self.__dict__['keys'] = keys
     def __setattr__(self, attr, value):
-        if not attr in self.keys:
+        if not attr in keys:
             raise AttributeError("Cannot find option {} in defaults".format(attr))
         self.__dict__[attr] = value
     def __getattr__(self, attr):
-        if not attr in self.keys:
+        if not attr in keys:
             raise AttributeError("Cannot find option {} in defaults".format(attr))
         try:
             return self.__dict__[attr]

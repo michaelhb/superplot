@@ -12,10 +12,10 @@ from collections import namedtuple
 import numpy as np
 from scipy import stats
 
-import point
-import bins
-from kde import gaussian_kde
-from patched_joblib import memory
+from . import point
+from . import bins
+from .kde import gaussian_kde
+from .patched_joblib import memory
 
 
 DOCTEST_PRECISION = 10
@@ -207,7 +207,7 @@ def prof_data(parameter, chi_sq, nbins='auto', bin_limits='auto'):
     def shift(_bin_number):
         return point._shift(_bin_number, nbins)
 
-    bin_numbers = map(shift, bin_numbers)
+    bin_numbers = [shift(n) for n in bin_numbers]
 
     # Initialize the profiled chi-squared to something massive
     prof_chi_sq = np.full(nbins, float("inf"))
@@ -270,16 +270,16 @@ def _inverse_cdf(prob, pdf, bin_centers):
     # Note we insert an initial entry at index zero with cumulative weight
     # zero to match the first bin edge.
     cumulative = list(enumerate([0] + list(np.cumsum(pdf))))
-    cdf = zip(*cumulative)[1]
+    cdf = list(zip(*cumulative))[1]
     assert min(cdf) <= prob <= max(cdf)
 
     # Find the index of the last param value having
     # cumulative posterior weight <= desired probability
-    index_lower = filter(lambda x: x[1] <= prob, cumulative)[-1][0]
+    index_lower = list(filter(lambda x: x[1] <= prob, cumulative))[-1][0]
 
     # Find the index of the first param value having
     # cumulative posterior weight >= desired probability
-    index_upper = filter(lambda x: x[1] >= prob, cumulative)[0][0]
+    index_upper = list(filter(lambda x: x[1] >= prob, cumulative))[0][0]
 
     mean = 0.5 * (bin_edges[index_lower] + bin_edges[index_upper])
     return mean

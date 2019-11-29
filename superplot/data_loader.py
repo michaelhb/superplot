@@ -9,7 +9,7 @@ This module contains code for:
 import os
 import warnings
 import pandas as pd
-import pyyaml as yaml
+import yaml
 
 
 def load(info_file, data_file):
@@ -108,7 +108,7 @@ def _read_info_file(file_name):
         warnings.warn("No *.info file for labels")
         return labels
 
-    with open(file_name, 'rb') as info_file:
+    with open(file_name, 'r') as info_file:
 
         for line in info_file:
 

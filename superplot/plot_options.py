@@ -76,7 +76,7 @@ class Defaults(object):
             except KeyError as m:
                 return None
     def __str__(self):
-        d = {k: getattr(self, k) for k in self.keys}
+        d = {k: getattr(self, k) for k in keys}
         return str(d)
 
 

@@ -25,13 +25,17 @@ If you use Superplot, please `cite <http://inspirehep.net/record/1425660>`_::
         @article{Fowlie:2016hew,
               author         = "Fowlie, Andrew and Bardsley, Michael Hugh",
               title          = "{Superplot: a graphical interface for plotting and analysing MultiNest output}",
+              journal        = "Eur. Phys. J. Plus",
+              volume         = "131",
               year           = "2016",
+              number         = "11",
+              pages          = "391",
+              doi            = "10.1140/epjp/i2016-16391-0",
               eprint         = "1603.00555",
               archivePrefix  = "arXiv",
               primaryClass   = "physics.data-an",
               reportNumber   = "COEPP-MN-16-5",
               SLACcitation   = "%%CITATION = ARXIV:1603.00555;%%"
-
         }
 
 Installing
@@ -40,7 +44,7 @@ Superplot is hosted on the Pypi server. It can be installed via pip::
 
     pip install superplot
 
-Superplot requires Python 2.7+ and uses the following libraries:
+Superplot requires Python 2.7+ or Python 3 and uses the following libraries:
 
 * prettytable
 * pyyaml
@@ -125,7 +129,7 @@ On Ubuntu, the superplot configuration files are installed to ``~/.local/share/s
 
     python -m superplot.create_home_dir -d <path_to_directory>
 
-``config.yml`` contains a range of options controlling the appearance and labelling of plot elements, as well as technical plot options.
+``scheme.yml`` contains a range of options controlling the appearance and labelling of plot elements, whereas ``options.yml`` contains technical plot options.
 
 The ``styles/`` folder contains a family of matplotlib style sheets giving finer grained control over the appearance of each plot type. ``default.mplstyle`` contains the base settings, which can be overridden for individual plot types by editing the corresponding files.
 

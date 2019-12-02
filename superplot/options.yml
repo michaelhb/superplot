@@ -21,11 +21,20 @@ cbticks: 10
 # Default plot title.
 plot_title: null
 
+# Default legend title.
+leg_title: null
+
 # Location of plot title.
 title_position : center
 
+# Location of legend.
+leg_position : best
+
 # For theoretical error on delta chi-squared plots.
 tau: 2
+
+# Whether to use KDE
+kde: False
 
 # Band-width method, if KDE is used for pdfs. scott, silverman or float.
 bandwidth: scott
@@ -34,6 +43,34 @@ bandwidth: scott
 dof: 10
 
 # Fraction of data to include when guessing bin limits.
-
 lower: 0.001
 upper: 0.999
+
+# Default variables to show.
+xindex: 2
+yindex: 3
+zindex: 4
+
+# Whether to log data
+logx: False
+logy: False
+logz: False
+
+
+# Default labels.
+xlabel: "$x$"
+ylabel: "$x$"
+zlabel: "$x$"
+
+# Default elements to show.
+show_best_fit: True
+show_posterior_mean: True
+show_posterior_median: True
+show_posterior_mode: True
+show_conf_intervals: True
+show_credible_regions: True
+show_posterior_pdf: True
+show_prof_like: True
+
+# Default plot type.
+plot_type: 0

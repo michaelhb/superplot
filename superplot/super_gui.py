@@ -185,19 +185,11 @@ class GUIControl(object):
     :type data_file: string
     :param info_file: Path to info file
     :type data: string
-    :param xindex: Default x-data index
-    :type xindex: integer
-    :param yindex: Default y-data index
-    :type yindex: integer
-    :param zindex: Default z-data index
-    :type zindex: integer
-    :param default_plot_type: Default plot type index
-    :type default_plot_type: integer
     """
 
-    def __init__(self, data_file, info_file, default_plot_type=0):
+    def __init__(self, data_file, info_file):
 
-        self.options = defaults
+        self.po = defaults
 
         self.data_file = data_file
         self.info_file = info_file
@@ -212,12 +204,10 @@ class GUIControl(object):
         data_columns = self.data.shape[0]
         assert data_columns >= 3
 
-        # Set x, y & z indices to first three data columns after the
-        # posterior and chisq. If there are less than three such columns
-        # assign to the rightmost available column.
-        self.options.xindex = 2
-        self.options.yindex = min(3, data_columns - 1)
-        self.options.zindex = min(4, data_columns - 1)
+        # Set x, y & z indices. If not possible, assign to the rightmost available column.
+        self.po.xindex = min(self.po.xindex, data_columns - 1)
+        self.po.yindex = min(self.po.yindex, data_columns - 1)
+        self.po.zindex = min(self.po.zindex, data_columns - 1)
 
         # Enumerate available plot types and keep an ordered
         # dict mapping descriptions to classes.
@@ -235,7 +225,7 @@ class GUIControl(object):
         self.typebox = gtk_wrapper.COMBO_BOX_TEXT()
         for description in self.plots.keys():
             self.typebox.append_text(description)
-        self.typebox.set_active(default_plot_type)  # Set to default plot type
+        self.typebox.set_active(self.po.plot_type)
 
         #######################################################################
 
@@ -248,9 +238,9 @@ class GUIControl(object):
         self.xbox.set_wrap_width(5)
         self.xbox.connect('changed', self._cx)
         self.xtext = gtk.Entry()
-        self.xtext.set_text(self.labels[self.options.xindex])
+        self.xtext.set_text(self.labels[self.po.xindex])
         self.xtext.connect("changed", self._cxtext)
-        self.xbox.set_active(self.options.xindex)
+        self.xbox.set_active(self.po.xindex)
 
         #######################################################################
 
@@ -263,9 +253,9 @@ class GUIControl(object):
         self.ybox.set_wrap_width(5)
         self.ybox.connect('changed', self._cy)
         self.ytext = gtk.Entry()
-        self.ytext.set_text(self.labels[self.options.yindex])
+        self.ytext.set_text(self.labels[self.po.yindex])
         self.ytext.connect("changed", self._cytext)
-        self.ybox.set_active(self.options.yindex)
+        self.ybox.set_active(self.po.yindex)
 
         #######################################################################
 
@@ -278,9 +268,9 @@ class GUIControl(object):
         self.zbox.set_wrap_width(5)
         self.zbox.connect('changed', self._cz)
         self.ztext = gtk.Entry()
-        self.ztext.set_text(self.labels[self.options.zindex])
+        self.ztext.set_text(self.labels[self.po.zindex])
         self.ztext.connect("changed", self._cztext)
-        self.zbox.set_active(self.options.zindex)
+        self.zbox.set_active(self.po.zindex)
 
         #######################################################################
 
@@ -294,45 +284,48 @@ class GUIControl(object):
 
         # Text boxt for plot title
 
-        tplottitle = gtk.Button(label="Plot title:")
-        self.plottitle = gtk.Entry()
-        self.plottitle.set_text(self.options.plot_title)
+        tplot_title = gtk.Button(label="Plot title:")
+        self.plot_title = gtk.Entry()
+        self.plot_title.set_text(self.po.plot_title)
 
         #######################################################################
 
         # Legend properties
 
         # Text box for legend title
-        tlegtitle = gtk.Button(label="Legend title:")
-        self.legtitle = gtk.Entry()
-        self.legtitle.set_text("")
+        tleg_title = gtk.Button(label="Legend title:")
+        self.leg_title = gtk.Entry()
+        self.leg_title.set_text(self.po.leg_title)
 
         # Combo box for legend position
-        tlegpos = gtk.Button(label="Legend position:")
-        self.legpos = gtk_wrapper.COMBO_BOX_TEXT()
-        for loc in ["best",
-                    "right",
-                    "upper right",
-                    "center right",
-                    "lower right",
-                    "upper left",
-                    "center left",
-                    "lower left",
-                    "upper center",
-                    "center",
-                    "lower center",
-                    "no legend"]:
-            self.legpos.append_text(loc)
-        self.legpos.set_active(0)  # Default is first in above list - "best"
+        tleg_position = gtk.Button(label="Legend position:")
+        self.leg_position = gtk_wrapper.COMBO_BOX_TEXT()
+        allowed = ["best",
+                   "right",
+                   "upper right",
+                   "center right",
+                   "lower right",
+                   "upper left",
+                   "center left",
+                   "lower left",
+                   "upper center",
+                   "center",
+                   "lower center",
+                   "no legend"]
+        for loc in allowed:
+            self.leg_position.append_text(loc)
+
+        default = [i for i, n in enumerate(allowed) if n == self.po.leg_position][0]
+        self.leg_position.set_active(default)
 
         #######################################################################
 
         # Spin button for number of bins per dimension
 
         tbins = gtk.Button(label="Bins per dimension:")
-        self.options.nbins = self.options.nbins
+        self.po.nbins = self.po.nbins
         self.bins = gtk.Entry()
-        self.bins.set_text(str(self.options.nbins))
+        self.bins.set_text(str(self.po.nbins))
         self.bins.connect("changed", self._cbins)
 
         #######################################################################
@@ -343,8 +336,8 @@ class GUIControl(object):
                              "x_min, x_max, y_min, y_max:")
         self.alimits = gtk.Entry()
         self.alimits.connect("changed", self._calimits)
-        if isinstance(self.options.plot_limits, str):
-            gtk_wrapper.APPEND_TEXT(self.alimits, self.options.plot_limits)
+        if isinstance(self.po.plot_limits, str):
+            gtk_wrapper.APPEND_TEXT(self.alimits, self.po.plot_limits)
 
         #######################################################################
 
@@ -354,8 +347,8 @@ class GUIControl(object):
                              "x_min, x_max, y_min, y_max:")
         self.blimits = gtk.Entry()
         self.blimits.connect("changed", self._cblimits)
-        if isinstance(self.options.bin_limits, str):
-            gtk_wrapper.APPEND_TEXT(self.blimits, self.options.bin_limits)
+        if isinstance(self.po.bin_limits, str):
+            gtk_wrapper.APPEND_TEXT(self.blimits, self.po.bin_limits)
 
         #######################################################################
 
@@ -369,16 +362,16 @@ class GUIControl(object):
         self.show_conf_intervals = gtk.CheckButton("Confidence intervals")
         self.show_posterior_pdf = gtk.CheckButton("Posterior PDF")
         self.show_prof_like = gtk.CheckButton("Profile Likelihood")
-        self.kde_pdf = gtk.CheckButton("KDE smoothing")
-        self.show_best_fit.set_active(True)
-        self.show_posterior_mean.set_active(True)
-        self.show_posterior_median.set_active(True)
-        self.show_posterior_mode.set_active(True)
-        self.show_credible_regions.set_active(True)
-        self.show_conf_intervals.set_active(True)
-        self.show_posterior_pdf.set_active(True)
-        self.show_prof_like.set_active(True)
-        self.kde_pdf.set_active(False)
+        self.kde = gtk.CheckButton("KDE smoothing")
+        self.show_best_fit.set_active(self.po.show_best_fit)
+        self.show_posterior_mean.set_active(self.po.show_posterior_mean)
+        self.show_posterior_median.set_active(self.po.show_posterior_median)
+        self.show_posterior_mode.set_active(self.po.show_posterior_mode)
+        self.show_credible_regions.set_active(self.po.show_credible_regions)
+        self.show_conf_intervals.set_active(self.po.show_conf_intervals)
+        self.show_posterior_pdf.set_active(self.po.show_posterior_pdf)
+        self.show_prof_like.set_active(self.po.show_prof_like)
+        self.kde.set_active(self.po.kde)
 
         #######################################################################
 
@@ -424,14 +417,14 @@ class GUIControl(object):
         self.gridbox.attach(self.logy, 0, 1, 4, 5, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.logz, 0, 1, 6, 7, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tplottitle, 0, 1, 9, 10, xoptions=gtk_wrapper.FILL)
-        self.gridbox.attach(self.plottitle, 1, 2, 9, 10, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(tplot_title, 0, 1, 9, 10, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.plot_title, 1, 2, 9, 10, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tlegtitle, 0, 1, 10, 11, xoptions=gtk_wrapper.FILL)
-        self.gridbox.attach(self.legtitle, 1, 2, 10, 11, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(tleg_title, 0, 1, 10, 11, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.leg_title, 1, 2, 10, 11, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tlegpos, 0, 1, 11, 12, xoptions=gtk_wrapper.FILL)
-        self.gridbox.attach(self.legpos, 1, 2, 11, 12, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(tleg_position, 0, 1, 11, 12, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.leg_position, 1, 2, 11, 12, xoptions=gtk_wrapper.FILL)
 
         self.gridbox.attach(tbins, 0, 1, 12, 13, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.bins, 1, 2, 12, 13, xoptions=gtk_wrapper.FILL)
@@ -460,7 +453,7 @@ class GUIControl(object):
 
         point_plot_container.attach(self.show_posterior_pdf, 2, 3, 0, 1)
         point_plot_container.attach(self.show_prof_like, 2, 3, 1, 2)
-        point_plot_container.attach(self.kde_pdf, 2, 3, 2, 3)
+        point_plot_container.attach(self.kde, 2, 3, 2, 3)
 
         self.gridbox.attach(point_plot_container,
                             0, 2, 15, 16,
@@ -508,8 +501,8 @@ class GUIControl(object):
         :param combobox: Box with this callback function
         :type combobox:
         """
-        self.options.xindex = combobox.get_active()
-        self.xtext.set_text(self.labels[self.options.xindex])
+        self.po.xindex = combobox.get_active()
+        self.xtext.set_text(self.labels[self.po.xindex])
 
     def _cy(self, combobox):
         """
@@ -519,8 +512,8 @@ class GUIControl(object):
         :param combobox: Box with this callback function
         :type combobox:
         """
-        self.options.yindex = combobox.get_active()
-        self.ytext.set_text(self.labels[self.options.yindex])
+        self.po.yindex = combobox.get_active()
+        self.ytext.set_text(self.labels[self.po.yindex])
 
     def _cz(self, combobox):
         """
@@ -530,8 +523,8 @@ class GUIControl(object):
         :param combobox: Box with this callback function
         :type combobox:
         """
-        self.options.zindex = combobox.get_active()
-        self.ztext.set_text(self.labels[self.options.zindex])
+        self.po.zindex = combobox.get_active()
+        self.ztext.set_text(self.labels[self.po.zindex])
 
     def _cxtext(self, textbox):
         """
@@ -540,7 +533,7 @@ class GUIControl(object):
         :param textbox: Box with this callback function
         :type textbox:
         """
-        self.labels[self.options.xindex] = textbox.get_text()
+        self.labels[self.po.xindex] = textbox.get_text()
 
     def _cytext(self, textbox):
         """
@@ -549,7 +542,7 @@ class GUIControl(object):
         :param textbox: Box with this callback function
         :type textbox:
         """
-        self.labels[self.options.yindex] = textbox.get_text()
+        self.labels[self.po.yindex] = textbox.get_text()
 
     def _cztext(self, textbox):
         """
@@ -558,7 +551,7 @@ class GUIControl(object):
         :param textbox: Box with this callback function
         :type textbox:
         """
-        self.labels[self.options.zindex] = textbox.get_text()
+        self.labels[self.po.zindex] = textbox.get_text()
 
     def _cbins(self, textbox):
         """
@@ -568,9 +561,9 @@ class GUIControl(object):
         :type textbox:
         """
         try:
-            self.options.nbins = literal_eval(textbox.get_text())
+            self.po.nbins = literal_eval(textbox.get_text())
         except:
-            self.options.nbins = textbox.get_text()
+            self.po.nbins = textbox.get_text()
 
     def _calimits(self, textbox):
         """
@@ -586,20 +579,20 @@ class GUIControl(object):
             return
 
         try:
-            self.options.plot_limits = literal_eval(text)
+            self.po.plot_limits = literal_eval(text)
         except:
-            self.options.plot_limits = text
+            self.po.plot_limits = text
             return
 
         # Permit only two floats, if it is a one-dimensional plot
-        if len(self.options.plot_limits) == 2 and "One-dimensional" in self.typebox.get_active_text():
-            self.options.plot_limits += [None, None]
-        elif len(self.options.plot_limits) != 4:
+        if len(self.po.plot_limits) == 2 and "One-dimensional" in self.typebox.get_active_text():
+            self.po.plot_limits += [None, None]
+        elif len(self.po.plot_limits) != 4:
             raise RuntimeError("Must specify four floats for axes limits")
 
         # Convert to two tuple format
-        self.options.plot_limits = [[self.options.plot_limits[0], self.options.plot_limits[1]],
-                            [self.options.plot_limits[2], self.options.plot_limits[3]]]
+        self.po.plot_limits = [[self.po.plot_limits[0], self.po.plot_limits[1]],
+                            [self.po.plot_limits[2], self.po.plot_limits[3]]]
 
     def _cblimits(self, textbox):
         """
@@ -615,22 +608,22 @@ class GUIControl(object):
             return
 
         try:
-            self.options.bin_limits = literal_eval(text)
+            self.po.bin_limits = literal_eval(text)
         except:
-            self.options.bin_limits = text
+            self.po.bin_limits = text
             return
 
         # Permit only two floats, if it is a one-dimensional plot
         one_dim_plot = "One-dimensional" in self.typebox.get_active_text()
-        if len(self.options.bin_limits) == 2 and not one_dim_plot:
+        if len(self.po.bin_limits) == 2 and not one_dim_plot:
             raise RuntimeError("Specify four floats for bin limits in 2D plot")
-        elif len(self.options.bin_limits) != 2 and one_dim_plot:
+        elif len(self.po.bin_limits) != 2 and one_dim_plot:
             raise RuntimeError("Specify two floats for bin limits in 1D plot")
-        elif len(self.options.bin_limits) == 4 and not one_dim_plot:
+        elif len(self.po.bin_limits) == 4 and not one_dim_plot:
             # Convert to two-tuple format
             try:
-                self.options.bin_limits = [[self.options.bin_limits[0], self.options.bin_limits[1]],
-                                   [self.options.bin_limits[2], self.options.bin_limits[3]]]
+                self.po.bin_limits = [[self.po.bin_limits[0], self.po.bin_limits[1]],
+                                   [self.po.bin_limits[2], self.po.bin_limits[3]]]
             except:
                 raise IndexError("Specify four floats for bin limits in 2D plot")
         else:
@@ -649,38 +642,38 @@ class GUIControl(object):
         """
         # Gather up all of the plot options
 
-        self.options.logx = self.logx.get_active()
-        self.options.logy = self.logy.get_active()
-        self.options.logz = self.logz.get_active()
+        self.po.logx = self.logx.get_active()
+        self.po.logy = self.logy.get_active()
+        self.po.logz = self.logz.get_active()
 
-        self.options.xlabel = self.labels[self.options.xindex]
-        self.options.ylabel = self.labels[self.options.yindex]
-        self.options.zlabel = self.labels[self.options.zindex]
-        self.options.plot_title =  self.plottitle.get_text()
+        self.po.xlabel = self.labels[self.po.xindex]
+        self.po.ylabel = self.labels[self.po.yindex]
+        self.po.zlabel = self.labels[self.po.zindex]
+        self.po.plot_title =  self.plot_title.get_text()
 
-        self.options.leg_title = self.legtitle.get_text()
-        self.options.leg_position = self.legpos.get_active_text()
+        self.po.leg_title = self.leg_title.get_text()
+        self.po.leg_position = self.leg_position.get_active_text()
 
-        self.options.show_best_fit = self.show_best_fit.get_active()
-        self.options.show_posterior_mean = self.show_posterior_mean.get_active()
-        self.options.show_posterior_median = self.show_posterior_median.get_active()
-        self.options.show_posterior_mode = self.show_posterior_mode.get_active()
-        self.options.show_conf_intervals = self.show_conf_intervals.get_active()
-        self.options.show_credible_regions = self.show_credible_regions.get_active()
-        self.options.show_posterior_pdf = self.show_posterior_pdf.get_active()
-        self.options.show_prof_like = self.show_prof_like.get_active()
-        self.options.kde_pdf = self.kde_pdf.get_active()
+        self.po.show_best_fit = self.show_best_fit.get_active()
+        self.po.show_posterior_mean = self.show_posterior_mean.get_active()
+        self.po.show_posterior_median = self.show_posterior_median.get_active()
+        self.po.show_posterior_mode = self.show_posterior_mode.get_active()
+        self.po.show_conf_intervals = self.show_conf_intervals.get_active()
+        self.po.show_credible_regions = self.show_credible_regions.get_active()
+        self.po.show_posterior_pdf = self.show_posterior_pdf.get_active()
+        self.po.show_prof_like = self.show_prof_like.get_active()
+        self.po.kde = self.kde.get_active()
 
         # Fetch the class for the selected plot type
         plot_class = self.plots[self.typebox.get_active_text()]
 
         # Instantiate the plot and get the figure
-        self.fig = plot_class(self.data, self.options).figure()
+        self.fig = plot_class(self.data, self.po).figure()
 
         # Also store a handle to the plot class instance.
         # This is used for pickling - which needs to
         # re-create the figure to work correctly.
-        self.plot = plot_class(self.data, self.options)
+        self.plot = plot_class(self.data, self.po)
 
         # Try to remove existing box
         try:
@@ -768,9 +761,9 @@ class GUIControl(object):
             "Date: {}".format(time.strftime("%c")),
             "Chain file: {}".format(self.data_file),
             "Info file: {}".format(self.info_file),
-            "Number of bins: {}".format(self.options.nbins),
-            "Bin limits: {}".format(self.options.bin_limits),
-            "Alpha: {}".format(self.options.alpha),
+            "Number of bins: {}".format(self.po.nbins),
+            "Bin limits: {}".format(self.po.bin_limits),
+            "Alpha: {}".format(self.po.alpha),
         ]
 
 

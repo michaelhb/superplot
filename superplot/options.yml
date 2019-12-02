@@ -59,8 +59,8 @@ logz: False
 
 # Default labels.
 xlabel: "$x$"
-ylabel: "$x$"
-zlabel: "$x$"
+ylabel: "$y$"
+zlabel: "$z$"
 
 # Default elements to show.
 show_best_fit: True
@@ -74,3 +74,13 @@ show_prof_like: True
 
 # Default plot type.
 plot_type: 0
+
+# Which matplotlib style - seee https://matplotlib.org/3.1.1/tutorials/introductory/customizing.html
+# e.g. seaborn-darkgrid, Solarize_Light2, seaborn-notebook, classic, seaborn-ticks, grayscale, bmh, seaborn-talk, dark_background, ggplot, fivethirtyeight, _classic_test, seaborn-colorblind, seaborn-deep, seaborn-whitegrid, seaborn-bright, seaborn-poster, seaborn-muted, seaborn-paper, seaborn-white, fast, seaborn-pastel, seaborn-dark, seaborn, seaborn-dark-palette
+style: null
+
+# Whether the style - e.g. ggplot - should override the color schemes in the schemes yaml
+style_overrides_schemes_colours: True
+
+# Name of schemes file to use
+schemes_yaml: schemes.yml

@@ -1,6 +1,7 @@
 """
 A utility script to create a home directory containing config files and examples at a specified location.
 """
+from __future__ import print_function
 
 from argparse import ArgumentParser as arg_parser
 import os
@@ -50,6 +51,7 @@ def main():
     # Drop text file with user home dir location in script directory
     script_dir = os.path.dirname(os.path.realpath(__file__))
     home_dir_file = os.path.join(script_dir, "user_home.txt")
+    print("Making {}".format(home_dir_file))
     with open(home_dir_file, "wb") as f:
         f.write(user_dir)
 

@@ -18,7 +18,7 @@ import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
 import superplot.statslib.bins as bins
 import superplot.statslib.point as stats
-from superplot.schemes import schemes
+from superplot.schemes import Schemes
 
 
 class Plot(object):
@@ -37,6 +37,7 @@ class Plot(object):
 
     def __init__(self, data, plot_options):
         self.po = copy.deepcopy(plot_options)
+        self.schemes = Schemes(self.po.schemes_yaml)
 
         # NB we make copies of the data so there's
         # no way for a plot to mess things up for other plots
@@ -78,6 +79,10 @@ class Plot(object):
 
         @returns Figure and axes
         """
+        if self.po.style:
+            plt.style.use(self.po.style)
+            self.schemes.override_colours = self.po.style_overrides_schemes_colours
+
         pm.appearance(self.__class__.__name__)
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
@@ -178,20 +183,20 @@ class OneDimPlot(Plot):
 
         # Best-fit point
         if self.po.show_best_fit:
-            pm.plot_data(self.best_fit, point_height, schemes.best_fit, zorder=2)
+            pm.plot_data(self.best_fit, point_height, self.schemes.best_fit, zorder=2)
 
         # Posterior mean
         if self.po.show_posterior_mean:
-            pm.plot_data(self.posterior_mean, point_height, schemes.posterior_mean, zorder=2)
+            pm.plot_data(self.posterior_mean, point_height, self.schemes.posterior_mean, zorder=2)
 
         # Posterior median
         if self.po.show_posterior_median:
-            pm.plot_data(self.posterior_median, point_height, schemes.posterior_median, zorder=2)
+            pm.plot_data(self.posterior_median, point_height, self.schemes.posterior_median, zorder=2)
 
         # Posterior mode
         if self.po.show_posterior_mode:
             for mode in self.posterior_modes:
-                pm.plot_data(mode, point_height, schemes.posterior_mode, zorder=2)
+                pm.plot_data(mode, point_height, self.schemes.posterior_mode, zorder=2)
 
         return fig, ax
 
@@ -302,19 +307,19 @@ class TwoDimPlot(Plot):
 
         # Best-fit point
         if self.po.show_best_fit:
-            pm.plot_data(self.best_fit_x, self.best_fit_y, schemes.best_fit, zorder=2)
+            pm.plot_data(self.best_fit_x, self.best_fit_y, self.schemes.best_fit, zorder=2)
 
         # Posterior mean
         if self.po.show_posterior_mean:
-            pm.plot_data(self.posterior_mean_x, self.posterior_mean_y, schemes.posterior_mean, zorder=2)
+            pm.plot_data(self.posterior_mean_x, self.posterior_mean_y, self.schemes.posterior_mean, zorder=2)
 
         # Posterior mode
         if self.po.show_posterior_mode:
             for bin_center_x, bin_center_y in self.posterior_modes:
-                pm.plot_data(bin_center_x, bin_center_y, schemes.posterior_mode, zorder=2)
+                pm.plot_data(bin_center_x, bin_center_y, self.schemes.posterior_mode, zorder=2)
 
         # Posterior median
         if self.po.show_posterior_median:
-            pm.plot_data(self.posterior_median_x, self.posterior_median_y, schemes.posterior_median, zorder=2)
+            pm.plot_data(self.posterior_median_x, self.posterior_median_y, self.schemes.posterior_median, zorder=2)
 
         return fig, ax

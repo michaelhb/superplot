@@ -200,6 +200,11 @@ class GUIControl(object):
         # Load data from files
         self.labels, self.data = data_loader.load(info_file, data_file)
 
+        if info_file is None:
+            self.labels[self.po.xindex] = self.po.xlabel
+            self.labels[self.po.yindex] = self.po.ylabel
+            self.labels[self.po.zindex] = self.po.zlabel
+
         # We need at least three columns - posterior, chisq & a data column
         data_columns = self.data.shape[0]
         assert data_columns >= 3
@@ -279,6 +284,9 @@ class GUIControl(object):
         self.logx = gtk.CheckButton('Log x-data.')
         self.logy = gtk.CheckButton('Log y-data.')
         self.logz = gtk.CheckButton('Log z-data.')
+        self.logx.set_active(self.po.logx)
+        self.logy.set_active(self.po.logy)
+        self.logz.set_active(self.po.logz)
 
         #######################################################################
 
@@ -534,6 +542,7 @@ class GUIControl(object):
         :type textbox:
         """
         self.labels[self.po.xindex] = textbox.get_text()
+        self.po.xlabel = textbox.get_text()
 
     def _cytext(self, textbox):
         """
@@ -543,6 +552,7 @@ class GUIControl(object):
         :type textbox:
         """
         self.labels[self.po.yindex] = textbox.get_text()
+        self.po.ylabel = textbox.get_text()
 
     def _cztext(self, textbox):
         """
@@ -552,6 +562,7 @@ class GUIControl(object):
         :type textbox:
         """
         self.labels[self.po.zindex] = textbox.get_text()
+        self.po.zlabel = textbox.get_text()
 
     def _cbins(self, textbox):
         """
@@ -640,20 +651,14 @@ class GUIControl(object):
         :param button: Button with this callback function
         :type button:
         """
-        # Gather up all of the plot options
+        # Fetch plot options that weren't set by ad hoc callback functions
 
         self.po.logx = self.logx.get_active()
         self.po.logy = self.logy.get_active()
         self.po.logz = self.logz.get_active()
-
-        self.po.xlabel = self.labels[self.po.xindex]
-        self.po.ylabel = self.labels[self.po.yindex]
-        self.po.zlabel = self.labels[self.po.zindex]
         self.po.plot_title =  self.plot_title.get_text()
-
         self.po.leg_title = self.leg_title.get_text()
         self.po.leg_position = self.leg_position.get_active_text()
-
         self.po.show_best_fit = self.show_best_fit.get_active()
         self.po.show_posterior_mean = self.show_posterior_mean.get_active()
         self.po.show_posterior_median = self.show_posterior_median.get_active()

@@ -27,7 +27,6 @@ from matplotlib.pylab import get_cmap
 
 import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
-from superplot.schemes import schemes
 from . import plot_mod as pm
 from .base import OneDimPlot, TwoDimPlot
 
@@ -64,11 +63,11 @@ class OneDimStandard(OneDimPlot):
 
         # Plot posterior PDF
         if self.po.show_posterior_pdf:
-            pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, schemes.posterior)
+            pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, self.schemes.posterior)
 
         # Plot profile likelihood
         if self.po.show_prof_like:
-            pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_like, schemes.prof_like)
+            pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_like, self.schemes.prof_like)
 
         # Credible regions
         lower_credible_region = [
@@ -86,7 +85,7 @@ class OneDimStandard(OneDimPlot):
         if self.po.show_credible_regions:
             # Plot the credible region line @ +10% of the max PDF value
             cr_height = 1.1 * self.pdf_data.pdf.max()
-            for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, schemes.credible_regions):
+            for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, self.schemes.credible_regions):
                 pm.plot_data([lower, upper], [cr_height, cr_height], scheme)
 
         # Confidence intervals
@@ -94,7 +93,7 @@ class OneDimStandard(OneDimPlot):
                           in
                           self.po.alpha]
 
-        for intervals, scheme in zip(conf_intervals, schemes.conf_intervals):
+        for intervals, scheme in zip(conf_intervals, self.schemes.conf_intervals):
             if self.po.show_conf_intervals:
                 # Plot the CI line @ the max PDF value
                 pm.plot_data(intervals, [self.pdf_data.pdf.max()] * len(intervals), scheme)
@@ -108,9 +107,9 @@ class OneDimStandard(OneDimPlot):
         # Override y-axis label. This prevents the y axis from taking its
         # label from the 'y-axis variable' selction in the GUI.
         if self.po.show_posterior_pdf and not self.po.show_prof_like:
-            plt.ylabel(schemes.posterior.label)
+            plt.ylabel(self.schemes.posterior.label)
         elif self.po.show_prof_like and not self.po.show_posterior_pdf:
-            plt.ylabel(schemes.prof_like.label)
+            plt.ylabel(self.schemes.prof_like.label)
         else:
             plt.ylabel("")
 
@@ -129,7 +128,7 @@ class OneDimChiSq(OneDimPlot):
         fig, ax = self._new_plot()
 
         # Plot the delta chi-squared
-        pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, schemes.prof_chi_sq)
+        pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, self.schemes.prof_chi_sq)
 
         # Alter the y-axis limit so that it extends to 10.
         self.po.plot_limits[1][1] = 10.
@@ -138,8 +137,8 @@ class OneDimChiSq(OneDimPlot):
         # Confidence intervals as filled regions
         critical_chi_sq = [chi2.ppf(1. - aa, 1) for aa in self.po.alpha]
 
-        for chi_sq, facecolor, name in zip(critical_chi_sq, schemes.prof_chi_sq.colours,
-                                           schemes.prof_chi_sq.level_names):
+        for chi_sq, facecolor, name in zip(critical_chi_sq, self.schemes.prof_chi_sq.colours,
+                                           self.schemes.prof_chi_sq.level_names):
 
             # Create a list where element i is True if bin i should be filled.
             fill_where = self.prof_data.prof_chi_sq >= chi_sq
@@ -172,7 +171,7 @@ class OneDimChiSq(OneDimPlot):
 
         if self.po.tau is not None:
             # Plot the theory error as a band around the usual line
-            pm.plot_band(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, self.po.tau, ax, schemes.tau_band)
+            pm.plot_band(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, self.po.tau, ax, self.schemes.tau_band)
 
         # Add plot legend
         pm.legend(self.po.leg_title, self.po.leg_position)
@@ -180,7 +179,7 @@ class OneDimChiSq(OneDimPlot):
         # Override y-axis label. This prevents the y axis from taking its
         # label from the 'y-axis variable' selction in the GUI (as
         # in this plot it should always be chi-squared).
-        plt.ylabel(schemes.prof_chi_sq.label)
+        plt.ylabel(self.schemes.prof_chi_sq.label)
 
         return self.plot_data(figure=fig, summary=self.summary)
 
@@ -206,7 +205,7 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
             pm.plot_filled_contour(
                     pdf,
                     levels,
-                    schemes.posterior,
+                    self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
 
         # Add legend
@@ -230,7 +229,7 @@ class TwoDimPlotFilledPL(TwoDimPlot):
             pm.plot_filled_contour(
                     self.prof_data.prof_like,
                     levels,
-                    schemes.prof_like,
+                    self.schemes.prof_like,
                     bin_limits=self.po.bin_limits)
 
         # Add legend
@@ -253,7 +252,7 @@ class TwoDimPlotPDF(TwoDimPlot):
                     self.pdf_data.pdf,
                     self.po.bin_limits,
                     self.po.plot_limits,
-                    schemes.posterior)
+                    self.schemes.posterior)
 
         # Credible regions
         levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]
@@ -266,7 +265,7 @@ class TwoDimPlotPDF(TwoDimPlot):
             pm.plot_contour(
                     pdf,
                     levels,
-                    schemes.posterior,
+                    self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
 
         # Add legend
@@ -289,7 +288,7 @@ class TwoDimPlotPL(TwoDimPlot):
                     self.prof_data.prof_like,
                     self.po.bin_limits,
                     self.po.plot_limits,
-                    schemes.prof_like)
+                    self.schemes.prof_like)
 
         levels = [two_dim.critical_prof_like(aa) for aa in self.po.alpha]
 
@@ -297,7 +296,7 @@ class TwoDimPlotPL(TwoDimPlot):
             pm.plot_contour(
                     self.prof_data.prof_like,
                     levels,
-                    schemes.prof_like,
+                    self.schemes.prof_like,
                     bin_limits=self.po.bin_limits)
 
         # Add legend
@@ -323,10 +322,10 @@ class Scatter(TwoDimPlot):
         sc = plt.scatter(
                 self.xdata,
                 self.ydata,
-                s=schemes.scatter.size,
+                s=self.schemes.scatter.size,
                 c=self.zdata,
-                marker=schemes.scatter.symbol,
-                cmap=get_cmap(schemes.scatter.colour_map, schemes.scatter.number_colours),
+                marker=self.schemes.scatter.symbol,
+                cmap=get_cmap(self.schemes.scatter.colour_map, self.schemes.scatter.number_colours),
                 norm=None,
                 vmin=min_,
                 vmax=max_,
@@ -354,7 +353,7 @@ class Scatter(TwoDimPlot):
             pm.plot_contour(
                     pdf,
                     levels,
-                    schemes.posterior,
+                    self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
 
         levels = [two_dim.critical_prof_like(aa) for aa in self.po.alpha]
@@ -363,7 +362,7 @@ class Scatter(TwoDimPlot):
             pm.plot_contour(
                     self.prof_data.prof_like,
                     levels,
-                    schemes.prof_like,
+                    self.schemes.prof_like,
                     bin_limits=self.po.bin_limits)
 
         # Add legend

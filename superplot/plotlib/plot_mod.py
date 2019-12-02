@@ -125,10 +125,17 @@ def legend(leg_title=None, leg_position=None):
     :type leg_position: string
     """
     if leg_position != "no legend":
-        leg = plt.legend(title=leg_title, loc=leg_position)
+        leg = plt.legend(loc=leg_position)
         frame = leg.get_frame()
         frame.set_linewidth(rcParams["patch.linewidth"])
         frame.set_edgecolor(rcParams["patch.edgecolor"])
+
+        # title_fontsize is a new matplotlib rc parameter
+        try:
+            size = rcParams["legend.title_fontsize"]
+        except KeyError:
+            size = rcParams["legend.fontsize"]
+        leg.set_title(leg_title, prop={"size": size})
 
 
 def plot_limits(ax, limits=None):
@@ -316,26 +323,27 @@ def plot_filled_contour(
     settings = dict(colors=scheme.colours,
                     extent=extent,
                     origin=None)
-    plt.contourf(data.T, levels, alpha=0.7, **settings)
+    filled = plt.contourf(data.T, levels, alpha=0.7, **settings)
 
     # Bold outline of contour
     plt.contour(data.T, levels, alpha=1., linewidths=4, zorder=0, **settings)
 
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours of filled contours.
-    x_outside = 1E1 * abs(bin_limits[0][1])
-    y_outside = 1E1 * abs(bin_limits[1][1])
-    for name, color in zip(scheme.level_names, scheme.colours):
-        edgecolor = colors.colorConverter.to_rgba(color, alpha=1.);
-        facecolor = colors.colorConverter.to_rgba(color, alpha=0.7);
-        plt.plot(x_outside,
-                 y_outside,
-                 's',
-                 markerfacecolor=facecolor,
-                 markeredgecolor=edgecolor,
-                 label=name,
-                 markeredgewidth=4,
-                 ms=15)
+    if scheme.colours:
+        x_outside = 1E1 * abs(bin_limits[0][1])
+        y_outside = 1E1 * abs(bin_limits[1][1])
+        for name, color in zip(scheme.level_names, scheme.colours):
+            edgecolor = colors.colorConverter.to_rgba(color, alpha=1.);
+            facecolor = colors.colorConverter.to_rgba(color, alpha=0.7);
+            plt.plot(x_outside,
+                     y_outside,
+                     's',
+                     markerfacecolor=facecolor,
+                     markeredgecolor=edgecolor,
+                     label=name,
+                     markeredgewidth=4,
+                     ms=15)
 
 
 def plot_band(x_data, y_data, width, ax, scheme):

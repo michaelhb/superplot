@@ -79,7 +79,11 @@ class Plot(object):
 
         @returns Figure and axes
         """
-        if self.po.style:
+        if self.po.style.startswith("original_colours_"):
+            style = self.po.style[len("original_colours_"):]
+            plt.style.use(style)
+            self.schemes.override_colours = False
+        else:
             plt.style.use(self.po.style)
             self.schemes.override_colours = self.po.style_overrides_schemes_colours
 

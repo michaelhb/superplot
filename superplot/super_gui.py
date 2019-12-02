@@ -13,6 +13,7 @@ from distutils.version import StrictVersion
 from ast import literal_eval
 
 import matplotlib
+import matplotlib.pyplot as plt
 
 # Runtime check that correct matplotlib version is installed.
 # This is a common issue and might not be caught by setup.py
@@ -290,11 +291,22 @@ class GUIControl(object):
 
         #######################################################################
 
-        # Text boxt for plot title
+        # Selection box for plot style
 
-        tplot_title = gtk.Button(label="Plot title:")
-        self.plot_title = gtk.Entry()
-        self.plot_title.set_text(self.po.plot_title)
+        tstyle = gtk.Button(label="Style:")
+        self.style = gtk_wrapper.COMBO_BOX_TEXT()
+        allowed = plt.style.available
+        extra = ["original_colours_{}".format(style) for style in allowed]
+        allowed += extra
+
+        for style in allowed:
+            self.style.append_text(style)
+
+        try:
+            default = [i for i, n in enumerate(allowed) if n == self.po.style][0]
+        except:
+            default = 0
+        self.style.set_active(default)
 
         #######################################################################
 
@@ -425,8 +437,8 @@ class GUIControl(object):
         self.gridbox.attach(self.logy, 0, 1, 4, 5, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.logz, 0, 1, 6, 7, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tplot_title, 0, 1, 9, 10, xoptions=gtk_wrapper.FILL)
-        self.gridbox.attach(self.plot_title, 1, 2, 9, 10, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(tstyle, 0, 1, 9, 10, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.style, 1, 2, 9, 10, xoptions=gtk_wrapper.FILL)
 
         self.gridbox.attach(tleg_title, 0, 1, 10, 11, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.leg_title, 1, 2, 10, 11, xoptions=gtk_wrapper.FILL)
@@ -656,7 +668,7 @@ class GUIControl(object):
         self.po.logx = self.logx.get_active()
         self.po.logy = self.logy.get_active()
         self.po.logz = self.logz.get_active()
-        self.po.plot_title =  self.plot_title.get_text()
+        self.po.style = self.style.get_active_text()
         self.po.leg_title = self.leg_title.get_text()
         self.po.leg_position = self.leg_position.get_active_text()
         self.po.show_best_fit = self.show_best_fit.get_active()

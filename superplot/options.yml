@@ -77,7 +77,7 @@ plot_type: 0
 
 # Which matplotlib style - seee https://matplotlib.org/3.1.1/tutorials/introductory/customizing.html
 # e.g. seaborn-darkgrid, Solarize_Light2, seaborn-notebook, classic, seaborn-ticks, grayscale, bmh, seaborn-talk, dark_background, ggplot, fivethirtyeight, _classic_test, seaborn-colorblind, seaborn-deep, seaborn-whitegrid, seaborn-bright, seaborn-poster, seaborn-muted, seaborn-paper, seaborn-white, fast, seaborn-pastel, seaborn-dark, seaborn, seaborn-dark-palette
-style: null
+style: original_colours_classic
 
 # Whether the style - e.g. ggplot - should override the color schemes in the schemes yaml
 style_overrides_schemes_colours: True

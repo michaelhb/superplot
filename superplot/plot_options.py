@@ -11,7 +11,8 @@ from data_loader import load_yaml
 # Converters for data in yaml
 converters = {"alpha": lambda x: np.sort(np.array(x)),
               "plot_title": lambda x: "" if x is None else x,
-              "leg_title": lambda x: "" if x is None else x}
+              "leg_title": lambda x: "" if x is None else x,
+              "style": lambda x: "original_colours_classic" if x is None else x}
 
 class Defaults(object):
     """

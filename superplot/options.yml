@@ -32,3 +32,8 @@ bandwidth: scott
 
 # Degrees of freedom for calculating chi-squared. Currently only used in summary.py.
 dof: 10
+
+# Fraction of data to include when guessing bin limits.
+
+lower: 0.001
+upper: 0.999

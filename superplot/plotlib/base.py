@@ -20,6 +20,7 @@ import superplot.statslib.two_dim as two_dim
 import superplot.statslib.bins as bins
 import superplot.statslib.point as stats
 from superplot.schemes import schemes
+from superplot.plot_options import defaults
 
 
 class Plot(object):
@@ -122,7 +123,7 @@ class OneDimPlot(Plot):
         super(OneDimPlot, self).__init__(data, plot_options)
         self.plot_options = copy.deepcopy(plot_options)
 
-        self.plot_options.bin_limits = bins.bin_limits(self.plot_options.bin_limits, self.xdata, posterior=self.posterior)
+        self.plot_options.bin_limits = bins.bin_limits(self.plot_options.bin_limits, self.xdata, posterior=self.posterior, lower=defaults.lower, upper=defaults.upper)
         plot_limits_y = [0., 1.2]
         self.plot_options.plot_limits = (bins.plot_limits(self.plot_options.plot_limits, self.plot_options.bin_limits, self.xdata), plot_limits_y)
         self.plot_options.nbins = bins.nbins(self.plot_options.nbins, self.plot_options.bin_limits, self.xdata, posterior=self.posterior)
@@ -216,15 +217,15 @@ class TwoDimPlot(Plot):
         self.plot_options = copy.deepcopy(plot_options)
 
         if not isinstance(self.plot_options.bin_limits, str):
-            bin_limits_x = bins.bin_limits(self.plot_options.bin_limits[0], self.xdata, self.posterior)
-            bin_limits_y = bins.bin_limits(self.plot_options.bin_limits[1], self.ydata, self.posterior)
+            bin_limits_x = bins.bin_limits(self.plot_options.bin_limits[0], self.xdata, self.posterior, lower=defaults.lower, upper=defaults.upper)
+            bin_limits_y = bins.bin_limits(self.plot_options.bin_limits[1], self.ydata, self.posterior, lower=defaults.lower, upper=defaults.upper)
         else:
-            bin_limits_x = bins.bin_limits(self.plot_options.bin_limits, self.xdata, self.posterior)
-            bin_limits_y = bins.bin_limits(self.plot_options.bin_limits, self.ydata, self.posterior)
+            bin_limits_x = bins.bin_limits(self.plot_options.bin_limits, self.xdata, self.posterior, lower=defaults.lower, upper=defaults.upper)
+            bin_limits_y = bins.bin_limits(self.plot_options.bin_limits, self.ydata, self.posterior, lower=defaults.lower, upper=defaults.upper)
 
         if not isinstance(self.plot_options.plot_limits, str):
-            plot_limits_x = bins.bin_limits(self.plot_options.plot_limits[:2], bin_limits_x, self.xdata)
-            plot_limits_y = bins.bin_limits(self.plot_options.plot_limits[2:], bin_limits_y, self.ydata)
+            plot_limits_x = bins.plot_limits(self.plot_options.plot_limits[:2], bin_limits_x, self.xdata)
+            plot_limits_y = bins.plot_limits(self.plot_options.plot_limits[2:], bin_limits_y, self.ydata)
         else:
             plot_limits_x = bins.plot_limits(self.plot_options.plot_limits, bin_limits_x, self.xdata)
             plot_limits_y = bins.plot_limits(self.plot_options.plot_limits, bin_limits_y, self.ydata)

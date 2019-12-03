@@ -23,7 +23,7 @@ import numpy as np
 from scipy.stats import chi2
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
-from matplotlib.pylab import get_cmap
+from matplotlib.pylab import get_cmap, rcParams
 
 import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
@@ -43,6 +43,14 @@ def save_plot(name):
     :type name: string
 
     """
+    # Set axes size rather than figure size
+    # https://stackoverflow.com/a/44971177
+    ax = plt.gca()
+    w, h = rcParams["figure.figsize"]
+    scaled_w = float(w) / (ax.figure.subplotpars.right - ax.figure.subplotpars.left)
+    scaled_h = float(h) / (ax.figure.subplotpars.top -  ax.figure.subplotpars.bottom)
+    ax.figure.set_size_inches(scaled_w, scaled_h)
+
     plt.savefig(name)
 
 

@@ -8,6 +8,7 @@ import os
 import pickle
 import time
 import warnings
+import functools
 from collections import OrderedDict
 from distutils.version import StrictVersion
 from ast import literal_eval
@@ -34,16 +35,14 @@ from plot_options import defaults
 
 
 def open_file_gui(window_title="Open",
-                  set_name=None,
                   add_pattern=None,
-                  allow_no_file=True):
+                  allow_no_file=True,
+                  no_file_title="No file"):
     """
     GUI for opening a file with a file browser.
 
     :param window_title: Window title
     :type window_title: string
-    :param set_name: Title of filter
-    :type set_name: string
     :param add_pattern: Acceptable file patterns in filter, e.g ["\\*.pdf"]
     :type add_pattern: list
     :param allow_no_file: Allow for no file to be selected
@@ -52,16 +51,9 @@ def open_file_gui(window_title="Open",
     :returns: Name of file selected with GUI.
     :rtype: string
     """
-
-    # Make a string for option of not selecting a file
-    if set_name:
-        no_file = "No %s" % set_name
-    else:
-        no_file = "No file"
-
     # Make buttons, allowing for cae in which no cancel button is desired
     if allow_no_file:
-        buttons = (no_file, gtk_wrapper.RESPONSE_CANCEL,
+        buttons = (no_file_title, gtk_wrapper.RESPONSE_CANCEL,
                    gtk.STOCK_OPEN, gtk_wrapper.RESPONSE_OK)
     else:
         buttons = (gtk.STOCK_OPEN, gtk_wrapper.RESPONSE_OK)
@@ -74,13 +66,14 @@ def open_file_gui(window_title="Open",
     dialog.set_current_folder(os.getcwd())
 
     # Only show particular files
-    file_filter = gtk.FileFilter()
-    if set_name:
-        file_filter.set_name(set_name)
     if add_pattern:
         for pattern in add_pattern:
+            file_filter = gtk.FileFilter()
             file_filter.add_pattern(pattern)
-    dialog.add_filter(file_filter)
+            file_filter.set_name(pattern)
+            dialog.add_filter(file_filter)
+
+    dialog.set_do_overwrite_confirmation(True)
 
     response = dialog.run()
 
@@ -102,7 +95,6 @@ def open_file_gui(window_title="Open",
 
 
 def save_file_gui(window_title="Save As",
-                  set_name=None,
                   add_pattern=None,
                   default_file_name=None):
     """
@@ -110,8 +102,6 @@ def save_file_gui(window_title="Save As",
 
     :param window_title: Window title
     :type window_title: string
-    :param set_name: Title of filter
-    :type set_name: string
     :param add_pattern: Acceptable file patterns in filter, e.g ["\\*.pdf"]
     :type add_pattern: list
     :param default_file_name: Default file name
@@ -122,23 +112,30 @@ def save_file_gui(window_title="Save As",
     """
     # Select the file from a dialog box
     buttons = (gtk.STOCK_CANCEL, gtk_wrapper.RESPONSE_CANCEL,
-               gtk.STOCK_OPEN, gtk_wrapper.RESPONSE_OK)
+               gtk.STOCK_SAVE, gtk_wrapper.RESPONSE_OK)
     dialog = gtk.FileChooserDialog(title=window_title,
                                    action=gtk_wrapper.FILE_CHOOSER_ACTION_SAVE,
                                    buttons=buttons)
     dialog.set_default_response(gtk_wrapper.RESPONSE_OK)
     dialog.set_current_folder(os.getcwd())
-    if default_file_name:
-        dialog.set_current_name(default_file_name)
 
     # Only show particular files
-    file_filter = gtk.FileFilter()
-    if set_name:
-        file_filter.set_name(set_name)
     if add_pattern:
         for pattern in add_pattern:
+            file_filter = gtk.FileFilter()
             file_filter.add_pattern(pattern)
-    dialog.add_filter(file_filter)
+            file_filter.set_name(pattern)
+            dialog.add_filter(file_filter)
+
+    if default_file_name:
+        dialog.set_current_name(default_file_name + add_pattern[0].strip("*"))
+
+        @functools.partial(dialog.connect, "notify::filter")
+        def on_notify_filter(*args):
+            name = dialog.get_filter().get_name()
+            dialog.set_current_name(default_file_name + name.strip("*"))
+
+    dialog.set_do_overwrite_confirmation(True)
 
     response = dialog.run()
 
@@ -740,8 +737,7 @@ class GUIControl(object):
             return
 
         # Get name to save to from a dialogue box.
-        file_name = save_file_gui(set_name="Save plot as image",
-                                  default_file_name="image.pdf",
+        file_name = save_file_gui(default_file_name="image",
                                   add_pattern=["*.pdf",
                                                "*.png",
                                                "*.eps",
@@ -790,14 +786,12 @@ def main():
     """
     SuperPlot program - open relevant files and make GUI.
     """
-    data_file = open_file_gui(window_title="Select a MultiNest *.txt file",
-                              set_name="MultiNest *.txt file",
-                              add_pattern=["*.txt"],
+    data_file = open_file_gui(window_title="Select a data file",
+                              add_pattern=["*.txt", "*.dat"],
                               allow_no_file=False)
-    info_file = open_file_gui(window_title="Select an information file",
-                              set_name="Information file *.info describing "
-                                       "*.txt file",
+    info_file = open_file_gui(window_title="Select an information file (optional)",
                               add_pattern=["*.info"],
+                              no_file_title="No information file",
                               allow_no_file=True)
 
     def exception_reboot(type_, message, traceback):

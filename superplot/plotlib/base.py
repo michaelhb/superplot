@@ -62,19 +62,19 @@ class Plot(object):
                 try:
                     self.xdata = np.log10(self.xdata)
                 except RuntimeWarning:
-                    warnings.warn("x-data not logged: probably logging a negative.")
+                    raise RuntimeError("x-data cannnot be logged: probably logging a negative.")
             if self.po.logy:
                 self.po.ylabel = self.po.log10.format(self.po.ylabel)
                 try:
                     self.ydata = np.log10(self.ydata)
                 except RuntimeWarning:
-                    warnings.warn("y-data not logged: probably logging a negative.")
+                    raise RuntimeError("y-data cannnot be logged: probably logging a negative.")
             if self.po.logz:
                 self.po.zlabel = self.po.log10.format(self.po.zlabel)
                 try:
                     self.zdata = np.log10(self.zdata)
                 except RuntimeWarning:
-                   warnings.warn("z-data not logged: probably logging a negative.")
+                   raise RuntimeError("z-data cannnot be logged: probably logging a negative.")
 
     def _new_plot(self):
         """

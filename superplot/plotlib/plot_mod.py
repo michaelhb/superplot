@@ -41,16 +41,18 @@ def plot_data(x, y, scheme, zorder=1):
             zorder=zorder)
 
 
-def appearance(plot_name="default"):
+def appearance(plot_style="default", extra_style=None):
     """
     Specify the plot's appearance, with e.g. font types etc.
-    from an mplstyle file.
+    from mplstyle files.
 
     Options in the style sheet associated with the plot name
     override any in default.mplstyle.
 
-    :param plot_name: Name of the plot (class name)
-    :type plot_name: string
+    :param plot_style: Name of the style (e.g., the class name)
+    :type plot_style: string
+    :param extra_style: Extra style to apply
+    :type extra_style: string
 
     .. Warning: If the user wants LaTeX, we first check if the 'latex' \
         shell command is available (as this is what matplotlib uses to \
@@ -58,7 +60,7 @@ def appearance(plot_name="default"):
         back to mathtext.
     """
 
-    style_sheet_name = "{}.mplstyle".format(plot_name)
+    style_sheet_name = "{}.mplstyle".format(plot_style)
 
     # Try to use the style sheets installed in the user directory
     script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -97,7 +99,11 @@ def appearance(plot_name="default"):
             "default.mplstyle"
         )
 
-    plt.style.use([default_style_sheet_path, style_sheet_path])
+    # Consolidate all styles and set the style
+    styles = ['default', default_style_sheet_path, style_sheet_path]
+    if extra_style:
+        styles.append(extra_style)
+    plt.style.use(styles)
 
     if rcParams["text.usetex"]:
         # Check if LaTeX is available
@@ -191,7 +197,7 @@ def plot_labels(xlabel, ylabel, plot_title=None, title_position='right'):
     plt.title(plot_title, loc=title_position)
 
 
-def plot_image(data, bin_limits, plot_limits, scheme):
+def plot_image(data, bin_limits, plot_limits, scheme, cbticks=5):
     """
     Plot data as an image.
 
@@ -232,7 +238,7 @@ def plot_image(data, bin_limits, plot_limits, scheme):
     # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
     cb = plt.colorbar(plt.im, orientation='vertical', fraction=0.046, pad=0.04)
     # Set reasonable number of ticks
-    cb.locator = MaxNLocator(4)
+    cb.locator = MaxNLocator(cbticks)
     cb.update_ticks()
     # Colour bar label
     cb.ax.set_ylabel(scheme.colour_bar_title)
@@ -276,15 +282,16 @@ def plot_contour(data, levels, scheme, bin_limits):
 
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours/styles of contours.
-    x_outside = 1E1 * abs(bin_limits[0][1])
-    y_outside = 1E1 * abs(bin_limits[1][1])
-    for name, style in zip(scheme.level_names, ['--', '-']):
-        plt.plot(x_outside,
-                 y_outside,
-                 style,
-                 color=scheme.colour,
-                 label=name,
-                 alpha=0.7)
+    if scheme.colour:
+        x_outside = 1E1 * abs(bin_limits[0][1])
+        y_outside = 1E1 * abs(bin_limits[1][1])
+        for name, style in zip(scheme.level_names, ['--', '-']):
+            plt.plot(x_outside,
+                     y_outside,
+                     style,
+                     color=scheme.colour,
+                     label=name,
+                     alpha=0.7)
 
 
 

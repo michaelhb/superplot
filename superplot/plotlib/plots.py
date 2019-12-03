@@ -137,37 +137,39 @@ class OneDimChiSq(OneDimPlot):
         # Confidence intervals as filled regions
         critical_chi_sq = [chi2.ppf(1. - aa, 1) for aa in self.po.alpha]
 
-        for chi_sq, facecolor, name in zip(critical_chi_sq, self.schemes.prof_chi_sq.colours,
-                                           self.schemes.prof_chi_sq.level_names):
+        if self.schemes.prof_chi_sq.colours:
 
-            # Create a list where element i is True if bin i should be filled.
-            fill_where = self.prof_data.prof_chi_sq >= chi_sq
+            for chi_sq, facecolor, name in zip(critical_chi_sq, self.schemes.prof_chi_sq.colours,
+                                               self.schemes.prof_chi_sq.level_names):
 
-            # Fill in areas on the chart above the threshold
-            if self.po.show_conf_intervals:
-                ax.fill_between(self.prof_data.bin_centers,
-                                0,
-                                10,
-                                where=fill_where,
-                                facecolor=facecolor,
-                                interpolate=False,
-                                alpha=0.7
-                                )
+                # Create a list where element i is True if bin i should be filled.
+                fill_where = self.prof_data.prof_chi_sq >= chi_sq
 
-            # List the boundaries of the regions that were filled in the summary file
-            # as comma separated pairs. itertools.groupby splits the list into
-            # contiguous regions according to the key function - we take the first
-            # and last elements of the "True" regions.
-            self.summary.append(name + ":")
-            for filled, group in groupby(zip(self.prof_data.bin_centers, fill_where), key=lambda x: x[1]):
-                if filled:
-                    bins = [g[0] for g in group]
-                    self.summary.append("{},{}".format(min(bins), max(bins)))
+                # Fill in areas on the chart above the threshold
+                if self.po.show_conf_intervals:
+                    ax.fill_between(self.prof_data.bin_centers,
+                                    0,
+                                    10,
+                                    where=fill_where,
+                                    facecolor=facecolor,
+                                    interpolate=False,
+                                    alpha=0.7
+                                    )
 
-            # Plot a proxy for the legend - plot spurious data outside plot limits,
-            # with legend entry matching colours of filled regions.
-            if self.po.show_conf_intervals:
-                plt.plot(-1, -1, 's', color=facecolor, label=name, alpha=0.7, ms=15)
+                # List the boundaries of the regions that were filled in the summary file
+                # as comma separated pairs. itertools.groupby splits the list into
+                # contiguous regions according to the key function - we take the first
+                # and last elements of the "True" regions.
+                self.summary.append(name + ":")
+                for filled, group in groupby(zip(self.prof_data.bin_centers, fill_where), key=lambda x: x[1]):
+                    if filled:
+                        bins = [g[0] for g in group]
+                        self.summary.append("{},{}".format(min(bins), max(bins)))
+
+                # Plot a proxy for the legend - plot spurious data outside plot limits,
+                # with legend entry matching colours of filled regions.
+                if self.po.show_conf_intervals:
+                    plt.plot(-1, -1, 's', color=facecolor, label=name, alpha=0.7, ms=15)
 
         if self.po.tau is not None:
             # Plot the theory error as a band around the usual line
@@ -252,7 +254,8 @@ class TwoDimPlotPDF(TwoDimPlot):
                     self.pdf_data.pdf,
                     self.po.bin_limits,
                     self.po.plot_limits,
-                    self.schemes.posterior)
+                    self.schemes.posterior,
+                    self.po.cbticks)
 
         # Credible regions
         levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]
@@ -288,7 +291,8 @@ class TwoDimPlotPL(TwoDimPlot):
                     self.prof_data.prof_like,
                     self.po.bin_limits,
                     self.po.plot_limits,
-                    self.schemes.prof_like)
+                    self.schemes.prof_like,
+                    self.po.cbticks)
 
         levels = [two_dim.critical_prof_like(aa) for aa in self.po.alpha]
 

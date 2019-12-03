@@ -295,17 +295,19 @@ class GUIControl(object):
 
         tstyle = gtk.Button(label="Style:")
         self.style = gtk_wrapper.COMBO_BOX_TEXT()
-        allowed = plt.style.available
-        extra = ["original_colours_{}".format(style) for style in allowed]
-        allowed += extra
-
-        for style in allowed:
-            self.style.append_text(style)
+        internal = ["mpl15", "mpl20"] + plt.style.available
+        prepended = ["original_colours_{}".format(style) for style in internal]
+        allowed = ["no-extra-style"] + internal + prepended + self.po.url_styles
 
         try:
             default = [i for i, n in enumerate(allowed) if n == self.po.style][0]
         except:
             default = 0
+            allowed = [self.po.style] + allowed
+
+        for style in allowed:
+            self.style.append_text(style)
+
         self.style.set_active(default)
 
         #######################################################################

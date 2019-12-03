@@ -80,14 +80,17 @@ class Plot(object):
         @returns Figure and axes
         """
         if self.po.style.startswith("original_colours_"):
-            style = self.po.style[len("original_colours_"):]
-            plt.style.use(style)
+            extra = self.po.style[len("original_colours_"):]
+            self.schemes.override_colours = False
+        elif self.po.style == "no-extra-style":
+            extra = None
             self.schemes.override_colours = False
         else:
-            plt.style.use(self.po.style)
+            extra = self.po.style
             self.schemes.override_colours = self.po.style_overrides_schemes_colours
 
-        pm.appearance(self.__class__.__name__)
+        pm.appearance(self.__class__.__name__, extra)
+
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
 

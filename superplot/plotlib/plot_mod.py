@@ -227,16 +227,16 @@ def plot_image(data, bin_limits, plot_limits, scheme, cbticks=5):
 
     # imshow is annoying - it reads (y, x) rather than (x, y) so we take
     # transpose.
-    plt.im = plt.imshow(data.T,
-                        cmap=get_cmap(scheme.colour_map, scheme.number_colours),
-                        extent=extent,
-                        interpolation='bilinear',
-                        label=scheme.label,
-                        origin='lower',
-                        aspect=aspect)
+    im = plt.imshow(data.T,
+                    cmap=get_cmap(scheme.colour_map, scheme.number_colours),
+                    extent=extent,
+                    interpolation='bilinear',
+                    label=scheme.label,
+                    origin='lower',
+                    aspect=aspect)
     # Plot a colour bar. NB "magic" values for fraction and pad taken from
     # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
-    cb = plt.colorbar(plt.im, orientation='vertical', fraction=0.046, pad=0.04)
+    cb = plt.colorbar(im, orientation='vertical', fraction=0.046, pad=0.04)
     # Set reasonable number of ticks
     cb.locator = MaxNLocator(cbticks)
     cb.update_ticks()

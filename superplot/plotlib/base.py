@@ -100,7 +100,6 @@ class Plot(object):
         pm.plot_ticks(self.po.xticks, self.po.yticks, ax)
         pm.plot_labels(self.po.xlabel, self.po.ylabel, self.po.plot_title, self.po.title_position)
         pm.plot_limits(ax, self.po.plot_limits)
-
         return fig, ax
 
     plot_data = namedtuple("plot_data", ("figure", "summary"))
@@ -131,7 +130,13 @@ class OneDimPlot(Plot):
 
         self.po.bin_limits = bins.bin_limits(self.po.bin_limits, self.xdata, posterior=self.posterior, lower=self.po.lower, upper=self.po.upper)
         plot_limits_y = [0., 1.2]
-        self.po.plot_limits = (bins.plot_limits(self.po.plot_limits, self.po.bin_limits, self.xdata), plot_limits_y)
+        if isinstance(self.po.plot_limits, str):
+           self.po.plot_limits = (bins.plot_limits(self.po.plot_limits, self.po.bin_limits, self.xdata), plot_limits_y)
+        else:
+            if self.po.plot_limits[1][0] is not None:
+                plot_limits_y = self.po.plot_limits[1]
+            self.po.plot_limits = (bins.plot_limits(self.po.plot_limits[0], self.po.bin_limits, self.xdata), plot_limits_y)
+
         self.po.nbins = bins.nbins(self.po.nbins, self.po.bin_limits, self.xdata, posterior=self.posterior)
 
         # Posterior PDF. Norm by area if not showing profile likelihood,
@@ -229,8 +234,8 @@ class TwoDimPlot(Plot):
             bin_limits_y = bins.bin_limits(self.po.bin_limits, self.ydata, self.posterior, lower=self.po.lower, upper=self.po.upper)
 
         if not isinstance(self.po.plot_limits, str):
-            plot_limits_x = bins.plot_limits(self.po.plot_limits[:2], bin_limits_x, self.xdata)
-            plot_limits_y = bins.plot_limits(self.po.plot_limits[2:], bin_limits_y, self.ydata)
+            plot_limits_x = bins.plot_limits(self.po.plot_limits[0], bin_limits_x, self.xdata)
+            plot_limits_y = bins.plot_limits(self.po.plot_limits[1], bin_limits_y, self.ydata)
         else:
             plot_limits_x = bins.plot_limits(self.po.plot_limits, bin_limits_x, self.xdata)
             plot_limits_y = bins.plot_limits(self.po.plot_limits, bin_limits_y, self.ydata)

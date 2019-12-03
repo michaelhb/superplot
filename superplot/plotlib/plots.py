@@ -66,9 +66,6 @@ class OneDimStandard(OneDimPlot):
         # Plot mean, median, mode @ 0.02 * height of PDF
         fig, ax = self._new_plot(point_height=0.02 * self.pdf_data.pdf.max())
 
-        # Autoscale the y-axis.
-        ax.autoscale(axis='y')
-
         # Plot posterior PDF
         if self.po.show_posterior_pdf:
             pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, self.schemes.posterior)
@@ -120,6 +117,11 @@ class OneDimStandard(OneDimPlot):
             plt.ylabel(self.schemes.prof_like.label)
         else:
             plt.ylabel("")
+
+        # Autoscale the y-axis
+        if not (self.po.show_posterior_pdf and self.po.show_prof_like):
+            ax.autoscale(axis='y')
+            ax.set_ylim([0., ax.get_ylim()[1]])
 
         return self.plot_data(figure=fig, summary=self.summary)
 

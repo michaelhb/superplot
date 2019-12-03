@@ -49,3 +49,6 @@ ytick.major.width: 1.5
 xtick.minor.width: 1
 ytick.minor.width: 1
 axes.facecolor : EAEAF2
+
+# Round numbers for ticks
+axes.autolimit_mode : round_numbers

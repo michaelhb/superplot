@@ -2,7 +2,7 @@
 =================================================
 Sensible choices of number of bins and bin limits
 =================================================
-Deduce sensible number of bins and bin limits using e.g., the 
+Deduce sensible number of bins and bin limits using e.g., the
 Freedman Diaconis estimator and quantiles of the data, respectively.
 """
 
@@ -222,7 +222,7 @@ def plot_limits(plot_limits, bin_limits, parameter):
     """
     if plot_limits == "bins" or plot_limits is None:
         return bin_limits
-    elif bin_limits == "extent":
+    elif plot_limits == "extent":
         return extent_bin_limits(parameter)
     return plot_limits
 

@@ -5,6 +5,7 @@ from __future__ import print_function
 
 from argparse import ArgumentParser as arg_parser
 import os
+import stat
 import sys
 import shutil
 import warnings
@@ -22,6 +23,13 @@ def prompt(query):
         return prompt(query)
     return ret
 
+def chmod(path):
+    """ Change permissions, as this script typically ran with sudo """
+    os.chmod(path, stat.S_IXOTH | stat.S_IROTH | stat.S_IWOTH)
+    if os.path.isdir(path):
+        for n in os.listdir(path):
+            f = os.path.join(path, n)
+            os.chmod(f, stat.S_IXOTH | stat.S_IROTH | stat.S_IWOTH)
 
 def main():
     parser = arg_parser(description='Superplot home directory setup', conflict_handler='resolve')
@@ -76,6 +84,7 @@ def main():
         for (from_, to) in zip(copy_from, config_paths):
             try:
                 shutil.copy(from_, to)
+                chmod(to)
             except shutil.Error as e:
                 warnings.warn(
                         "Error copying yaml file to user directory: {}".format(
@@ -103,6 +112,7 @@ def main():
         try:
             copy_from = os.path.join(script_dir, "plotlib/styles")
             shutil.copytree(copy_from, styles_dir)
+            chmod(styles_dir)
         except shutil.Error as e:
             warnings.warn(
                     "Error copying style sheets to user directory: {}".format(
@@ -130,6 +140,7 @@ def main():
         try:
             copy_from = os.path.join(script_dir, "example")
             shutil.copytree(copy_from, example_dir)
+            chmod(example_dir)
         except shutil.Error as e:
             warnings.warn(
                     "Error copying example files to user directory: {}".format(

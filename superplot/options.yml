@@ -90,3 +90,9 @@ url_styles: ["https://raw.githubusercontent.com/scikit-hep/mplhep/master/mplhep/
 
 # Log10 label modifier.
 log10: "$\\log_{{10}}$ {}"
+
+# Default data file.
+data_file: null
+
+# Default info file.
+info_file: null

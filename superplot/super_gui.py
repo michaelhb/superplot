@@ -37,7 +37,8 @@ from plot_options import defaults
 def open_file_gui(window_title="Open",
                   add_pattern=None,
                   allow_no_file=True,
-                  no_file_title="No file"):
+                  no_file_title="No file",
+                  parent=None):
     """
     GUI for opening a file with a file browser.
 
@@ -61,7 +62,8 @@ def open_file_gui(window_title="Open",
     # Select the file from a dialog box
     dialog = gtk.FileChooserDialog(title=window_title,
                                    action=gtk_wrapper.FILE_CHOOSER_ACTION_OPEN,
-                                   buttons=buttons)
+                                   buttons=buttons,
+                                   parent=parent)
     dialog.set_default_response(gtk_wrapper.RESPONSE_OK)
     dialog.set_current_folder(os.getcwd())
 
@@ -96,7 +98,8 @@ def open_file_gui(window_title="Open",
 
 def save_file_gui(window_title="Save As",
                   add_pattern=None,
-                  default_file_name=None):
+                  default_file_name=None,
+                  parent=None):
     """
     GUI for saving a file with a file browser.
 
@@ -115,7 +118,8 @@ def save_file_gui(window_title="Save As",
                gtk.STOCK_SAVE, gtk_wrapper.RESPONSE_OK)
     dialog = gtk.FileChooserDialog(title=window_title,
                                    action=gtk_wrapper.FILE_CHOOSER_ACTION_SAVE,
-                                   buttons=buttons)
+                                   buttons=buttons,
+                                   parent=parent)
     dialog.set_default_response(gtk_wrapper.RESPONSE_OK)
     dialog.set_current_folder(os.getcwd())
 
@@ -155,7 +159,7 @@ def save_file_gui(window_title="Save As",
     return file_name
 
 
-def message_dialog(message_type, message):
+def message_dialog(message_type, message, parent=None):
     """
     Show a message dialog.
 
@@ -165,40 +169,94 @@ def message_dialog(message_type, message):
     :param message: Text to show in dialogue
     :type message: string
     """
-    md = gtk.MessageDialog(None,
-                           gtk_wrapper.DIALOG_DESTROY_WITH_PARENT,
-                           message_type,
-                           gtk_wrapper.BUTTONS_CLOSE,
-                           message)
-    md.run()
+    md = gtk.MessageDialog(flags=0,
+                           type=message_type,
+                           buttons=gtk_wrapper.BUTTONS_CLOSE,
+                           message_format=message,
+                           parent=parent)
+    response = md.run()
     md.destroy()
 
 
-class GUIControl(object):
+class GUIControl(gtk.Window):
     """
     Main GUI element for superplot. Presents controls for selecting plot
     options, creating a plot, and saving a plot.
-
-    :param data_file: Path to chain file
-    :type data_file: string
-    :param info_file: Path to info file
-    :type data: string
     """
+    def __init__(self, po=None):
+        super(gtk.Window, self).__init__()
 
-    def __init__(self, data_file, info_file):
+        # Make plot options from defaults
+        self.po = po if po else defaults
 
-        self.po = defaults
+        #######################################################################
 
-        self.data_file = data_file
-        self.info_file = info_file
+        # Make main GUI window
 
-        self.fig = None
-        self.plot = None
+        self.maximize()
+        self.set_title("SuperPlot")
+        # Quit if cross is pressed
+        self.connect('destroy', gtk.main_quit)
+
+        # Add an icon
+        if gtk_wrapper.GTK_MAJOR_VERSION == 3:
+            icon = gtk.IconView.new()
+            icon.set_pixbuf_column(0)
+            icon.set_text_column(1)
+            icon_name = "applications-graphics"
+            pixbuf24 = gtk.IconTheme.get_default().load_icon(icon_name, 24, 0)
+            pixbuf32 = gtk.IconTheme.get_default().load_icon(icon_name, 32, 0)
+            pixbuf48 = gtk.IconTheme.get_default().load_icon(icon_name, 48, 0)
+            pixbuf64 = gtk.IconTheme.get_default().load_icon(icon_name, 64, 0)
+            pixbuf96 = gtk.IconTheme.get_default().load_icon(icon_name, 96, 0)
+            self.set_icon_list([pixbuf24, pixbuf32, pixbuf48, pixbuf64, pixbuf96])
+
+        #######################################################################
+
+        # Try to catch errors
+
+        def exception_reboot(type_, error, traceback):
+            """
+            Implement `sys.excepthook` to give GUI messages and reboot
+            """
+            self.destroy()
+            message_dialog(gtk_wrapper.MESSAGE_ERROR, error.message, self)
+            gtk.main_quit()
+            reboot = GUIControl(self.po)
+            gtk.main()
+
+        sys.excepthook = exception_reboot
+
+        #######################################################################
+
+        self.show_all()
+
+        #######################################################################
+
+        ask_info = self.po.info_file is None and self.po.data_file is None
+
+        if self.po.data_file is None:
+            self.po.data_file = open_file_gui(window_title="Select a data file",
+                                              add_pattern=["*.txt", "*.dat"],
+                                              allow_no_file=False,
+                                              parent=self)
+        if ask_info:
+            self.po.info_file = open_file_gui(window_title="Select an information file (optional)",
+                                             add_pattern=["*.info"],
+                                             no_file_title="No information file",
+                                             allow_no_file=True,
+                                             parent=self)
+
+
+        #######################################################################
 
         # Load data from files
-        self.labels, self.data = data_loader.load(info_file, data_file)
 
-        if info_file is None:
+        self.labels, self.data = data_loader.load(self.po.info_file, self.po.data_file)
+
+        #######################################################################
+
+        if self.po.info_file is None:
             self.labels[self.po.xindex] = self.po.xlabel
             self.labels[self.po.yindex] = self.po.ylabel
             self.labels[self.po.zindex] = self.po.zlabel
@@ -480,18 +538,11 @@ class GUIControl(object):
 
         #######################################################################
 
-        # Make main GUI window
-
-        self.window = gtk.Window()
-        self.window.maximize()
-        self.window.set_title("SuperPlot")
-        # Quit if cross is pressed
-        self.window.connect('destroy', lambda w: gtk.main_quit())
-
         # Add the table to the window and show
-        self.window.add(self.gridbox)
+
+        self.add(self.gridbox)
         self.gridbox.show()
-        self.window.show_all()
+        self.show_all()
 
         return
 
@@ -701,7 +752,7 @@ class GUIControl(object):
         self.box = gtk.VBox()
         canvas = gtk_wrapper.FigureCanvas(self.fig.figure)
         self.box.pack_start(canvas, True, True, 0)
-        toolbar = gtk_wrapper.NavigationToolbar(canvas, self.window)
+        toolbar = gtk_wrapper.NavigationToolbar(canvas, self)
         self.box.pack_start(toolbar, False, False, 0)
         self.gridbox.attach(self.box, 2, 5, 0, 15)
 
@@ -716,8 +767,7 @@ class GUIControl(object):
         self.gridbox.attach(self._align_center(self.save_pickle), 4, 5, 15, 16)
 
         # Show new buttons etc
-        self.window.show_all()
-
+        self.show_all()
 
     def _psave(self, button):
         """
@@ -774,8 +824,8 @@ class GUIControl(object):
         """
         return [
             "Date: {}".format(time.strftime("%c")),
-            "Chain file: {}".format(self.data_file),
-            "Info file: {}".format(self.info_file),
+            "Chain file: {}".format(self.po.data_file),
+            "Info file: {}".format(self.po.info_file),
             "Number of bins: {}".format(self.po.nbins),
             "Bin limits: {}".format(self.po.bin_limits),
             "Alpha: {}".format(self.po.alpha),
@@ -786,27 +836,7 @@ def main():
     """
     SuperPlot program - open relevant files and make GUI.
     """
-    data_file = open_file_gui(window_title="Select a data file",
-                              add_pattern=["*.txt", "*.dat"],
-                              allow_no_file=False)
-    info_file = open_file_gui(window_title="Select an information file (optional)",
-                              add_pattern=["*.info"],
-                              no_file_title="No information file",
-                              allow_no_file=True)
-
-    def exception_reboot(type_, message, traceback):
-        """
-        Implement `sys.excepthook` to give GUI messages and reboot
-        """
-        warnings.warn(message)
-        message_dialog(gtk_wrapper.MESSAGE_ERROR, message)
-        gtk.main_quit()
-        GUIControl(data_file, info_file)
-        gtk.main()
-
-    sys.excepthook = exception_reboot
-
-    GUIControl(data_file, info_file)
+    GUIControl()
     gtk.main()
     return
 

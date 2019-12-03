@@ -5,7 +5,7 @@ Loads default settings from a yaml and makes them available.
 import copy
 import warnings
 import numpy as np
-from data_loader import load_yaml
+from superplot.data_loader import load_yaml
 
 
 # Converters for data in yaml

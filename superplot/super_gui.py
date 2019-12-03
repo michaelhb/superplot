@@ -27,11 +27,11 @@ if version < required_version:
                       "Upgrade via e.g. pip install --force-reinstall --upgrade matplotlib"
                       % (required_version, version))
 
-import data_loader
+import superplot.data_loader as data_loader
 import superplot.plotlib.plots as plots
-import gtk_wrapper
-from gtk_wrapper import gtk
-from plot_options import defaults
+import superplot.gtk_wrapper as gtk_wrapper
+from superplot.gtk_wrapper import gtk
+from superplot.plot_options import defaults
 
 
 def open_file_gui(window_title="Open",
@@ -220,7 +220,7 @@ class GUIControl(gtk.Window):
             Implement `sys.excepthook` to give GUI messages and reboot
             """
             self.destroy()
-            message_dialog(gtk_wrapper.MESSAGE_ERROR, error.message, self)
+            message_dialog(gtk_wrapper.MESSAGE_ERROR, error.args[0], self)
             gtk.main_quit()
             reboot = GUIControl(self.po)
             gtk.main()

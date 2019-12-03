@@ -806,7 +806,8 @@ class GUIControl(gtk.Window):
             # Need to re-draw the figure for this to work
             figure = self.plot.figure().figure
             file_prefix = os.path.splitext(file_name)[0]
-            pickle.dump(figure, file(file_prefix + ".pkl", 'wb'))
+            with open(file_prefix + ".pkl", 'wb') as f:
+                pickle.dump(figure, f)
 
         if save_summary:
             file_prefix = os.path.splitext(file_name)[0]

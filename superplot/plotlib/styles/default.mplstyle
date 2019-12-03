@@ -1,8 +1,8 @@
 # Make the lines thicker
 lines.linewidth : 4
 
-# Plot gridlines over the plot - can be useful
-axes.grid : True
+# No gridlines over the plot
+axes.grid : False
 
 # Set size of plot in inches
 figure.figsize : 8, 8
@@ -35,3 +35,17 @@ savefig.format : pdf
 savefig.transparent : False
 savefig.bbox : tight
 savefig.pad_inches : 0.1
+
+# Tweak ticks and axes
+axes.linewidth: 1.5
+xtick.top : True
+ytick.right : True
+xtick.major.size: 6
+ytick.major.size: 6
+xtick.minor.size: 3
+ytick.minor.size: 3
+xtick.major.width: 1.5
+ytick.major.width: 1.5
+xtick.minor.width: 1
+ytick.minor.width: 1
+axes.facecolor : EAEAF2

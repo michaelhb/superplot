@@ -56,18 +56,21 @@ class Plot(object):
 
         # Apply log scaling to data if required and possible.
         with warnings.catch_warnings():
-            warnings.simplefilter("error", RuntimeWarning)
+            warnings. simplefilter("error", RuntimeWarning)
             if self.po.logx:
+                self.po.xlabel = self.po.log10.format(self.po.xlabel)
                 try:
                     self.xdata = np.log10(self.xdata)
                 except RuntimeWarning:
                     warnings.warn("x-data not logged: probably logging a negative.")
             if self.po.logy:
+                self.po.ylabel = self.po.log10.format(self.po.ylabel)
                 try:
                     self.ydata = np.log10(self.ydata)
                 except RuntimeWarning:
                     warnings.warn("y-data not logged: probably logging a negative.")
             if self.po.logz:
+                self.po.zlabel = self.po.log10.format(self.po.zlabel)
                 try:
                     self.zdata = np.log10(self.zdata)
                 except RuntimeWarning:
@@ -125,7 +128,6 @@ class OneDimPlot(Plot):
 
     def __init__(self, data, plot_options):
         super(OneDimPlot, self).__init__(data, plot_options)
-        self.po = copy.deepcopy(plot_options)
 
         self.po.bin_limits = bins.bin_limits(self.po.bin_limits, self.xdata, posterior=self.posterior, lower=self.po.lower, upper=self.po.upper)
         plot_limits_y = [0., 1.2]
@@ -218,7 +220,6 @@ class TwoDimPlot(Plot):
 
     def __init__(self, data, plot_options):
         super(TwoDimPlot, self).__init__(data, plot_options)
-        self.po = copy.deepcopy(plot_options)
 
         if not isinstance(self.po.bin_limits, str):
             bin_limits_x = bins.bin_limits(self.po.bin_limits[0], self.xdata, self.posterior, lower=self.po.lower, upper=self.po.upper)

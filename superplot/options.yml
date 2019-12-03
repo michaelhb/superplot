@@ -87,3 +87,6 @@ schemes_yaml: schemes.yml
 
 # List of extra styles available by URL.
 url_styles: ["https://raw.githubusercontent.com/scikit-hep/mplhep/master/mplhep/stylelib/ROOT.mplstyle"]
+
+# Log10 label modifier.
+log10: "$\\log_{{10}}$ {}"

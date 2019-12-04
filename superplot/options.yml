@@ -104,3 +104,12 @@ save_name: "image.pdf"
 save_plot: True
 save_options: True
 save_summary: True
+
+# Whether to show a color bar.
+show_colorbar: True
+
+# Whether to force aspect ratio on imshow.
+force_aspect: True
+
+# mpl directory for superplot.
+mpl_path: null

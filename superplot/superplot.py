@@ -736,9 +736,10 @@ def main():
     if args.no_gui:
         if args.plot_options is None:
             raise RuntimeError("In non-gui mode, you must pass an options file")
-        plt.clf()
+
         for name in args.plot_options:
             obj = plots.get_plot(Defaults(name))
+        plt.legend(ncol=len(args.plot_options))
         obj.save()
         return
 

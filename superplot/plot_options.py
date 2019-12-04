@@ -51,10 +51,14 @@ class Defaults(object):
     def save(self, file_name):
         d = {}
         for k in self.keys():
-            try:
-                d[k] = getattr(self, k).tolist()
-            except:
-                 d[k] = getattr(self, k)
+            d[k] = getattr(self, k)
+            # Try to remove np.float64 etc that make yaml messier
+            if isinstance(d[k], (tuple, list, np.ndarray)):
+                try:
+                    d[k] = np.array(d[k]).astype(float).tolist()
+                except:
+                    pass
+
         with open(file_name, 'w') as f:
             yaml.dump(d, f)
 

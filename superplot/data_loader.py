@@ -177,7 +177,7 @@ def load_yaml(yaml_file):
     config_path = None
 
     if os.path.exists(home_dir_locfile):
-        with open(home_dir_locfile, "rb") as f:
+        with open(home_dir_locfile, "r") as f:
             home_dir_path = f.read()
             config_path = os.path.join(home_dir_path, yaml_file)
 

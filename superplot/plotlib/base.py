@@ -61,19 +61,22 @@ class Plot(object):
         with warnings.catch_warnings():
             warnings. simplefilter("error", RuntimeWarning)
             if self.po.logx:
-                self.po.xlabel = self.po.log10.format(self.po.xlabel)
+                if not self.po.xlabel.startswith(self.po.log10.format("")):
+                    self.po.xlabel = self.po.log10.format(self.po.xlabel)
                 try:
                     self.xdata = np.log10(self.xdata)
                 except RuntimeWarning:
                     raise RuntimeError("x-data cannnot be logged: probably logging a negative.")
             if self.po.logy:
-                self.po.ylabel = self.po.log10.format(self.po.ylabel)
+                if not self.po.ylabel.startswith(self.po.log10.format("")):
+                    self.po.ylabel = self.po.log10.format(self.po.ylabel)
                 try:
                     self.ydata = np.log10(self.ydata)
                 except RuntimeWarning:
                     raise RuntimeError("y-data cannnot be logged: probably logging a negative.")
             if self.po.logz:
-                self.po.zlabel = self.po.log10.format(self.po.zlabel)
+                if not self.po.zlabel.startswith(self.po.log10.format("")):
+                    self.po.zlabel = self.po.log10.format(self.po.zlabel)
                 try:
                     self.zdata = np.log10(self.zdata)
                 except RuntimeWarning:
@@ -90,7 +93,8 @@ class Plot(object):
             extra = self.po.style
             self.schemes.override_colours = self.po.style_overrides_schemes_colours
 
-        pm.appearance(self.__class__.__name__, extra)
+        self.po.mpl_path = pm.check_mpl_path(self.po.mpl_path)
+        pm.appearance(self.__class__.__name__, extra, self.po.mpl_dir)
 
         # Apply changes to axes
         pm.plot_ticks(self.po.xticks, self.po.yticks)

@@ -232,6 +232,8 @@ class TwoDimPlotPDF(TwoDimPlot):
                     self.po.bin_limits,
                     self.po.plot_limits,
                     self.schemes.posterior,
+                    self.po.show_colorbar,
+                    self.po.force_aspect,
                     self.po.cbticks)
 
         # Credible regions
@@ -263,6 +265,8 @@ class TwoDimPlotPL(TwoDimPlot):
                     self.po.bin_limits,
                     self.po.plot_limits,
                     self.schemes.prof_like,
+                    self.po.show_colorbar,
+                    self.po.force_aspect,
                     self.po.cbticks)
 
         levels = [two_dim.critical_prof_like(aa) for aa in self.po.alpha]
@@ -306,14 +310,16 @@ class Scatter(TwoDimPlot):
                 verts=None,
                 rasterized=True)
 
-        # Plot a colour bar. NB "magic" values for fraction and pad taken from
-        # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
-        cb = plt.colorbar(sc, orientation='vertical', fraction=0.046, pad=0.04)
-        # Colour bar label
-        cb.ax.set_ylabel(self.po.zlabel)
-        # Set reasonable number of ticks
-        cb.locator = MaxNLocator(self.po.cbticks)
-        cb.update_ticks()
+        if self.po.show_colorbar:
+
+            # Plot a colour bar. NB "magic" values for fraction and pad taken from
+            # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
+            cb = plt.colorbar(sc, orientation='vertical', fraction=0.046, pad=0.04)
+            # Colour bar label
+            cb.ax.set_ylabel(self.po.zlabel)
+            # Set reasonable number of ticks
+            cb.locator = MaxNLocator(self.po.cbticks)
+            cb.update_ticks()
 
         # Credible regions
         levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]

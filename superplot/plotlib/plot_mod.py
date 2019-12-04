@@ -35,8 +35,9 @@ def save_plot(name):
     w, h = rcParams["figure.figsize"]
     scaled_w = float(w) / (ax.figure.subplotpars.right - ax.figure.subplotpars.left)
     scaled_h = float(h) / (ax.figure.subplotpars.top -  ax.figure.subplotpars.bottom)
-    ax.figure.set_size_inches(scaled_w, scaled_h)
 
+    fig = plt.gcf()
+    fig.set_size_inches(scaled_w, scaled_h)
     plt.savefig(name)
 
 def plot_data(x, y, scheme, zorder=1):
@@ -61,7 +62,33 @@ def plot_data(x, y, scheme, zorder=1):
              zorder=zorder)
 
 
-def appearance(plot_style="default", extra_style=None):
+def check_mpl_path(mpl_path):
+    """
+    :returns: Path for mpl files
+    """
+    if mpl_path is None:
+        # Try to use the style sheets in the user directory
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        home_dir_locfile = os.path.join(os.path.dirname(script_dir), "user_home.txt")
+
+        style_sheet_path = None
+        default_style_sheet_path = None
+
+        if os.path.exists(home_dir_locfile):
+            with open(home_dir_locfile, "rb") as f:
+               mpl_path = f.read()
+
+    if mpl_path is None or not os.path.exists(mpl_path):
+        # Try to use the style sheets in the install directory
+        mpl_path = os.path.split(os.path.abspath(__file__))[0]
+
+    if not os.path.exists(mpl_path):
+        raise RuntimeError("Cannot find mpl style files")
+
+    return mpl_path
+
+
+def appearance(plot_style="default", extra_style=None, mpl_path=None):
     """
     Specify the plot's appearance, with e.g. font types etc.
     from mplstyle files.
@@ -79,45 +106,21 @@ def appearance(plot_style="default", extra_style=None):
         interface with LaTeX). If it isn't, we issue a warning and fall \
         back to mathtext.
     """
+    mpl_path = check_mpl_path(mpl_path)
 
     style_sheet_name = "{}.mplstyle".format(plot_style)
 
-    # Try to use the style sheets installed in the user directory
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    home_dir_locfile = os.path.join(os.path.dirname(script_dir), "user_home.txt")
+    style_sheet_path = os.path.join(
+        mpl_path,
+        "styles",
+        style_sheet_name
+    )
 
-    style_sheet_path = None
-    default_style_sheet_path = None
-
-    if os.path.exists(home_dir_locfile):
-        with open(home_dir_locfile, "rb") as f:
-            home_dir_path = f.read()
-            style_sheet_path = os.path.join(
-                home_dir_path,
-                "styles",
-                style_sheet_name
-            )
-            default_style_sheet_path = os.path.join(
-                home_dir_path,
-                "styles",
-                "default.mplstyle"
-            )
-
-    # If style sheet doesn't exist, use the installed copy
-    if style_sheet_path is None or not os.path.exists(style_sheet_path):
-        style_sheet_path = os.path.join(
-            os.path.split(os.path.abspath(__file__))[0],
-            "styles",
-            style_sheet_name
-        )
-
-    # If default style sheet doesn't exist, use installed copy
-    if default_style_sheet_path is None or not os.path.exists(default_style_sheet_path):
-        default_style_sheet_path = os.path.join(
-            os.path.split(os.path.abspath(__file__))[0],
-            "styles",
-            "default.mplstyle"
-        )
+    default_style_sheet_path = os.path.join(
+        mpl_path,
+        "styles",
+        "default.mplstyle"
+    )
 
     # Consolidate all styles and set the style
     styles = ['default', default_style_sheet_path, style_sheet_path]
@@ -216,7 +219,7 @@ def plot_labels(xlabel, ylabel, plot_title=None, title_position='right'):
     plt.title(plot_title, loc=title_position)
 
 
-def plot_image(data, bin_limits, plot_limits, scheme, cbticks=5):
+def plot_image(data, bin_limits, plot_limits, scheme, show_colorbar=True, force_aspect=True, cbticks=5):
     """
     Plot data as an image.
 
@@ -241,26 +244,38 @@ def plot_image(data, bin_limits, plot_limits, scheme, cbticks=5):
              bin_limits[1][0],
              bin_limits[1][1]))
 
-    # Set the aspect so that resulting figure is a square
-    aspect = (plot_limits[0][1] - plot_limits[0][0]) / (plot_limits[1][1] - plot_limits[1][0])
+    if force_aspect:
+        # Set the aspect so that resulting figure is a square
+        aspect = (plot_limits[0][1] - plot_limits[0][0]) / (plot_limits[1][1] - plot_limits[1][0])
+    else:
+        aspect = None
+
+    cmap = get_cmap(scheme.colour_map, scheme.number_colours)
 
     # imshow is annoying - it reads (y, x) rather than (x, y) so we take
     # transpose.
     im = plt.imshow(data.T.astype(float),
-                    cmap=get_cmap(scheme.colour_map, scheme.number_colours),
+                    cmap=cmap,
                     extent=extent,
                     interpolation='bilinear',
                     label=scheme.label,
                     origin='lower',
                     aspect=aspect)
-    # Plot a colour bar. NB "magic" values for fraction and pad taken from
-    # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
-    cb = plt.colorbar(im, orientation='vertical', fraction=0.046, pad=0.04)
-    # Set reasonable number of ticks
-    cb.locator = MaxNLocator(cbticks)
-    cb.update_ticks()
-    # Colour bar label
-    cb.ax.set_ylabel(scheme.colour_bar_title)
+
+    # Fill the rest of the plane with the lowest color
+    cmin = cmap(0.)
+    ax = plt.gca()
+    ax.set_facecolor(cmin)
+
+    if show_colorbar:
+        # Plot a colour bar. NB "magic" values for fraction and pad taken from
+        # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
+        cb = plt.colorbar(im, orientation='vertical', fraction=0.046, pad=0.04)
+        # Set reasonable number of ticks
+        cb.locator = MaxNLocator(cbticks)
+        cb.update_ticks()
+        # Colour bar label
+        cb.ax.set_ylabel(scheme.colour_bar_title)
 
 
 def plot_contour(data, levels, scheme, bin_limits):

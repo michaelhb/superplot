@@ -13,7 +13,7 @@ from argparse import ArgumentParser as arg_parser
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-import data_loader
+import superplot.data_loader as data_loader
 from superplot.plotlib.plot_mod import appearance
 from superplot.statslib.point import posterior_mean
 from superplot.statslib.one_dim import kde_posterior_pdf, posterior_median, credible_region
@@ -86,7 +86,7 @@ def violin_plot(data,
                  'cmaxes': (5, "SeaGreen"),
                  'cbars': (0, "Purple")}
 
-    for key, (lw, c) in line_prop.iteritems():
+    for key, (lw, c) in line_prop.items():
 
         violin[key].set_linewidths(lw)
         violin[key].set_color(c)
@@ -136,24 +136,24 @@ def main():
     """
     parser = arg_parser(description='Superplot Violin plot', conflict_handler='resolve')
 
-    parser.add_argument('--data_file',
+    parser.add_argument('--data-file',
                         '-d',
                         help='Chain file',
                         type=str,
                         required=True)
-    parser.add_argument('--info_file',
+    parser.add_argument('--info-file',
                         '-i',
                         help='Info file',
                         type=str,
                         default=None,
                         required=False)
-    parser.add_argument('--index_list',
+    parser.add_argument('--index-list',
                         help='Indexes of columns in violin plot',
                         type=int,
                         default=None,
                         required=True,
                         nargs='+')
-    parser.add_argument('--output_file',
+    parser.add_argument('--output-file',
                         help='Name of output file for plot',
                         type=str,
                         default="violin.pdf",
@@ -163,34 +163,34 @@ def main():
                         type=str,
                         default=None,
                         required=False)
-    parser.add_argument('--y_range',
+    parser.add_argument('--y-range',
                         help='Range for y-axis and bin limit',
                         type=float,
                         default=None,
                         required=False,
                         nargs='+')
-    parser.add_argument('--leg_title',
+    parser.add_argument('--leg-title',
                         help='Title for legend',
                         type=str,
                         default=None,
                         required=False)
-    parser.add_argument('--x_range',
+    parser.add_argument('--x-range',
                         help='Range for x-axis',
                         type=float,
                         default=None,
                         required=False,
                         nargs='+')
-    parser.add_argument('--leg_pos',
+    parser.add_argument('--leg-pos',
                         help='Position for legend',
                         type=str,
                         default='lower right',
                         required=False)
 
-    args = vars(parser.parse_args())
+    args = parser.parse_args()
 
-    datafile = os.path.abspath(args['data_file'])
-    infofile = os.path.abspath(args['info_file']) if args['info_file'] else None
-    index_list = args['index_list']
+    datafile = os.path.abspath(args.data_file)
+    infofile = os.path.abspath(args.info_file) if args.info_file else None
+    index_list = args.index_list
 
     # Load and label data
 
@@ -201,12 +201,12 @@ def main():
     violin_plot(data,
                 index_list,
                 labels,
-                args['output_file'],
-                args['y_label'],
-                args['x_range'],
-                args['y_range'],
-                args['leg_pos'],
-                args['leg_title'])
+                args.output_file,
+                args.y_label,
+                args.x_range,
+                args.y_range,
+                args.leg_pos,
+                args.leg_title)
 
 
 if __name__ == "__main__":

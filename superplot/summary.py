@@ -64,7 +64,7 @@ def _summary(name, param, posterior, chi_sq):
     return summary
 
 
-def _summary_table(labels, data, names=None, datafile=None, infofile=None):
+def _summary_table(labels, data, names=None, data_file=None, info_file=None):
     """
     Summarize multiple parameters in a table.
 
@@ -105,8 +105,8 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
     bestfit_table = pt(header=False)
     bestfit_table.align = "l"
     bestfit_table.float_format = "4.2"
-    bestfit_table.add_row(["File", datafile])
-    bestfit_table.add_row(["Info-file", infofile])
+    bestfit_table.add_row(["File", data_file])
+    bestfit_table.add_row(["Info-file", info_file])
     bestfit_table.add_row(["Minimum chi-squared", min_chi_sq])
     bestfit_table.add_row(["p-value", p_value])
 
@@ -116,30 +116,26 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
 def main():
     parser = arg_parser(description='Superplot summary tool', conflict_handler='resolve')
 
-    parser.add_argument('--data_file',
+    parser.add_argument('--data-file',
                         '-d',
                         help='Chain file to summarise',
                         type=str,
                         required=True)
-    parser.add_argument('--info_file',
+    parser.add_argument('--info-file',
                         '-i',
                         help='Info file to summarise',
                         type=str,
                         default=None,
                         required=False)
 
-    args = vars(parser.parse_args())
-
-    datafile = os.path.abspath(args['data_file'])
-
-    infofile = args['info_file']
-    if infofile:
-        infofile = os.path.abspath(infofile)
+    args = parser.parse_args()
+    data_file = os.path.abspath(args.data_file)
+    info_file = os.path.abspath(args.info_file) if args.info_file else None
 
     # Load and label data
-    labels, data = data_loader.load(infofile, datafile)
+    labels, data = data_loader.load(info_file, data_file)
 
-    summary_table = _summary_table(labels, data, datafile=datafile, infofile=infofile)
+    summary_table = _summary_table(labels, data, data_file=data_file, info_file=info_file)
     return summary_table
 
 

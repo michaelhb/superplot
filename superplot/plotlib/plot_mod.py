@@ -51,16 +51,15 @@ def plot_data(x, y, scheme, zorder=1):
     :type scheme: :py:class:`schemes.Scheme`
     :param zorder: Draw order - lower numbers are plotted first
     :type zorder: integer
-
     """
-    plt.plot(
-            x,
-            y,
-            scheme.symbol,
-            color=scheme.colour,
-            label=scheme.label,
-            ms=scheme.size,
-            zorder=zorder)
+    p = plt.plot(x,
+                 y,
+                 scheme.symbol,
+                 color=scheme.colour,
+                 label=scheme.label,
+                 ms=scheme.size,
+                 zorder=zorder)
+    p[0].set_clip_on(False)
 
 
 def appearance(plot_style="default", extra_style=None):

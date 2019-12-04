@@ -694,7 +694,7 @@ class GUIControl(gtk.Window):
 
         # Push back any changes to the plot limits from the GUI
         ax = plt.gca()
-        self.po.plot_limits = [list(ax.get_xlim()), list(ax.get_ylim())]
+        self.po.plot_limits = self.obj.po.plot_limits = [list(ax.get_xlim()), list(ax.get_ylim())]
         self.plot_limits.set_text(str(self.po.plot_limits))
 
         if not (self.po.save_plot or self.po.save_summary or self.po.save_options):

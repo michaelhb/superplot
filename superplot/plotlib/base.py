@@ -11,7 +11,6 @@ import os
 
 import numpy as np
 import matplotlib.pyplot as plt
-import pickle
 
 from . import plot_mod as pm
 import superplot.statslib.one_dim as one_dim
@@ -115,9 +114,9 @@ class Plot(object):
 
     def fig(self):
         """
-        @returns Copy of current figure
+        @returns Current figure
         """
-        return pickle.loads(pickle.dumps(plt.gcf(), pickle.HIGHEST_PROTOCOL))
+        return plt.gcf()
 
 class OneDimPlot(Plot):
     """

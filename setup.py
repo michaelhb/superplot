@@ -75,14 +75,13 @@ setup(
         license="GPL v2",
         url="https://github.com/michaelhb/superplot",
 
-        description="Python GUI for plotting SuperPy/SuperBayes/MultiNest/BAYES-X results",
+        description="Python GUI for plotting MultiNest results",
         long_description=read("README.rst"),
 
         entry_points={
             'gui_scripts': [
-                'superplot_gui = superplot.super_gui:main',
+                'superplot = superplot.superplot:main',
                 'superplot_summary = superplot.summary:main',
-                'superplot_cli = superplot.super_command:main',
                 'superplot_create_home_dir = superplot.create_home_dir:main'
             ]
         }

@@ -52,3 +52,6 @@ axes.facecolor : EAEAF2
 
 # Round numbers for ticks
 axes.autolimit_mode : round_numbers
+
+# Data above axes
+axes.axisbelow: True

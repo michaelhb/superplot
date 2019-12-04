@@ -5,6 +5,7 @@ Loads default settings from a yaml and makes them available.
 import copy
 import warnings
 import numpy as np
+import yaml
 from superplot.data_loader import load_yaml
 
 
@@ -41,9 +42,19 @@ class Defaults(object):
         return str(d)
 
     def __deepcopy__(self, *args, **kwargs):
-      d = Defaults(self.yaml_file)
-      d.__dict__ = copy.deepcopy(self.__dict__)
-      return d
+        d = Defaults(self.yaml_file)
+        d.__dict__ = copy.deepcopy(self.__dict__)
+        return d
+
+    def save(self, file_name):
+        d = {}
+        for k in self.keys():
+            try:
+                d[k] = getattr(self, k).tolist()
+            except:
+                 d[k] = getattr(self, k)
+        with open(file_name, 'w') as f:
+            yaml.dump(d, f)
 
 
 defaults = Defaults("options.yml")

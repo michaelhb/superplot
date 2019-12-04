@@ -2,6 +2,5 @@ include superplot/options.yml
 include superplot/schemes.yml
 include superplot/plotlib/styles/*.mplstyle
 include superplot/example/gaussian_.txt
-include superplot/example/load_pkl.py
 include superplot/example/SB_MO_log_all.info
 include superplot/example/SB_MO_log_allpost.txt

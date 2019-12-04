@@ -17,6 +17,28 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def save_plot(name):
+    """
+    Save a plot with a descriptive name.
+
+    .. Warning::
+        Figure properties specfied in by mplstyle, but could be
+        overridden here.
+
+    :param name: Prefix of filename, without extension
+    :type name: string
+
+    """
+    # Set axes size rather than figure size
+    # https://stackoverflow.com/a/44971177
+    ax = plt.gca()
+    w, h = rcParams["figure.figsize"]
+    scaled_w = float(w) / (ax.figure.subplotpars.right - ax.figure.subplotpars.left)
+    scaled_h = float(h) / (ax.figure.subplotpars.top -  ax.figure.subplotpars.bottom)
+    ax.figure.set_size_inches(scaled_w, scaled_h)
+
+    plt.savefig(name)
+
 def plot_data(x, y, scheme, zorder=1):
     """
     Plot a point with a particular color scheme.
@@ -144,21 +166,19 @@ def legend(leg_title=None, leg_position=None):
         leg.set_title(leg_title, prop={"size": size})
 
 
-def plot_limits(ax, limits=None):
+def plot_limits(limits=None):
     """
     If specified plot limits, set them.
 
-    :param ax: Axis object
-    :type ax: matplotlib.axes.Axes
     :param limits: Plot limits
     :type limits: list [[xmin, xmax], [ymin, ymax]]
     """
     if limits is not None:
-        ax.set_xlim(limits[0])
-        ax.set_ylim(limits[1])
+        plt.xlim(limits[0])
+        plt.ylim(limits[1])
 
 
-def plot_ticks(xticks, yticks, ax):
+def plot_ticks(xticks, yticks):
     """
     Set the numbers of ticks on the axis.
 
@@ -170,6 +190,7 @@ def plot_ticks(xticks, yticks, ax):
     :type yticks: integer
 
     """
+    ax = plt.gca()
     # Set major x, y ticks
     ax.xaxis.set_major_locator(MaxNLocator(xticks))
     ax.yaxis.set_major_locator(MaxNLocator(yticks))

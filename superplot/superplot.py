@@ -5,13 +5,11 @@ from __future__ import print_function
 
 import sys
 import os
-import pickle
-import time
 import warnings
 import functools
-from collections import OrderedDict
+import yaml
 from distutils.version import StrictVersion
-from ast import literal_eval
+from argparse import ArgumentParser as arg_parser
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -31,7 +29,7 @@ import superplot.data_loader as data_loader
 import superplot.plotlib.plots as plots
 import superplot.gtk_wrapper as gtk_wrapper
 from superplot.gtk_wrapper import gtk
-from superplot.plot_options import defaults
+from superplot.plot_options import defaults, Defaults
 
 
 def open_file_gui(window_title="Open",
@@ -174,7 +172,7 @@ def message_dialog(message_type, message, parent=None):
                            buttons=gtk_wrapper.BUTTONS_CLOSE,
                            message_format=message,
                            parent=parent)
-    response = md.run()
+    md.run()
     md.destroy()
 
 
@@ -184,7 +182,7 @@ class GUIControl(gtk.Window):
     options, creating a plot, and saving a plot.
     """
     def __init__(self, po=None):
-        super(gtk.Window, self).__init__()
+        super(GUIControl, self).__init__()
 
         # Make plot options from defaults
         self.po = po if po else defaults
@@ -221,8 +219,9 @@ class GUIControl(gtk.Window):
             """
             self.destroy()
             message_dialog(gtk_wrapper.MESSAGE_ERROR, error.args[0], self)
+            sys.__excepthook__(type_, error, traceback)
             gtk.main_quit()
-            reboot = GUIControl(self.po)
+            GUIControl(self.po)
             gtk.main()
 
         sys.excepthook = exception_reboot
@@ -242,10 +241,10 @@ class GUIControl(gtk.Window):
                                               parent=self)
         if ask_info:
             self.po.info_file = open_file_gui(window_title="Select an information file (optional)",
-                                             add_pattern=["*.info"],
-                                             no_file_title="No information file",
-                                             allow_no_file=True,
-                                             parent=self)
+                                              add_pattern=["*.info"],
+                                              no_file_title="No information file",
+                                              allow_no_file=True,
+                                              parent=self)
 
 
         #######################################################################
@@ -270,29 +269,22 @@ class GUIControl(gtk.Window):
         self.po.yindex = min(self.po.yindex, data_columns - 1)
         self.po.zindex = min(self.po.zindex, data_columns - 1)
 
-        # Enumerate available plot types and keep an ordered
-        # dict mapping descriptions to classes.
-        # Using an ordered dict means the order in which classes
-        # are listed in plot_types will be preserved in the GUI.
-        self.plots = OrderedDict()
-        for plot_class in plots.plot_types:
-            self.plots[plot_class.description] = plot_class
-
         #######################################################################
 
         # Combo-box for various plot types
 
-        typetitle = gtk.Button(label="Plot type:")
+        t_typebox = gtk.Button(label="Plot type:")
         self.typebox = gtk_wrapper.COMBO_BOX_TEXT()
-        for description in self.plots.keys():
-            self.typebox.append_text(description)
-        self.typebox.set_active(self.po.plot_type)
+        for c in plots.plot_list:
+            self.typebox.append_text(c.description)
+        default = [i for i, n in enumerate(plots.plot_dict.keys()) if n == self.po.plot_type][0]
+        self.typebox.set_active(default)
 
         #######################################################################
 
         # Combo box for selecting x-axis variable
 
-        xtitle = gtk.Button(label="x-axis variable:")
+        t_xbox = gtk.Button(label="x-axis variable:")
         self.xbox = gtk_wrapper.COMBO_BOX_TEXT()
         for label in self.labels.values():
             self.xbox.append_text(label)
@@ -307,7 +299,7 @@ class GUIControl(gtk.Window):
 
         # Combo box for selecting y-axis variable
 
-        ytitle = gtk.Button(label="y-axis variable:")
+        t_ybox = gtk.Button(label="y-axis variable:")
         self.ybox = gtk_wrapper.COMBO_BOX_TEXT()
         for label in self.labels.values():
             self.ybox.append_text(label)
@@ -322,7 +314,7 @@ class GUIControl(gtk.Window):
 
         # Combo box for selecting z-axis variable
 
-        ztitle = gtk.Button(label="z-axis variable:")
+        t_zbox = gtk.Button(label="z-axis variable:")
         self.zbox = gtk_wrapper.COMBO_BOX_TEXT()
         for label in self.labels.values():
             self.zbox.append_text(label)
@@ -335,7 +327,7 @@ class GUIControl(gtk.Window):
 
         #######################################################################
 
-        # Check buttons for log Scaling
+        # Check buttons for log scaling
 
         self.logx = gtk.CheckButton('Log x-data.')
         self.logy = gtk.CheckButton('Log y-data.')
@@ -348,7 +340,7 @@ class GUIControl(gtk.Window):
 
         # Selection box for plot style
 
-        tstyle = gtk.Button(label="Style:")
+        t_style = gtk.Button(label="Style:")
         self.style = gtk_wrapper.COMBO_BOX_TEXT()
         internal = ["mpl15", "mpl20"] + plt.style.available
         prepended = ["original_colours_{}".format(style) for style in internal]
@@ -367,15 +359,18 @@ class GUIControl(gtk.Window):
 
         #######################################################################
 
-        # Legend properties
 
         # Text box for legend title
-        tleg_title = gtk.Button(label="Legend title:")
+
+        t_leg_title = gtk.Button(label="Legend title:")
         self.leg_title = gtk.Entry()
         self.leg_title.set_text(self.po.leg_title)
 
+        #######################################################################
+
         # Combo box for legend position
-        tleg_position = gtk.Button(label="Legend position:")
+
+        t_leg_position = gtk.Button(label="Legend position:")
         self.leg_position = gtk_wrapper.COMBO_BOX_TEXT()
         allowed = ["best",
                    "right",
@@ -397,35 +392,29 @@ class GUIControl(gtk.Window):
 
         #######################################################################
 
-        # Spin button for number of bins per dimension
+        # Number of bins per dimension
 
-        tbins = gtk.Button(label="Bins per dimension:")
-        self.po.nbins = self.po.nbins
-        self.bins = gtk.Entry()
-        self.bins.set_text(str(self.po.nbins))
-        self.bins.connect("changed", self._cbins)
+        t_nbins = gtk.Button(label="Numbers of bins:")
+        self.nbins = gtk.Entry()
+        self.nbins.set_text(str(self.po.nbins))
 
         #######################################################################
 
-        # Axes limits
+        # Plot limits
 
-        alimits = gtk.Button(label="Comma separated plot limits\n"
-                             "x_min, x_max, y_min, y_max:")
-        self.alimits = gtk.Entry()
-        self.alimits.connect("changed", self._calimits)
-        if isinstance(self.po.plot_limits, str):
-            gtk_wrapper.APPEND_TEXT(self.alimits, self.po.plot_limits)
+        t_plot_limits = gtk.Button(label="Plot limits\n"
+                                         "[[x_min, x_max], [y_min, y_max]]:")
+        self.plot_limits = gtk.Entry()
+        gtk_wrapper.APPEND_TEXT(self.plot_limits, str(self.po.plot_limits))
 
         #######################################################################
 
         # Bin limits
 
-        blimits = gtk.Button(label="Comma separated bin limits\n"
-                             "x_min, x_max, y_min, y_max:")
-        self.blimits = gtk.Entry()
-        self.blimits.connect("changed", self._cblimits)
-        if isinstance(self.po.bin_limits, str):
-            gtk_wrapper.APPEND_TEXT(self.blimits, self.po.bin_limits)
+        t_bin_limits = gtk.Button(label="Bin limits\n"
+                                        "[[x_min, x_max], [y_min, y_max]]:")
+        self.bin_limits = gtk.Entry()
+        gtk_wrapper.APPEND_TEXT(self.bin_limits, str(self.po.bin_limits))
 
         #######################################################################
 
@@ -462,12 +451,12 @@ class GUIControl(gtk.Window):
         # Check boxes to control what is saved (note we only attach them to the
         # window after showing a plot)
 
-        self.save_image = gtk.CheckButton('Save image')
-        self.save_image.set_active(True)
+        self.save_plot = gtk.CheckButton('Save plot')
+        self.save_plot.set_active(self.po.save_plot)
         self.save_summary = gtk.CheckButton('Save statistics in plot')
-        self.save_summary.set_active(True)
-        self.save_pickle = gtk.CheckButton('Save pickle of plot')
-        self.save_pickle.set_active(True)
+        self.save_summary.set_active(self.po.save_summary)
+        self.save_options = gtk.CheckButton('Save options for plot')
+        self.save_options.set_active(self.po.save_options)
 
         #######################################################################
 
@@ -475,18 +464,18 @@ class GUIControl(gtk.Window):
 
         self.gridbox = gtk.Table(17, 5, False)
 
-        self.gridbox.attach(typetitle, 0, 1, 0, 1, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(t_typebox, 0, 1, 0, 1, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.typebox, 1, 2, 0, 1, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(xtitle, 0, 1, 1, 2, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(t_xbox, 0, 1, 1, 2, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.xbox, 1, 2, 1, 2, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.xtext, 1, 2, 2, 3, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(ytitle, 0, 1, 3, 4, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(t_ybox, 0, 1, 3, 4, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.ybox, 1, 2, 3, 4, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.ytext, 1, 2, 4, 5, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(ztitle, 0, 1, 5, 6, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(t_zbox, 0, 1, 5, 6, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.zbox, 1, 2, 5, 6, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.ztext, 1, 2, 6, 7, xoptions=gtk_wrapper.FILL)
 
@@ -494,23 +483,23 @@ class GUIControl(gtk.Window):
         self.gridbox.attach(self.logy, 0, 1, 4, 5, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.logz, 0, 1, 6, 7, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tstyle, 0, 1, 9, 10, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(t_style, 0, 1, 9, 10, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.style, 1, 2, 9, 10, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tleg_title, 0, 1, 10, 11, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(t_leg_title, 0, 1, 10, 11, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.leg_title, 1, 2, 10, 11, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tleg_position, 0, 1, 11, 12, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(t_leg_position, 0, 1, 11, 12, xoptions=gtk_wrapper.FILL)
         self.gridbox.attach(self.leg_position, 1, 2, 11, 12, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(tbins, 0, 1, 12, 13, xoptions=gtk_wrapper.FILL)
-        self.gridbox.attach(self.bins, 1, 2, 12, 13, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(t_nbins, 0, 1, 12, 13, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.nbins, 1, 2, 12, 13, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(alimits, 0, 1, 13, 14, xoptions=gtk_wrapper.FILL)
-        self.gridbox.attach(self.alimits, 1, 2, 13, 14, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(t_plot_limits, 0, 1, 13, 14, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.plot_limits, 1, 2, 13, 14, xoptions=gtk_wrapper.FILL)
 
-        self.gridbox.attach(blimits, 0, 1, 14, 15, xoptions=gtk_wrapper.FILL)
-        self.gridbox.attach(self.blimits, 1, 2, 14, 15, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(t_bin_limits, 0, 1, 14, 15, xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(self.bin_limits, 1, 2, 14, 15, xoptions=gtk_wrapper.FILL)
 
         self.gridbox.attach(makeplot, 0, 2, 16, 17, xoptions=gtk_wrapper.FILL)
 
@@ -532,9 +521,7 @@ class GUIControl(gtk.Window):
         point_plot_container.attach(self.show_prof_like, 2, 3, 1, 2)
         point_plot_container.attach(self.kde, 2, 3, 2, 3)
 
-        self.gridbox.attach(point_plot_container,
-                            0, 2, 15, 16,
-                            xoptions=gtk_wrapper.FILL)
+        self.gridbox.attach(point_plot_container, 0, 2, 15, 16, xoptions=gtk_wrapper.FILL)
 
         #######################################################################
 
@@ -551,8 +538,7 @@ class GUIControl(gtk.Window):
         """
         Utility method to wrap a GUI element in a centered gtk.Alignment
         """
-        alignment = gtk.Alignment(xalign=0.5, yalign=0.5,
-                                  xscale=0.0, yscale=0.0)
+        alignment = gtk.Alignment(xalign=0.5, yalign=0.5, xscale=0.0, yscale=0.0)
         alignment.add(child)
         return alignment
 
@@ -626,83 +612,6 @@ class GUIControl(gtk.Window):
         self.labels[self.po.zindex] = textbox.get_text()
         self.po.zlabel = textbox.get_text()
 
-    def _cbins(self, textbox):
-        """
-        Callback function for changing number of bins
-
-        :param textbox: Box with this callback function
-        :type textbox:
-        """
-        try:
-            self.po.nbins = literal_eval(textbox.get_text())
-        except:
-            self.po.nbins = textbox.get_text()
-
-    def _calimits(self, textbox):
-        """
-        Callback function for setting axes limits.
-
-        :param textbox: Box with this callback function
-        :type textbox:
-        """
-        text = textbox.get_text().strip()
-
-        # If no limits, don't change
-        if not text:
-            return
-
-        try:
-            self.po.plot_limits = literal_eval(text)
-        except:
-            self.po.plot_limits = text
-            return
-
-        # Permit only two floats, if it is a one-dimensional plot
-        if len(self.po.plot_limits) == 2 and "One-dimensional" in self.typebox.get_active_text():
-            self.po.plot_limits += [None, None]
-        elif len(self.po.plot_limits) != 4:
-            raise RuntimeError("Must specify four floats for axes limits")
-
-        # Convert to two tuple format
-        self.po.plot_limits = [[self.po.plot_limits[0], self.po.plot_limits[1]],
-                            [self.po.plot_limits[2], self.po.plot_limits[3]]]
-
-    def _cblimits(self, textbox):
-        """
-        Callback function for setting bin limits.
-
-        :param textbox: Box with this callback function
-        :type textbox:
-        """
-        text = textbox.get_text().strip()
-
-        # If no limits, don't change
-        if not text:
-            return
-
-        try:
-            self.po.bin_limits = literal_eval(text)
-        except:
-            self.po.bin_limits = text
-            return
-
-        # Permit only two floats, if it is a one-dimensional plot
-        one_dim_plot = "One-dimensional" in self.typebox.get_active_text()
-        if len(self.po.bin_limits) == 2 and not one_dim_plot:
-            raise RuntimeError("Specify four floats for bin limits in 2D plot")
-        elif len(self.po.bin_limits) != 2 and one_dim_plot:
-            raise RuntimeError("Specify two floats for bin limits in 1D plot")
-        elif len(self.po.bin_limits) == 4 and not one_dim_plot:
-            # Convert to two-tuple format
-            try:
-                self.po.bin_limits = [[self.po.bin_limits[0], self.po.bin_limits[1]],
-                                   [self.po.bin_limits[2], self.po.bin_limits[3]]]
-            except:
-                raise IndexError("Specify four floats for bin limits in 2D plot")
-        else:
-            raise RuntimeError("Specify four floats for bin limits in 2D plot")
-
-
     def _pmakeplot(self, button):
         """
         Callback function for pressing make plot.
@@ -730,17 +639,14 @@ class GUIControl(gtk.Window):
         self.po.show_posterior_pdf = self.show_posterior_pdf.get_active()
         self.po.show_prof_like = self.show_prof_like.get_active()
         self.po.kde = self.kde.get_active()
-
-        # Fetch the class for the selected plot type
-        plot_class = self.plots[self.typebox.get_active_text()]
+        self.po.plot_type = list(plots.plot_dict.keys())[self.typebox.get_active()]
+        self.po.plot_limits = yaml.load(self.plot_limits.get_text())
+        self.po.bin_limits = yaml.load(self.bin_limits.get_text())
+        self.po.nbins = yaml.load(self.nbins.get_text())
 
         # Instantiate the plot and get the figure
-        self.fig = plot_class(self.data, self.po).figure()
-
-        # Also store a handle to the plot class instance.
-        # This is used for pickling - which needs to
-        # re-create the figure to work correctly.
-        self.plot = plot_class(self.data, self.po)
+        plt.clf()
+        self.obj = plots.get_plot(self.po, self.data)
 
         # Try to remove existing box
         try:
@@ -750,7 +656,7 @@ class GUIControl(gtk.Window):
 
         # Add new box
         self.box = gtk.VBox()
-        canvas = gtk_wrapper.FigureCanvas(self.fig.figure)
+        canvas = gtk_wrapper.FigureCanvas(self.obj.fig())
         self.box.pack_start(canvas, True, True, 0)
         toolbar = gtk_wrapper.NavigationToolbar(canvas, self)
         self.box.pack_start(toolbar, False, False, 0)
@@ -762,9 +668,9 @@ class GUIControl(gtk.Window):
         self.gridbox.attach(save_button, 2, 5, 16, 17)
 
         # Attach the check boxes to specify what is saved
-        self.gridbox.attach(self._align_center(self.save_image), 2, 3, 15, 16)
+        self.gridbox.attach(self._align_center(self.save_plot), 2, 3, 15, 16)
         self.gridbox.attach(self._align_center(self.save_summary), 3, 4, 15, 16)
-        self.gridbox.attach(self._align_center(self.save_pickle), 4, 5, 15, 16)
+        self.gridbox.attach(self._align_center(self.save_options), 4, 5, 15, 16)
 
         # Show new buttons etc
         self.show_all()
@@ -778,66 +684,67 @@ class GUIControl(gtk.Window):
         :param button: Button with this callback function
         :type button:
         """
-        save_image = self.save_image.get_active()
-        save_summary = self.save_summary.get_active()
-        save_pickle = self.save_pickle.get_active()
+        self.po.save_plot = self.obj.po.save_plot = self.save_plot.get_active()
+        self.po.save_summary = self.obj.po.save_summary = self.save_summary.get_active()
+        self.po.save_options = self.obj.po.save_options = self.save_options.get_active()
 
-        if not (save_image or save_summary or save_pickle):
+        if not (self.po.save_plot or self.po.save_summary or self.po.save_options):
             message_dialog(gtk_wrapper.MESSAGE_WARNING, "Nothing to save!")
             return
 
         # Get name to save to from a dialogue box.
-        file_name = save_file_gui(default_file_name="image",
+        save_name = save_file_gui(default_file_name=os.path.splitext(self.po.save_name)[0],
                                   add_pattern=["*.pdf",
                                                "*.png",
                                                "*.eps",
                                                "*.ps"])
 
-        if not isinstance(file_name, str):
+        if not isinstance(save_name, str):
             # Case in which no file is chosen
             return
 
-        if save_image:
-            # Re-draw figure so that size specified in style sheet is applied
-            self.plot.figure()
-            plots.save_plot(file_name)
-
-        if save_pickle:
-            # Need to re-draw the figure for this to work
-            figure = self.plot.figure().figure
-            file_prefix = os.path.splitext(file_name)[0]
-            with open(file_prefix + ".pkl", 'wb') as f:
-                pickle.dump(figure, f)
-
-        if save_summary:
-            file_prefix = os.path.splitext(file_name)[0]
-            with open(file_prefix + ".txt", 'w') as summary_file:
-                summary_file.write("\n".join(self._summary()))
-                summary_file.write("\n" + "\n".join(self.fig.summary))
-
-    def _summary(self):
-        """
-        Create a generic summary (list of strings). Plot specific
-        information can be appended to this before saving to file.
-
-        :returns: List of summary strings
-        :rtype: list
-        """
-        return [
-            "Date: {}".format(time.strftime("%c")),
-            "Chain file: {}".format(self.po.data_file),
-            "Info file: {}".format(self.po.info_file),
-            "Number of bins: {}".format(self.po.nbins),
-            "Bin limits: {}".format(self.po.bin_limits),
-            "Alpha: {}".format(self.po.alpha),
-        ]
-
+        self.obj.po.save_name = save_name
+        self.obj.save()
 
 def main():
     """
     SuperPlot program - open relevant files and make GUI.
     """
-    GUIControl()
+
+    parser = arg_parser(description='superplot')
+
+    parser.add_argument('--plot-options',
+                        '-o',
+                        help='Options stored in YAML files',
+                        type=str,
+                        required=False,
+                        nargs='+')
+
+    parser.add_argument('--no-gui',
+                        '-n',
+                        help='Do not launch GUI',
+                        action='store_true',
+                        default=False,
+                        required=False)
+
+    args = parser.parse_args()
+
+    if args.no_gui:
+        if args.plot_options is None:
+            raise RuntimeError("In non-gui mode, you must pass an options file")
+        plt.clf()
+        for name in args.plot_options:
+            obj = plots.get_plot(Defaults(name))
+        obj.save()
+        return
+
+    if args.plot_options is None:
+        GUIControl()
+    elif len(args.plot_options) == 1:
+        GUIControl(Defaults(args.plot_options[0]))
+    else:
+        raise RuntimeError("Cannot process multiple options files in gui mode")
+
     gtk.main()
     return
 

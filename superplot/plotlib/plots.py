@@ -31,29 +31,6 @@ from . import plot_mod as pm
 from .base import OneDimPlot, TwoDimPlot
 
 
-def save_plot(name):
-    """
-    Save a plot with a descriptive name.
-
-    .. Warning::
-        Figure properties specfied in by mplstyle, but could be
-        overridden here.
-
-    :param name: Prefix of filename, without extension
-    :type name: string
-
-    """
-    # Set axes size rather than figure size
-    # https://stackoverflow.com/a/44971177
-    ax = plt.gca()
-    w, h = rcParams["figure.figsize"]
-    scaled_w = float(w) / (ax.figure.subplotpars.right - ax.figure.subplotpars.left)
-    scaled_h = float(h) / (ax.figure.subplotpars.top -  ax.figure.subplotpars.bottom)
-    ax.figure.set_size_inches(scaled_w, scaled_h)
-
-    plt.savefig(name)
-
-
 class OneDimStandard(OneDimPlot):
     """
     Makes a one dimensional plot, showing profile likelihood,
@@ -62,9 +39,8 @@ class OneDimStandard(OneDimPlot):
 
     description = "One-dimensional plot."
 
-    def figure(self):
-        # Plot mean, median, mode @ 0.02 * height of PDF
-        fig, ax = self._new_plot(point_height=0.02 * self.pdf_data.pdf.max())
+    def __init__(self, plot_options, data=None):
+        super(OneDimStandard, self).__init__(plot_options, data)
 
         # Plot posterior PDF
         if self.po.show_posterior_pdf:
@@ -123,8 +99,6 @@ class OneDimStandard(OneDimPlot):
             ax.autoscale(axis='y')
             ax.set_ylim([0., ax.get_ylim()[1]])
 
-        return self.plot_data(figure=fig, summary=self.summary)
-
 
 class OneDimChiSq(OneDimPlot):
     """
@@ -134,8 +108,8 @@ class OneDimChiSq(OneDimPlot):
 
     description = "One-dimensional chi-squared plot."
 
-    def figure(self):
-        fig, ax = self._new_plot()
+    def __init__(self, plot_options, data=None):
+        super(OneDimChiSq, self).__init__(plot_options, data)
 
         # Plot the delta chi-squared
         pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, self.schemes.prof_chi_sq)
@@ -193,8 +167,6 @@ class OneDimChiSq(OneDimPlot):
         # in this plot it should always be chi-squared).
         plt.ylabel(self.schemes.prof_chi_sq.label)
 
-        return self.plot_data(figure=fig, summary=self.summary)
-
 
 class TwoDimPlotFilledPDF(TwoDimPlot):
     """ Makes a two dimensional plot with filled credible regions only, showing
@@ -202,8 +174,8 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
 
     description = "Two-dimensional posterior pdf, filled contours only."
 
-    def figure(self):
-        fig, ax = self._new_plot()
+    def __init__(self, plot_options, data=None):
+        super(TwoDimPlotFilledPDF, self).__init__(plot_options, data)
 
         # Credible regions
         levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]
@@ -223,8 +195,6 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         # Add legend
         pm.legend(self.po.leg_title, self.po.leg_position)
 
-        return self.plot_data(figure=fig, summary=self.summary)
-
 
 class TwoDimPlotFilledPL(TwoDimPlot):
     """ Makes a two dimensional plot with filled confidence intervals only, showing
@@ -232,8 +202,8 @@ class TwoDimPlotFilledPL(TwoDimPlot):
 
     description = "Two-dimensional profile likelihood, filled contours only."
 
-    def figure(self):
-        fig, ax = self._new_plot()
+    def __init__(self, plot_options, data=None):
+        super(TwoDimPlotFilledPL, self).__init__(plot_options, data)
 
         levels = [two_dim.critical_prof_like(aa) for aa in self.po.alpha]
 
@@ -247,8 +217,6 @@ class TwoDimPlotFilledPL(TwoDimPlot):
         # Add legend
         pm.legend(self.po.leg_title, self.po.leg_position)
 
-        return self.plot_data(figure=fig, summary=self.summary)
-
 
 class TwoDimPlotPDF(TwoDimPlot):
     """ Makes a two dimensional marginalised posterior plot, showing
@@ -256,8 +224,8 @@ class TwoDimPlotPDF(TwoDimPlot):
 
     description = "Two-dimensional posterior pdf."
 
-    def figure(self):
-        fig, ax = self._new_plot()
+    def __init__(self, plot_options, data=None):
+        super(TwoDimPlotPDF, self).__init__(plot_options, data)
 
         if self.po.show_posterior_pdf:
             pm.plot_image(
@@ -284,8 +252,6 @@ class TwoDimPlotPDF(TwoDimPlot):
         # Add legend
         pm.legend(self.po.leg_title, self.po.leg_position)
 
-        return self.plot_data(figure=fig, summary=self.summary)
-
 
 class TwoDimPlotPL(TwoDimPlot):
     """ Makes a two dimensional profile likelihood plot, showing
@@ -293,8 +259,8 @@ class TwoDimPlotPL(TwoDimPlot):
 
     description = "Two-dimensional profile likelihood."
 
-    def figure(self):
-        fig, ax = self._new_plot()
+    def __init__(self, plot_options, data=None):
+        super(TwoDimPlotPL, self).__init__(plot_options, data)
 
         if self.po.show_prof_like:
             pm.plot_image(
@@ -316,8 +282,6 @@ class TwoDimPlotPL(TwoDimPlot):
         # Add legend
         pm.legend(self.po.leg_title, self.po.leg_position)
 
-        return self.plot_data(figure=fig, summary=self.summary)
-
 
 class Scatter(TwoDimPlot):
     """ Makes a three dimensional scatter plot, showing
@@ -326,8 +290,8 @@ class Scatter(TwoDimPlot):
 
     description = "Three-dimensional scatter plot."
 
-    def figure(self):
-        fig, ax = self._new_plot()
+    def __init__(self, plot_options, data=None):
+        super(Scatter, self).__init__(plot_options, data)
 
         min_ = min(self.po.cb_limits) if self.po.cb_limits else np.percentile(self.zdata, 5.)
         max_ = max(self.po.cb_limits) if self.po.cb_limits else np.percentile(self.zdata, 95.)
@@ -382,10 +346,8 @@ class Scatter(TwoDimPlot):
         # Add legend
         pm.legend(self.po.leg_title, self.po.leg_position)
 
-        return self.plot_data(figure=fig, summary=self.summary)
 
-
-plot_types = [
+plot_list = [
     OneDimStandard,
     OneDimChiSq,
     TwoDimPlotFilledPDF,
@@ -394,6 +356,12 @@ plot_types = [
     TwoDimPlotPL,
     Scatter
 ]
-"""
-List of Plot classes in this module.
-"""
+
+plot_dict = {c.__name__: c for c in plot_list}
+
+def get_plot(plot_options, data=None):
+    """
+    @param plot_options Options for plot
+    @returns Plot object built from plot option
+    """
+    return plot_dict[plot_options.plot_type](plot_options, data)

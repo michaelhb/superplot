@@ -7,17 +7,18 @@ This module contains abstract base classes, used to implement Plots.
 
 import warnings
 import copy
-from abc import ABCMeta, abstractmethod
-from collections import namedtuple
+import os
 
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 
 from . import plot_mod as pm
 import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
 import superplot.statslib.bins as bins
 import superplot.statslib.point as stats
+import superplot.data_loader as data_loader
 from superplot.schemes import Schemes
 
 
@@ -27,17 +28,19 @@ class Plot(object):
     creating a plot object, and getting the figure associated
     with it. Does any common preprocessing/initialization (e.g. log scaling).
 
-    :param data: Data dictionary loaded from chain file by :py:mod:`data_loader`
-    :type data: dict
     :param plot_options: :py:data:`plot_options.plot_options` configuration tuple.
     :type plot_options: namedtuple
+
+    :param data: Data dictionary loaded from chain file by :py:mod:`data_loader`
+    :type data: dict
     """
-
-    __metaclass__ = ABCMeta
-
-    def __init__(self, data, plot_options):
+    def __init__(self, plot_options, data=None):
         self.po = copy.deepcopy(plot_options)
         self.schemes = Schemes(self.po.schemes_yaml)
+
+        # Load data if neccessary
+        if data is None:
+            data = data_loader._read_data_file(self.po.data_file)
 
         # NB we make copies of the data so there's
         # no way for a plot to mess things up for other plots
@@ -76,12 +79,7 @@ class Plot(object):
                 except RuntimeWarning:
                    raise RuntimeError("z-data cannnot be logged: probably logging a negative.")
 
-    def _new_plot(self):
-        """
-        Private method to set up a new plot.
-
-        @returns Figure and axes
-        """
+        # Apply styling
         if self.po.style.startswith("original_colours_"):
             extra = self.po.style[len("original_colours_"):]
             self.schemes.override_colours = False
@@ -94,41 +92,40 @@ class Plot(object):
 
         pm.appearance(self.__class__.__name__, extra)
 
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-
-        pm.plot_ticks(self.po.xticks, self.po.yticks, ax)
+        # Apply changes to axes
+        pm.plot_ticks(self.po.xticks, self.po.yticks)
         pm.plot_labels(self.po.xlabel, self.po.ylabel, self.po.plot_title, self.po.title_position)
-        pm.plot_limits(ax, self.po.plot_limits)
-        return fig, ax
 
-    plot_data = namedtuple("plot_data", ("figure", "summary"))
-    """
-    Return data type for figure() method.
-    """
-
-    @abstractmethod
-    def figure(self):
+    def save(self):
         """
-        Abstract method - return the pyplot figure associated with this plot.
-
-        :returns: Matplotlib figure, list of plot specific summary strings
-        :rtype: named tuple (figure: matplotlib.figure.Figure, summary: list)
+        Save data in plot.
         """
-        pass
+        prefix = os.path.splitext(self.po.save_name)[0]
+        if self.po.save_options:
+            self.po.save(prefix + ".yml")
+        if self.po.save_plot:
+            pm.save_plot(self.po.save_name)
+        if self.po.save_summary:
+            with open(prefix + ".txt", 'w') as f:
+                f.write("\n".join(self.summary))
 
+    def fig(self):
+        """
+        @returns Copy of current figure
+        """
+        return pickle.loads(pickle.dumps(plt.gcf(), pickle.HIGHEST_PROTOCOL))
 
 class OneDimPlot(Plot):
     """
     Abstract base class for one dimensional plot types.
     Handles initialization tasks common to one dimensional plots.
     """
-    __metaclass__ = ABCMeta
+    def __init__(self, plot_options, data=None):
+        super(OneDimPlot, self).__init__(plot_options, data)
 
-    def __init__(self, data, plot_options):
-        super(OneDimPlot, self).__init__(data, plot_options)
-
+        # Set binning and plot limits
         self.po.bin_limits = bins.bin_limits(self.po.bin_limits, self.xdata, posterior=self.posterior, lower=self.po.lower, upper=self.po.upper)
+
         plot_limits_y = [0., 1.2]
         if isinstance(self.po.plot_limits, str):
            self.po.plot_limits = (bins.plot_limits(self.po.plot_limits, self.po.bin_limits, self.xdata), plot_limits_y)
@@ -136,6 +133,8 @@ class OneDimPlot(Plot):
             if self.po.plot_limits[1][0] is not None:
                 plot_limits_y = self.po.plot_limits[1]
             self.po.plot_limits = (bins.plot_limits(self.po.plot_limits[0], self.po.bin_limits, self.xdata), plot_limits_y)
+
+        pm.plot_limits(self.po.plot_limits)
 
         self.po.nbins = bins.nbins(self.po.nbins, self.po.bin_limits, self.xdata, posterior=self.posterior)
 
@@ -186,33 +185,23 @@ class OneDimPlot(Plot):
         self.posterior_modes = one_dim.posterior_mode(*self.pdf_data)
         self.summary.append("Posterior mode/s: {}".format(self.posterior_modes))
 
-    def _new_plot(self, point_height=0.08):
-        """
-        Special new plot method for 1D plots.
-
-        :param point_height: Height to plot point statistics (mean, median, mode)
-        :type point_height: float
-        """
-        fig, ax = super(OneDimPlot, self)._new_plot()
-
         # Best-fit point
         if self.po.show_best_fit:
-            pm.plot_data(self.best_fit, point_height, self.schemes.best_fit, zorder=2)
+            pm.plot_data(self.best_fit, 0., self.schemes.best_fit, zorder=2)
 
         # Posterior mean
         if self.po.show_posterior_mean:
-            pm.plot_data(self.posterior_mean, point_height, self.schemes.posterior_mean, zorder=2)
+            pm.plot_data(self.posterior_mean, 0., self.schemes.posterior_mean, zorder=2)
 
         # Posterior median
         if self.po.show_posterior_median:
-            pm.plot_data(self.posterior_median, point_height, self.schemes.posterior_median, zorder=2)
+            pm.plot_data(self.posterior_median, 0., self.schemes.posterior_median, zorder=2)
 
         # Posterior mode
         if self.po.show_posterior_mode:
             for mode in self.posterior_modes:
-                pm.plot_data(mode, point_height, self.schemes.posterior_mode, zorder=2)
+                pm.plot_data(mode, 0., self.schemes.posterior_mode, zorder=2)
 
-        return fig, ax
 
 class TwoDimPlot(Plot):
     """
@@ -221,11 +210,10 @@ class TwoDimPlot(Plot):
     dimensional plot for now). Handles initialization tasks
     common to these plot types.
     """
-    __metaclass__ = ABCMeta
+    def __init__(self, plot_options, data=None):
+        super(TwoDimPlot, self).__init__(plot_options, data)
 
-    def __init__(self, data, plot_options):
-        super(TwoDimPlot, self).__init__(data, plot_options)
-
+        # Set binning and plot limits
         if not isinstance(self.po.bin_limits, str):
             bin_limits_x = bins.bin_limits(self.po.bin_limits[0], self.xdata, self.posterior, lower=self.po.lower, upper=self.po.upper)
             bin_limits_y = bins.bin_limits(self.po.bin_limits[1], self.ydata, self.posterior, lower=self.po.lower, upper=self.po.upper)
@@ -250,6 +238,7 @@ class TwoDimPlot(Plot):
         self.po.bin_limits = (bin_limits_x, bin_limits_y)
         self.po.plot_limits = (plot_limits_x, plot_limits_y)
         self.po.nbins = (nbins_x, nbins_y)
+        pm.plot_limits(self.po.plot_limits)
 
         # Posterior PDF
         if self.po.kde:
@@ -315,9 +304,6 @@ class TwoDimPlot(Plot):
                 "Posterior median (x,y): {}, {}".format(
                         self.posterior_median_x, self.posterior_median_y))
 
-    def _new_plot(self):
-        fig, ax = super(TwoDimPlot, self)._new_plot()
-
         # Best-fit point
         if self.po.show_best_fit:
             pm.plot_data(self.best_fit_x, self.best_fit_y, self.schemes.best_fit, zorder=2)
@@ -334,5 +320,3 @@ class TwoDimPlot(Plot):
         # Posterior median
         if self.po.show_posterior_median:
             pm.plot_data(self.posterior_median_x, self.posterior_median_y, self.schemes.posterior_median, zorder=2)
-
-        return fig, ax

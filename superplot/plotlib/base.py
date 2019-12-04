@@ -94,7 +94,7 @@ class Plot(object):
             self.schemes.override_colours = self.po.style_overrides_schemes_colours
 
         self.po.mpl_path = pm.check_mpl_path(self.po.mpl_path)
-        pm.appearance(self.__class__.__name__, extra, self.po.mpl_dir)
+        pm.appearance(self.__class__.__name__, extra, self.po.mpl_path)
 
         # Apply changes to axes
         pm.plot_ticks(self.po.xticks, self.po.yticks)

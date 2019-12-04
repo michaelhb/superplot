@@ -53,7 +53,7 @@ class Defaults(object):
         for k in self.keys():
             d[k] = getattr(self, k)
             # Try to remove np.float64 etc that make yaml messier
-            if isinstance(d[k], (tuple, list, np.ndarray)):
+            if k == "bin_limits" or k == "plot_limit" or k == "alpha":
                 try:
                     d[k] = np.array(d[k]).astype(float).tolist()
                 except:

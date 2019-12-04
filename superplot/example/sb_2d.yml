@@ -1,0 +1,53 @@
+alpha: [0.045500263896, 0.31731050786]
+bandwidth: scott
+bin_limits:
+- [60.23763465885, 3917.088867185]
+- [129.2212677005, 1826.6426391599998]
+cb_limits: null
+cbticks: 10
+data_file: /home/andrew/repos/superplot/superplot/example/SB_MO_log_allpost.txt
+dof: 10
+force_aspect: true
+info_file: null
+kde: true
+leg_position: best
+leg_title: ''
+log10: $\log_{{10}}$ {}
+logx: false
+logy: false
+logz: false
+lower: 0.001
+nbins: [35, 63]
+plot_limits:
+- [-5000, 5000]
+- [-5000, 5000]
+plot_title: ''
+plot_type: TwoDimPlotPDF
+save_name: /home/andrew/repos/superplot/superplot/example/sb_2d.pdf
+save_options: true
+save_plot: true
+save_summary: true
+schemes_yaml: alt_schemes.yml
+show_best_fit: true
+show_colorbar: false
+show_conf_intervals: true
+show_credible_regions: true
+show_posterior_mean: true
+show_posterior_median: true
+show_posterior_mode: true
+show_posterior_pdf: false
+show_prof_like: true
+style: no-extra-style
+style_overrides_schemes_colours: true
+tau: 2
+title_position: center
+upper: 0.999
+url_styles: ['https://raw.githubusercontent.com/scikit-hep/mplhep/master/mplhep/stylelib/ROOT.mplstyle']
+xindex: 2
+xlabel: ' $m_0$ (GeV)'
+xticks: 5
+yindex: 3
+ylabel: ' $m_{1/2}$ (GeV)'
+yticks: 5
+zindex: 4
+zlabel: ' A_0 (GeV)'

@@ -11,10 +11,10 @@ from argparse import ArgumentParser as arg_parser
 
 from prettytable import PrettyTable as pt
 
-import data_loader
-from plot_options import default
+import superplot.data_loader as data_loader
 import superplot.statslib.point as stats
 import superplot.statslib.one_dim as one_dim
+from superplot.plot_options import defaults
 
 
 def _summary(name, param, posterior, chi_sq):
@@ -43,16 +43,16 @@ def _summary(name, param, posterior, chi_sq):
     # Credible regions
     pdf_data = one_dim.posterior_pdf(param,
                                      posterior,
-                                     nbins=default("nbins"),
-                                     bin_limits=default("bin_limits"))
+                                     nbins=defaults.nbins,
+                                     bin_limits=defaults.bin_limits)
 
     lower_credible_region = one_dim.credible_region(pdf_data.pdf,
                                                     pdf_data.bin_centers,
-                                                    alpha=default("alpha")[1],
+                                                    alpha=defaults.alpha[1],
                                                     region="lower")
     upper_credible_region = one_dim.credible_region(pdf_data.pdf,
                                                     pdf_data.bin_centers,
-                                                    alpha=default("alpha")[1],
+                                                    alpha=defaults.alpha[1],
                                                     region="upper")
 
     summary = [name,
@@ -77,7 +77,7 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
         names = labels.values()
 
     # Make a string describing credible interval
-    beta_percent = 100. * (1. - default("alpha")[1])
+    beta_percent = 100. * (1. - defaults.alpha[1])
     credible_name = "%.2g%% credible region" % beta_percent
 
     # Headings for a table
@@ -94,14 +94,14 @@ def _summary_table(labels, data, names=None, datafile=None, infofile=None):
     posterior = data[0]
     chi_sq = data[1]
 
-    for key, name in labels.iteritems():
+    for key, name in labels.items():
         if name in names:
             param = data[key]
             param_table.add_row(_summary(name, param, posterior, chi_sq))
 
     # Best-fit information and information about chain
     min_chi_sq = data[1].min()
-    p_value = stats.p_value(data[1], default("dof"))
+    p_value = stats.p_value(data[1], defaults.dof)
     bestfit_table = pt(header=False)
     bestfit_table.align = "l"
     bestfit_table.float_format = "4.2"

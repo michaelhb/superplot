@@ -65,6 +65,7 @@ def plot_data(x, y, scheme, zorder=1):
 def check_mpl_path(mpl_path):
     """
     :returns: Path for mpl files
+    :rtype: str
     """
     if mpl_path is None:
         # Try to use the style sheets in the user directory

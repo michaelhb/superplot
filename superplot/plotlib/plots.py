@@ -29,6 +29,7 @@ import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
 from . import plot_mod as pm
 from .base import OneDimPlot, TwoDimPlot
+from superplot.plot_options import Defaults
 
 
 class OneDimStandard(OneDimPlot):
@@ -358,7 +359,15 @@ plot_dict = {c.__name__: c for c in plot_list}
 
 def get_plot(plot_options, data=None):
     """
-    @param plot_options Options for plot
-    @returns Plot object built from plot option
+    :param plot_options: Options for plot
+    :returns: Plot object built from plot option
     """
     return plot_dict[plot_options.plot_type](plot_options, data)
+
+def get_plot_from_yaml(plot_options_yaml):
+    """
+    :param plot_options_yaml: Options for plot in yaml file
+    :returns: Plot object built from plot option
+    """
+    plot_options = Defaults(plot_options_yaml)
+    return get_plot(plot_options)

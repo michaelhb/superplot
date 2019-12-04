@@ -63,7 +63,7 @@ def posterior_mean(posterior, param):
     """
     # Calculate posterior mean - dot product weights with parameter
     # values and normalize.
-    _posterior_mean = np.dot(posterior, param) / sum(posterior)
+    _posterior_mean = np.dot(posterior, param) / posterior.sum()
     return _posterior_mean
 
 

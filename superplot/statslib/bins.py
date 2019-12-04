@@ -140,6 +140,8 @@ def nbins(nbins, bin_limits, parameter, posterior=None, **kwargs):
     """
     if nbins == "auto" or nbins is None:
         return auto_nbins(bin_limits, parameter, posterior, **kwargs)
+    elif isinstance(nbins, str):
+        raise RuntimeError("Unknown nbins method - {}".format(nbins))
     return nbins
 
 
@@ -203,6 +205,8 @@ def bin_limits(bin_limits, parameter, posterior=None, **kwargs):
         return extent_bin_limits(parameter)
     elif bin_limits == "quantile" or bin_limits is None:
         return quantile_bin_limits(parameter, posterior, **kwargs)
+    elif isinstance(bin_limits, str):
+        raise RuntimeError("Unknown bin limits method - {}".format(bin_limits))
     return bin_limits
 
 
@@ -224,6 +228,8 @@ def plot_limits(plot_limits, bin_limits, parameter):
         return bin_limits
     elif plot_limits == "extent":
         return extent_bin_limits(parameter)
+    elif isinstance(plot_limits, str):
+        raise RuntimeError("Unknown plot limits method - {}".format(plot_limits))
     return plot_limits
 
 

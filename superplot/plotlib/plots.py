@@ -44,7 +44,10 @@ class OneDimStandard(OneDimPlot):
 
         # Plot posterior PDF
         if self.po.show_posterior_pdf:
-            pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, self.schemes.posterior)
+            if self.po.show_prof_like:
+                pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf_norm_max, self.schemes.posterior)
+            else:
+                pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, self.schemes.posterior)
 
         # Plot profile likelihood
         if self.po.show_prof_like:
@@ -64,10 +67,9 @@ class OneDimStandard(OneDimPlot):
         self.summary.append("Upper credible region: {}".format(upper_credible_region))
 
         if self.po.show_credible_regions:
-            # Plot the credible region line @ +10% of the max PDF value
-            cr_height = 1.1 * self.pdf_data.pdf.max()
+            height = 1.1 if self.po.show_prof_like else 1.1 * self.pdf_data.pdf.max()
             for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, self.schemes.credible_regions):
-                pm.plot_data([lower, upper], [cr_height, cr_height], scheme)
+                pm.plot_data([lower, upper], [height, height], scheme)
 
         # Confidence intervals
         conf_intervals = [one_dim.conf_interval(self.prof_data.prof_chi_sq, self.prof_data.bin_centers, alpha=aa) for aa
@@ -76,8 +78,8 @@ class OneDimStandard(OneDimPlot):
 
         for intervals, scheme in zip(conf_intervals, self.schemes.conf_intervals):
             if self.po.show_conf_intervals:
-                # Plot the CI line @ the max PDF value
-                pm.plot_data(intervals, [self.pdf_data.pdf.max()] * len(intervals), scheme)
+                height = 1. if self.po.show_prof_like else self.pdf_data.pdf.max()
+                pm.plot_data(intervals, [height] * len(intervals), scheme)
             self.summary.append("{}:".format(scheme.label))
             for interval in intervals:
                 self.summary.append(str(interval))
@@ -96,6 +98,7 @@ class OneDimStandard(OneDimPlot):
 
         # Autoscale the y-axis
         if not (self.po.show_posterior_pdf and self.po.show_prof_like):
+            ax = plt.gca()
             ax.autoscale(axis='y')
             ax.set_ylim([0., ax.get_ylim()[1]])
 
@@ -157,7 +160,7 @@ class OneDimChiSq(OneDimPlot):
 
         if self.po.tau is not None:
             # Plot the theory error as a band around the usual line
-            pm.plot_band(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, self.po.tau, ax, self.schemes.tau_band)
+            pm.plot_band(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, self.po.tau, self.schemes.tau_band)
 
         # Add plot legend
         pm.legend(self.po.leg_title, self.po.leg_position)
@@ -180,14 +183,10 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
         # Credible regions
         levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]
 
-        # Make sure pdf is correctly normalised.
-        pdf = self.pdf_data.pdf
-        pdf = pdf / pdf.sum()
-
         # Plot contours
         if self.po.show_credible_regions:
             pm.plot_filled_contour(
-                    pdf,
+                    self.pdf_data.pdf,
                     levels,
                     self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
@@ -229,7 +228,7 @@ class TwoDimPlotPDF(TwoDimPlot):
 
         if self.po.show_posterior_pdf:
             pm.plot_image(
-                    self.pdf_data.pdf,
+                    self.pdf_data.pdf_norm_max,
                     self.po.bin_limits,
                     self.po.plot_limits,
                     self.schemes.posterior,
@@ -238,13 +237,9 @@ class TwoDimPlotPDF(TwoDimPlot):
         # Credible regions
         levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]
 
-        # Make sure pdf is correctly normalised.
-        pdf = self.pdf_data.pdf
-        pdf = pdf / pdf.sum()
-
         if self.po.show_credible_regions:
             pm.plot_contour(
-                    pdf,
+                    self.pdf_data.pdf,
                     levels,
                     self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
@@ -323,13 +318,9 @@ class Scatter(TwoDimPlot):
         # Credible regions
         levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]
 
-        # Make sure pdf is correctly normalised
-        pdf = self.pdf_data.pdf
-        pdf = pdf / pdf.sum()
-
         if self.po.show_credible_regions:
             pm.plot_contour(
-                    pdf,
+                    self.pdf_data.pdf,
                     levels,
                     self.schemes.posterior,
                     bin_limits=self.po.bin_limits)

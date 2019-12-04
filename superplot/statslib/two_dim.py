@@ -20,13 +20,9 @@ from .patched_joblib import memory
 DOCTEST_PRECISION = 10
 
 
-_kde_posterior_pdf_2D = namedtuple(
-    "_kde_posterior_pdf_2D",
-    ("pdf", "bin_centers_x", "bin_centers_y"))
-
 _posterior_pdf_2D = namedtuple(
     "_posterior_pdf_2D",
-    ("pdf", "bin_centers_x", "bin_centers_y"))
+    ("pdf", "pdf_norm_max", "pdf_norm_sum", "bin_centers_x", "bin_centers_y"))
 
 _profile_data_2D = namedtuple(
     "_profile_data_2D",
@@ -59,9 +55,6 @@ def kde_posterior_pdf(paramx,
         There is no special treatment for e.g. boundaries, which can be
         problematic.
 
-    .. warning::
-        Posterior pdf normalized such that maximum value is one.
-
     :param paramx: Data column of parameter x
     :type paramx: numpy.ndarray
     :param paramy: Data column of parameter y
@@ -84,7 +77,7 @@ def kde_posterior_pdf(paramx,
     :Example:
 
     >>> npoints = 100
-    >>> pdf, x, y = kde_posterior_pdf(data[2], data[3], data[0], npoints=npoints)
+    >>> pdf, pdf_norm_max, pdf_norm_sum, x, y = kde_posterior_pdf(data[2], data[3], data[0], npoints=npoints)
     >>> assert len(pdf) == npoints
     >>> assert len(x) == npoints
     >>> assert len(y) == npoints
@@ -107,24 +100,21 @@ def kde_posterior_pdf(paramx,
     kde = kde_func(points)
     kde = np.reshape(kde, (npoints, npoints))
 
-    # Normalize the pdf so that its maximum value is one. NB in other functions,
-    # normalize such that sum is one.
-    kde = kde / kde.max()
+    kde /= kde.sum() * (centers_x[1] - centers_x[0]) * (centers_y[1] - centers_y[0])
+    kde_norm_max = kde / kde.max()
+    kde_norm_sum = kde / kde.sum()
 
-    return _kde_posterior_pdf_2D(kde, centers_x, centers_y)
+    return _posterior_pdf_2D(kde, kde_norm_max, kde_norm_sum, centers_x, centers_y)
 
 
 @memory.cache
-def posterior_pdf(paramx, paramy, posterior, nbins='auto', bin_limits='auto'):
+def posterior_pdf(paramx, paramy, posterior, nbins='auto', bin_limits='quantile'):
     r"""
     Weighted histogram of data for two-dimensional posterior pdf.
 
     .. warning::
         Outliers sometimes mess up bins. So you might want to \
         specify the bin limits.
-
-    .. warning::
-        Posterior pdf normalized such that maximum value is one.
 
     :param paramx: Data column of parameter x
     :type paramx: numpy.ndarray
@@ -144,7 +134,7 @@ def posterior_pdf(paramx, paramy, posterior, nbins='auto', bin_limits='auto'):
     :Example:
 
     >>> nbins = 100
-    >>> pdf, x, y = posterior_pdf(data[2], data[3], data[0], nbins=nbins)
+    >>> pdf, pdf_norm_max, pdf_norm_sum, x, y = posterior_pdf(data[2], data[3], data[0], nbins=nbins)
     >>> assert len(pdf) == nbins
     >>> assert len(x) == nbins
     >>> assert len(y) == nbins
@@ -169,21 +159,21 @@ def posterior_pdf(paramx, paramy, posterior, nbins='auto', bin_limits='auto'):
                                         paramy,
                                         (nbins_x, nbins_y),
                                         range=np.array((bin_limits_x, bin_limits_y)),
+                                        density=True,
                                         weights=posterior)
 
-    # Normalize the pdf so that its maximum value is one. NB in other functions,
-    # normalize such that area is one.
-    pdf = pdf / pdf.max()
+    pdf_norm_max = pdf / pdf.max()
+    pdf_norm_sum = pdf / pdf.sum()
 
     # Find centers of bins
     bin_centers_x = 0.5 * (bin_edges_x[:-1] + bin_edges_x[1:])
     bin_centers_y = 0.5 * (bin_edges_y[:-1] + bin_edges_y[1:])
 
-    return _posterior_pdf_2D(pdf, bin_centers_x, bin_centers_y)
+    return _posterior_pdf_2D(pdf, pdf_norm_max, pdf_norm_sum, bin_centers_x, bin_centers_y)
 
 
 @memory.cache
-def profile_like(paramx, paramy, chi_sq, nbins='auto', bin_limits='auto'):
+def profile_like(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile'):
     """
     Maximizes the likelihood in each bin to obtain the profile likelihood and
     profile chi-squared.
@@ -287,7 +277,7 @@ def critical_density(pdf, alpha):
     function returns :math:`p_\text{critical}` such that
 
     .. math::
-        \int_{p > p_\text{critical}} p(x, y) dx dy = 1. - \alpha
+        \int_{p > p_\text{critical}} p(x, y) dx dy = 1 - \alpha
 
     The critical density is used to calculate two-dimensional credible regions.
 
@@ -296,10 +286,6 @@ def critical_density(pdf, alpha):
 
     .. warning::
         The critical density is not invariant under reparameterisations.
-
-    .. warning::
-        Critical density is normalized such that integrated posterior pdf
-        equals one.
 
     :param pdf: Marginalised two-dimensional posterior pdf
     :type pdf: numpy.ndarray
@@ -315,24 +301,23 @@ def critical_density(pdf, alpha):
 
     >>> nbins = 100
     >>> alpha = 0.32
-    >>> pdf = posterior_pdf(data[2], data[3], data[0], nbins=nbins)[0]
-    >>> round(critical_density(pdf, alpha), DOCTEST_PRECISION)
+    >>> pdf_norm_sum = posterior_pdf(data[2], data[3], data[0], nbins=nbins)[2]
+    >>> pdf_norm_sum.sum()
+    1.0
+    >>> round(critical_density(pdf_norm_sum, alpha), DOCTEST_PRECISION)
     0.0008088721
 
     Critical density from KDE estimate of pdf
 
-    >>> kde = kde_posterior_pdf(data[2], data[3], data[0])[0]
-    >>> round(critical_density(kde, alpha), DOCTEST_PRECISION)
+    >>> kde_norm_sum = kde_posterior_pdf(data[2], data[3], data[0])[2]
+    >>> round(critical_density(kde_norm_sum, alpha)[0], DOCTEST_PRECISION)
     0.0008115551
     """
-    # Normalize posterior pdf so that sum is one, if it wasn't already
-    pdf = pdf / pdf.sum()
-
     # Flatten and sort pdf to find critical density
     flattened = pdf.flatten()
     sorted_ = np.sort(flattened)
     cumulative = np.cumsum(sorted_)
-    critical_index = np.argwhere(cumulative > alpha)[0][0]
+    critical_index = np.argwhere(cumulative > alpha * cumulative.max())[0][0]
     _critical_density = 0.5 * (sorted_[critical_index] + sorted_[critical_index - 1])
 
     return _critical_density
@@ -395,15 +380,15 @@ def posterior_mode(pdf, bin_centers_x, bin_centers_y):
     Mode from binned pdf
 
     >>> nbins = 70
-    >>> pdf = posterior_pdf(data[2], data[3], data[0], nbins=nbins)
-    >>> bin_centers = posterior_mode(pdf.pdf, pdf.bin_centers_x, pdf.bin_centers_y)[0]
+    >>> pdf_data = posterior_pdf(data[2], data[3], data[0], nbins=nbins)
+    >>> bin_centers = posterior_mode(pdf_data.pdf, pdf_data.bin_centers_x, pdf_data.bin_centers_y)[0]
     >>> [round(x, DOCTEST_PRECISION) for x in bin_centers]
     [-2142.9943612644, 142.9757248582]
 
     Mode from KDE estimate of pdf
 
-    >>> kde = kde_posterior_pdf(data[2], data[3], data[0])
-    >>> bin_centers = posterior_mode(kde.pdf, kde.bin_centers_x, kde.bin_centers_y)[0]
+    >>> kde_data = kde_posterior_pdf(data[2], data[3], data[0])
+    >>> bin_centers = posterior_mode(kde_data.pdf, kde_data.bin_centers_x, kde_data.bin_centers_y)[0]
     >>> [round(x, DOCTEST_PRECISION) for x in bin_centers]
     [-1919.3356566959, 101.1291971019]
     """

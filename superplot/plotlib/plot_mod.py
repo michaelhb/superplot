@@ -52,14 +52,13 @@ def plot_data(x, y, scheme, zorder=1):
     :param zorder: Draw order - lower numbers are plotted first
     :type zorder: integer
     """
-    p = plt.plot(x,
-                 y,
-                 scheme.symbol,
-                 color=scheme.colour,
-                 label=scheme.label,
-                 ms=scheme.size,
-                 zorder=zorder)
-    p[0].set_clip_on(False)
+    plt.plot(x,
+             y,
+             scheme.symbol,
+             color=scheme.colour,
+             label=scheme.label,
+             ms=scheme.size,
+             zorder=zorder)
 
 
 def appearance(plot_style="default", extra_style=None):
@@ -247,7 +246,7 @@ def plot_image(data, bin_limits, plot_limits, scheme, cbticks=5):
 
     # imshow is annoying - it reads (y, x) rather than (x, y) so we take
     # transpose.
-    im = plt.imshow(data.T,
+    im = plt.imshow(data.T.astype(float),
                     cmap=get_cmap(scheme.colour_map, scheme.number_colours),
                     extent=extent,
                     interpolation='bilinear',
@@ -373,7 +372,7 @@ def plot_filled_contour(
                      ms=15)
 
 
-def plot_band(x_data, y_data, width, ax, scheme):
+def plot_band(x_data, y_data, width, scheme):
     r"""
     Plot a band around a line.
 
@@ -387,8 +386,6 @@ def plot_band(x_data, y_data, width, ax, scheme):
     :type y_data: numpy.ndarray
     :param width: Width of band - width on the left and right hand-side
     :type width: integer
-    :param ax: An axis object to plot the band on
-    :type ax: matplotlib.axes.Axes
     :param scheme: Object containing appearance options, colours etc
     :type scheme: :py:class:`schemes.Scheme`
     """
@@ -405,7 +402,7 @@ def plot_band(x_data, y_data, width, ax, scheme):
                     upper_y[index] = y_prime
 
     # Finally plot
-    ax.fill_between(x_data, lower_y, upper_y, where=None, facecolor=scheme.colour, alpha=0.7)
+    plt.fill_between(x_data, lower_y, upper_y, where=None, facecolor=scheme.colour, alpha=0.7)
 
     # Proxy for legend
     plt.plot(-1, -1, 's',

@@ -21,6 +21,8 @@ class Defaults(object):
     """
     def __init__(self, yaml_file):
         self.yaml_file = yaml_file
+        # Check that it can be loaded
+        load_yaml(self.yaml_file)
 
     def __getattr__(self, attr):
         try:

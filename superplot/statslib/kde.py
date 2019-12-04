@@ -2,7 +2,7 @@
 ===============================
 Kernel Density Estimation (KDE)
 ===============================
-This module contains a class for implementing weighted Kernel Density Estimation 
+This module contains a class for implementing weighted Kernel Density Estimation
 (KDE) with or without fast Fourier transforms (FFT).
 
 Hacked Scipy code to support weighted KDE and FFT.
@@ -219,7 +219,7 @@ class gaussian_kde(object):
             nbins = self.len_data
             binned_pdf, bin_edges = np.histogram(self.dataset[0],
                                                  bins=nbins,
-                                                 normed=True,
+                                                 density=True,
                                                  weights=self.weights)
             bin_centers = np.array((bin_edges[:-1] + bin_edges[1:]) * 0.5)
 
@@ -229,7 +229,7 @@ class gaussian_kde(object):
             binned_pdf, bin_edges_x, bin_edges_y = np.histogram2d(self.dataset[0],
                                                                   self.dataset[1],
                                                                   bins=nbins,
-                                                                  normed=True,
+                                                                  density=True,
                                                                   weights=self.weights)
             bin_centers_x = 0.5 * (bin_edges_x[:-1] + bin_edges_x[1:])
             bin_centers_y = 0.5 * (bin_edges_y[:-1] + bin_edges_y[1:])

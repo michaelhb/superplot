@@ -128,18 +128,17 @@ class OneDimPlot(Plot):
 
         plot_limits_y = [0., 1.2]
         if isinstance(self.po.plot_limits, str):
-           self.po.plot_limits = (bins.plot_limits(self.po.plot_limits, self.po.bin_limits, self.xdata), plot_limits_y)
+           self.po.plot_limits = [bins.plot_limits(self.po.plot_limits, self.po.bin_limits, self.xdata), plot_limits_y]
         else:
             if self.po.plot_limits[1][0] is not None:
                 plot_limits_y = self.po.plot_limits[1]
-            self.po.plot_limits = (bins.plot_limits(self.po.plot_limits[0], self.po.bin_limits, self.xdata), plot_limits_y)
+            self.po.plot_limits = [bins.plot_limits(self.po.plot_limits[0], self.po.bin_limits, self.xdata), plot_limits_y]
 
         pm.plot_limits(self.po.plot_limits)
 
         self.po.nbins = bins.nbins(self.po.nbins, self.po.bin_limits, self.xdata, posterior=self.posterior)
 
-        # Posterior PDF. Norm by area if not showing profile likelihood,
-        # otherwise norm max value to one.
+        # Posterior PDF
         if self.po.kde:
 
             # KDE estimate of PDF
@@ -147,7 +146,6 @@ class OneDimPlot(Plot):
                 self.xdata,
                 self.posterior,
                 bin_limits=self.po.bin_limits,
-                norm_area=not self.po.show_prof_like,
                 bandwidth=self.po.bandwidth)
         else:
 
@@ -156,8 +154,7 @@ class OneDimPlot(Plot):
                 self.xdata,
                 self.posterior,
                 nbins=self.po.nbins,
-                bin_limits=self.po.bin_limits,
-                norm_area=not self.po.show_prof_like)
+                bin_limits=self.po.bin_limits)
 
         # Profile likelihood
         self.prof_data = one_dim.prof_data(
@@ -174,33 +171,35 @@ class OneDimPlot(Plot):
         self.summary.append("Best-fit point: {}".format(self.best_fit))
 
         # Posterior mean
-        self.posterior_mean = stats.posterior_mean(*self.pdf_data)
+        self.posterior_mean = stats.posterior_mean(self.pdf_data.pdf, self.pdf_data.bin_centers)
         self.summary.append("Posterior mean: {}".format(self.posterior_mean))
 
         # Posterior median
-        self.posterior_median = one_dim.posterior_median(*self.pdf_data)
+        self.posterior_median = one_dim.posterior_median(self.pdf_data.pdf, self.pdf_data.bin_centers)
         self.summary.append("Posterior median: {}".format(self.posterior_median))
 
         # Posterior mode
-        self.posterior_modes = one_dim.posterior_mode(*self.pdf_data)
+        self.posterior_modes = one_dim.posterior_mode(self.pdf_data.pdf, self.pdf_data.bin_centers)
         self.summary.append("Posterior mode/s: {}".format(self.posterior_modes))
+
+        height = 0.01 if self.po.show_prof_like else 0.01 * self.pdf_data.pdf.max()
 
         # Best-fit point
         if self.po.show_best_fit:
-            pm.plot_data(self.best_fit, 0., self.schemes.best_fit, zorder=2)
+            pm.plot_data(self.best_fit, height, self.schemes.best_fit, zorder=2)
 
         # Posterior mean
         if self.po.show_posterior_mean:
-            pm.plot_data(self.posterior_mean, 0., self.schemes.posterior_mean, zorder=2)
+            pm.plot_data(self.posterior_mean, height, self.schemes.posterior_mean, zorder=2)
 
         # Posterior median
         if self.po.show_posterior_median:
-            pm.plot_data(self.posterior_median, 0., self.schemes.posterior_median, zorder=2)
+            pm.plot_data(self.posterior_median, height, self.schemes.posterior_median, zorder=2)
 
         # Posterior mode
         if self.po.show_posterior_mode:
             for mode in self.posterior_modes:
-                pm.plot_data(mode, 0., self.schemes.posterior_mode, zorder=2)
+                pm.plot_data(mode, height, self.schemes.posterior_mode, zorder=2)
 
 
 class TwoDimPlot(Plot):
@@ -235,9 +234,9 @@ class TwoDimPlot(Plot):
             nbins_x = bins.nbins(self.po.nbins, bin_limits_x, self.xdata, self.posterior)
             nbins_y = bins.nbins(self.po.nbins, bin_limits_y, self.ydata, self.posterior)
 
-        self.po.bin_limits = (bin_limits_x, bin_limits_y)
-        self.po.plot_limits = (plot_limits_x, plot_limits_y)
-        self.po.nbins = (nbins_x, nbins_y)
+        self.po.bin_limits = [bin_limits_x, bin_limits_y]
+        self.po.plot_limits = [plot_limits_x, plot_limits_y]
+        self.po.nbins = [nbins_x, nbins_y]
         pm.plot_limits(self.po.plot_limits)
 
         # Posterior PDF
@@ -290,7 +289,7 @@ class TwoDimPlot(Plot):
                         self.posterior_mean_x, self.posterior_mean_y))
 
         # Posterior mode
-        self.posterior_modes = two_dim.posterior_mode(*self.pdf_data)
+        self.posterior_modes = two_dim.posterior_mode(self.pdf_data.pdf, self.pdf_data.bin_centers_x, self.pdf_data.bin_centers_y)
         self.summary.append("Posterior modes/s (x,y): {}".format(self.posterior_modes))
 
         # Posterior median

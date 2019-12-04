@@ -21,8 +21,7 @@ from .patched_joblib import memory
 DOCTEST_PRECISION = 10
 
 
-_kde_posterior_pdf_1D = namedtuple("_kde_posterior_pdf_1D", ("pdf", "bin_centers"))
-_posterior_pdf_1D = namedtuple("_posterior_pdf_1D", ("pdf", "bin_centers"))
+_posterior_pdf_1D = namedtuple("_posterior_pdf_1D", ("pdf", "pdf_norm_max", "pdf_norm_sum", "bin_centers"))
 _prof_data_1D = namedtuple("_prof_data_1D", ("prof_chi_sq", "prof_like", "bin_centers"))
 
 
@@ -31,7 +30,6 @@ def kde_posterior_pdf(parameter,
                       posterior,
                       npoints=500,
                       bin_limits='extent',
-                      norm_area=False,
                       bandwidth='scott',
                       fft=True):
     r"""
@@ -52,9 +50,6 @@ def kde_posterior_pdf(parameter,
         There is no special treatment for e.g. boundaries, which can be
         problematic.
 
-    .. warning::
-        By default, posterior pdf normalized such that maximum value is one.
-
     :param parameter: Data column of parameter of interest
     :type parameter: numpy.ndarray
     :param posterior: Data column of posterior weight
@@ -63,9 +58,6 @@ def kde_posterior_pdf(parameter,
     :type npoints: integer
     :param bin_limits: Bin limits for histogram
     :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
-    :param norm_area: If True, normalize the pdf so that the integral over the
-        range is one. Otherwise, normalize the pdf so that the maximum value
-        is one.
     :param bandwidth: Method for determining band-width or bandwidth
     :type bandwidth: string or float
     :param fft: Whether to use Fast-Fourier transform
@@ -90,27 +82,23 @@ def kde_posterior_pdf(parameter,
     centers = np.linspace(bin_limits[0], bin_limits[1], npoints)
     kde = kde_func(centers)
 
-    if not norm_area:
-        kde = kde / kde.max()
-
-    return _kde_posterior_pdf_1D(kde, centers)
+    kde /= kde.sum() * (centers[1] - centers[0])
+    kde_norm_max = kde / kde.max()
+    kde_norm_sum = kde / kde.sum()
+    return _posterior_pdf_1D(kde, kde_norm_max, kde_norm_sum, centers)
 
 
 @memory.cache
 def posterior_pdf(parameter,
                   posterior,
                   nbins='auto',
-                  bin_limits='auto',
-                  norm_area=False):
+                  bin_limits='quantile'):
     r"""
     Weighted histogram of data for one-dimensional posterior pdf.
 
     .. warning::
         Outliers sometimes mess up bins. So you might want to specify the bin \
         ranges.
-
-    .. warning::
-        By default, posterior pdf normalized such that maximum value is one.
 
     :param parameter: Data column of parameter of interest
     :type parameter: numpy.ndarray
@@ -120,10 +108,6 @@ def posterior_pdf(parameter,
     :type nbins: integer
     :param bin_limits: Bin limits for histogram
     :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
-    :param norm_area: If True, normalize the pdf so that the integral over the
-        range is one. Otherwise, normalize the pdf so that the maximum value
-        is one.
-
     :returns: Posterior pdf and centers of bins for probability distribution
     :rtype: named tuple (pdf: numpy.ndarray, bin_centers: numpy.ndarray)
 
@@ -141,22 +125,21 @@ def posterior_pdf(parameter,
     # Histogram the data
     pdf, bin_edges = np.histogram(parameter,
                                   nbins,
+                                  density=True,
                                   range=bin_limits,
-                                  weights=posterior,
-                                  density=norm_area)
+                                  weights=posterior)
 
-    # If not normalizing by area, normalize pdf so that its maximum value is one
-    if not norm_area:
-        pdf = pdf / pdf.max()
+    pdf_norm_max = pdf / pdf.max()
+    pdf_norm_sum = pdf / pdf.sum()
 
     # Find centers of bins
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) * 0.5
 
-    return _posterior_pdf_1D(pdf, bin_centers)
+    return _posterior_pdf_1D(pdf, pdf_norm_max, pdf_norm_sum, bin_centers)
 
 
 @memory.cache
-def prof_data(parameter, chi_sq, nbins='auto', bin_limits='auto'):
+def prof_data(parameter, chi_sq, nbins='auto', bin_limits='quantile'):
     r"""
     Maximizes the likelihood in each bin to obtain the profile likelihood and
     profile chi-squared.
@@ -182,12 +165,12 @@ def prof_data(parameter, chi_sq, nbins='auto', bin_limits='auto'):
             bin_centers: numpy.ndarray)
 
     :Example:
-
     >>> nbins = 100
     >>> prof = prof_data(data[2], data[0], nbins=nbins)
     >>> assert len(prof.prof_chi_sq) == nbins
     >>> assert len(prof.bin_centers) == nbins
     >>> assert len(prof.prof_like) == nbins
+
     """
     # Deduce bin limits and number of bins
     bin_limits = bins.bin_limits(bin_limits, parameter)
@@ -250,15 +233,12 @@ def _inverse_cdf(prob, pdf, bin_centers):
     :rtype: float
     """
     # Probabilities should be between 0 and 1
-    assert 0 <= prob <= 1
+    assert 0. <= prob <= 1.
 
     # Check whether data is binned. Bin centers should be uniformly spaced -
     # this won't be the case for raw, unbinned data.
     bin_widths = [b_2 - b_1 for b_1, b_2 in zip(bin_centers, bin_centers[1:])]
     assert all(abs(width - bin_widths[0]) < 1E-10 for width in bin_widths)
-
-    # Normalize pdf so that sum is one
-    pdf = pdf / sum(pdf)
 
     # Shift all bins forward by 1/2 bin width (i.e. bin edges)
     bin_edges = [bin_ + 0.5 * bin_widths[0] for bin_ in bin_centers]
@@ -270,16 +250,15 @@ def _inverse_cdf(prob, pdf, bin_centers):
     # Note we insert an initial entry at index zero with cumulative weight
     # zero to match the first bin edge.
     cumulative = list(enumerate([0] + list(np.cumsum(pdf))))
+    max_cumulative = pdf.sum()
     cdf = list(zip(*cumulative))[1]
-    assert min(cdf) <= prob <= max(cdf)
-
     # Find the index of the last param value having
     # cumulative posterior weight <= desired probability
-    index_lower = list(filter(lambda x: x[1] <= prob, cumulative))[-1][0]
+    index_lower = list(filter(lambda x: x[1] <= prob * max_cumulative, cumulative))[-1][0]
 
     # Find the index of the first param value having
     # cumulative posterior weight >= desired probability
-    index_upper = list(filter(lambda x: x[1] >= prob, cumulative))[0][0]
+    index_upper = list(filter(lambda x: x[1] >= prob * max_cumulative, cumulative))[0][0]
 
     mean = 0.5 * (bin_edges[index_lower] + bin_edges[index_upper])
     return mean

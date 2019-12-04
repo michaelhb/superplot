@@ -269,6 +269,10 @@ class GUIControl(gtk.Window):
         self.po.yindex = min(self.po.yindex, data_columns - 1)
         self.po.zindex = min(self.po.zindex, data_columns - 1)
 
+        self.po.xlabel = self.labels[self.po.xindex]
+        self.po.ylabel = self.labels[self.po.yindex]
+        self.po.zlabel = self.labels[self.po.zindex]
+
         #######################################################################
 
         # Combo-box for various plot types

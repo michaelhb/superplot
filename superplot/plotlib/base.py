@@ -2,7 +2,7 @@
 ============
 plotlib.base
 ============
-This module contains abstract base classes, used to implement Plots.
+This module contains classes used to implement Plots.
 """
 
 import warnings
@@ -23,9 +23,8 @@ from superplot.schemes import Schemes
 
 class Plot(object):
     """
-    Abstract base class for all plot types. Specifies interface for
-    creating a plot object, and getting the figure associated
-    with it. Does any common preprocessing/initialization (e.g. log scaling).
+    Specifies interface for creating a plot object.
+    Does any common preprocessing/initialization (e.g. log scaling).
 
     :param plot_options: :py:data:`plot_options.plot_options` configuration tuple.
     :type plot_options: namedtuple
@@ -60,22 +59,16 @@ class Plot(object):
         with warnings.catch_warnings():
             warnings. simplefilter("error", RuntimeWarning)
             if self.po.logx:
-                if not self.po.xlabel.startswith(self.po.log10.format("")):
-                    self.po.xlabel = self.po.log10.format(self.po.xlabel)
                 try:
                     self.xdata = np.log10(self.xdata)
                 except RuntimeWarning:
                     raise RuntimeError("x-data cannnot be logged: probably logging a negative.")
             if self.po.logy:
-                if not self.po.ylabel.startswith(self.po.log10.format("")):
-                    self.po.ylabel = self.po.log10.format(self.po.ylabel)
                 try:
                     self.ydata = np.log10(self.ydata)
                 except RuntimeWarning:
                     raise RuntimeError("y-data cannnot be logged: probably logging a negative.")
             if self.po.logz:
-                if not self.po.zlabel.startswith(self.po.log10.format("")):
-                    self.po.zlabel = self.po.log10.format(self.po.zlabel)
                 try:
                     self.zdata = np.log10(self.zdata)
                 except RuntimeWarning:
@@ -103,6 +96,10 @@ class Plot(object):
         """
         Save data in plot.
         """
+        # Fetch possible changes by e.g. manipulating gcf or gca
+        ax = plt.gca()
+        self.po.plot_limits = [list(ax.get_xlim()), list(ax.get_ylim())]
+
         prefix = os.path.splitext(self.po.save_name)[0]
         if self.po.save_options:
             self.po.save(prefix + ".yml")
@@ -112,33 +109,47 @@ class Plot(object):
             with open(prefix + ".txt", 'w') as f:
                 f.write("\n".join(self.summary))
 
-    def fig(self):
-        """
-        @returns Current figure
-        """
-        return plt.gcf()
 
 class OneDimPlot(Plot):
     """
-    Abstract base class for one dimensional plot types.
-    Handles initialization tasks common to one dimensional plots.
+    Class for one dimensional plot types that handles
+    tasks common to one dimensional plots.
     """
     def __init__(self, plot_options, data=None):
         super(OneDimPlot, self).__init__(plot_options, data)
 
         # Set binning and plot limits
-        self.po.bin_limits = bins.bin_limits(self.po.bin_limits, self.xdata, posterior=self.posterior, lower=self.po.lower, upper=self.po.upper)
+
+        shape = np.array(self.po.bin_limits).shape
+
+        if isinstance(self.po.bin_limits, str):
+            self.po.bin_limits = bins.bin_limits(self.po.bin_limits, self.xdata, posterior=self.posterior, lower=self.po.lower, upper=self.po.upper)
+        elif shape == (1, 2):
+            self.po.bin_limits = bins.bin_limits(self.po.bin_limits[0], self.xdata, posterior=self.posterior, lower=self.po.lower, upper=self.po.upper)
+        elif shape == (2,):
+            self.po.bin_limits = bins.bin_limits(self.po.bin_limits, self.xdata, posterior=self.posterior, lower=self.po.lower, upper=self.po.upper)
+        else:
+            raise RuntimeError("Couldn't parse bin limits - {}".format(self.po.bin_limits))
 
         plot_limits_y = [0., 1.2]
+        shape = np.array(self.po.plot_limits).shape
+
         if isinstance(self.po.plot_limits, str):
            self.po.plot_limits = [bins.plot_limits(self.po.plot_limits, self.po.bin_limits, self.xdata), plot_limits_y]
-        else:
-            if self.po.plot_limits[1][0] is not None:
-                plot_limits_y = self.po.plot_limits[1]
+        elif shape == (1, 2):
             self.po.plot_limits = [bins.plot_limits(self.po.plot_limits[0], self.po.bin_limits, self.xdata), plot_limits_y]
+        elif shape == (2,):
+            self.po.plot_limits = [bins.plot_limits(self.po.plot_limits, self.po.bin_limits, self.xdata), plot_limits_y]
+        elif shape == (2, 2):
+            self.po.plot_limits = [bins.plot_limits(self.po.plot_limits[0], self.po.bin_limits, self.xdata), self.po.plot_limits[1]]
+        else:
+            raise RuntimeError("Couldn't parse plot limits - {}".format(self.po.plot_limits))
 
         pm.plot_limits(self.po.plot_limits)
 
+        shape = np.array(self.po.nbins).shape
+        if not isinstance(self.po.nbins, str) and shape != ():
+            raise RuntimeError("Couldn't parse nbins - {}".format(self.po.nbins))
         self.po.nbins = bins.nbins(self.po.nbins, self.po.bin_limits, self.xdata, posterior=self.posterior)
 
         # Posterior PDF
@@ -185,7 +196,7 @@ class OneDimPlot(Plot):
         self.posterior_modes = one_dim.posterior_mode(self.pdf_data.pdf, self.pdf_data.bin_centers)
         self.summary.append("Posterior mode/s: {}".format(self.posterior_modes))
 
-        height = 0.01 if self.po.show_prof_like else 0.01 * self.pdf_data.pdf.max()
+        height = 0.01 if self.po.pdf_1d_norm_max else 0.01 * self.pdf_data.pdf.max()
 
         # Best-fit point
         if self.po.show_best_fit:
@@ -207,7 +218,7 @@ class OneDimPlot(Plot):
 
 class TwoDimPlot(Plot):
     """
-    Abstract base class for two dimensional plot types
+    Class for two dimensional plot types
     (plus the 3D scatter plot which is an honorary two
     dimensional plot for now). Handles initialization tasks
     common to these plot types.
@@ -216,26 +227,39 @@ class TwoDimPlot(Plot):
         super(TwoDimPlot, self).__init__(plot_options, data)
 
         # Set binning and plot limits
-        if not isinstance(self.po.bin_limits, str):
+
+        shape = np.array(self.po.bin_limits).shape
+
+        if isinstance(self.po.bin_limits, str):
+            bin_limits_x = bins.bin_limits(self.po.bin_limits, self.xdata, self.posterior, lower=self.po.lower, upper=self.po.upper)
+            bin_limits_y = bins.bin_limits(self.po.bin_limits, self.ydata, self.posterior, lower=self.po.lower, upper=self.po.upper)
+        elif shape == (2, 2):
             bin_limits_x = bins.bin_limits(self.po.bin_limits[0], self.xdata, self.posterior, lower=self.po.lower, upper=self.po.upper)
             bin_limits_y = bins.bin_limits(self.po.bin_limits[1], self.ydata, self.posterior, lower=self.po.lower, upper=self.po.upper)
         else:
-            bin_limits_x = bins.bin_limits(self.po.bin_limits, self.xdata, self.posterior, lower=self.po.lower, upper=self.po.upper)
-            bin_limits_y = bins.bin_limits(self.po.bin_limits, self.ydata, self.posterior, lower=self.po.lower, upper=self.po.upper)
+            raise RuntimeError("Couldn't parse bin limits - {}".format(self.po.bin_limits))
 
-        if not isinstance(self.po.plot_limits, str):
+        shape = np.array(self.po.plot_limits).shape
+
+        if isinstance(self.po.plot_limits, str):
+            plot_limits_x = bins.plot_limits(self.po.plot_limits, bin_limits_x, self.xdata)
+            plot_limits_y = bins.plot_limits(self.po.plot_limits, bin_limits_y, self.ydata)
+        elif shape == (2, 2):
             plot_limits_x = bins.plot_limits(self.po.plot_limits[0], bin_limits_x, self.xdata)
             plot_limits_y = bins.plot_limits(self.po.plot_limits[1], bin_limits_y, self.ydata)
         else:
-            plot_limits_x = bins.plot_limits(self.po.plot_limits, bin_limits_x, self.xdata)
-            plot_limits_y = bins.plot_limits(self.po.plot_limits, bin_limits_y, self.ydata)
+            raise RuntimeError("Couldn't parse plot limits - {}".format(self.po.plot_limits))
 
-        if not isinstance(self.po.nbins, (int, str)):
+        shape = np.array(self.po.nbins).shape
+
+        if isinstance(self.po.nbins, (int, str)):
+            nbins_x = bins.nbins(self.po.nbins, bin_limits_x, self.xdata, self.posterior)
+            nbins_y = bins.nbins(self.po.nbins, bin_limits_y, self.ydata, self.posterior)
+        elif shape == (2,):
             nbins_x = bins.nbins(self.po.nbins[0], bin_limits_x, self.xdata, self.posterior)
             nbins_y = bins.nbins(self.po.nbins[1], bin_limits_y, self.ydata, self.posterior)
         else:
-            nbins_x = bins.nbins(self.po.nbins, bin_limits_x, self.xdata, self.posterior)
-            nbins_y = bins.nbins(self.po.nbins, bin_limits_y, self.ydata, self.posterior)
+            raise RuntimeError("Couldn't parse nbins - {}".format(self.po.nbin))
 
         self.po.bin_limits = [bin_limits_x, bin_limits_y]
         self.po.plot_limits = [plot_limits_x, plot_limits_y]

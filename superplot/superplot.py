@@ -660,7 +660,7 @@ class GUIControl(gtk.Window):
 
         # Add new box
         self.box = gtk.VBox()
-        canvas = gtk_wrapper.FigureCanvas(self.obj.fig())
+        canvas = gtk_wrapper.FigureCanvas(plt.gcf())
         self.box.pack_start(canvas, True, True, 0)
         toolbar = gtk_wrapper.NavigationToolbar(canvas, self)
         self.box.pack_start(toolbar, False, False, 0)
@@ -691,11 +691,6 @@ class GUIControl(gtk.Window):
         self.po.save_plot = self.obj.po.save_plot = self.save_plot.get_active()
         self.po.save_summary = self.obj.po.save_summary = self.save_summary.get_active()
         self.po.save_options = self.obj.po.save_options = self.save_options.get_active()
-
-        # Push back any changes to the plot limits from the GUI
-        ax = plt.gca()
-        self.po.plot_limits = self.obj.po.plot_limits = [list(ax.get_xlim()), list(ax.get_ylim())]
-        self.plot_limits.set_text(str(self.po.plot_limits))
 
         if not (self.po.save_plot or self.po.save_summary or self.po.save_options):
             message_dialog(gtk_wrapper.MESSAGE_WARNING, "Nothing to save!")

@@ -88,9 +88,6 @@ schemes_yaml: schemes.yml
 # List of extra styles available by URL.
 url_styles: ["https://raw.githubusercontent.com/scikit-hep/mplhep/master/mplhep/stylelib/ROOT.mplstyle"]
 
-# Log10 label modifier.
-log10: "$\\log_{{10}}$ {}"
-
 # Default data file.
 data_file: null
 
@@ -113,3 +110,6 @@ force_aspect: True
 
 # mpl directory for superplot.
 mpl_path: null
+
+# Whether to normalize 1d pdf such that maximum is at one.
+pdf_1d_norm_max: True

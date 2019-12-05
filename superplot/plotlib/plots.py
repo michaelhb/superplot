@@ -45,7 +45,7 @@ class OneDimStandard(OneDimPlot):
 
         # Plot posterior PDF
         if self.po.show_posterior_pdf:
-            if self.po.show_prof_like:
+            if self.po.pdf_1d_norm_max:
                 pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf_norm_max, self.schemes.posterior)
             else:
                 pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, self.schemes.posterior)
@@ -68,7 +68,7 @@ class OneDimStandard(OneDimPlot):
         self.summary.append("Upper credible region: {}".format(upper_credible_region))
 
         if self.po.show_credible_regions:
-            height = 1.1 if self.po.show_prof_like else 1.1 * self.pdf_data.pdf.max()
+            height = 1.1 if self.po.pdf_1d_norm_max else 1.1 * self.pdf_data.pdf.max()
             for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, self.schemes.credible_regions):
                 pm.plot_data([lower, upper], [height, height], scheme)
 
@@ -79,7 +79,7 @@ class OneDimStandard(OneDimPlot):
 
         for intervals, scheme in zip(conf_intervals, self.schemes.conf_intervals):
             if self.po.show_conf_intervals:
-                height = 1. if self.po.show_prof_like else self.pdf_data.pdf.max()
+                height = 1. if self.po.pdf_1d_norm_max else self.pdf_data.pdf.max()
                 pm.plot_data(intervals, [height] * len(intervals), scheme)
             self.summary.append("{}:".format(scheme.label))
             for interval in intervals:
@@ -96,12 +96,6 @@ class OneDimStandard(OneDimPlot):
             plt.ylabel(self.schemes.prof_like.label)
         else:
             plt.ylabel("")
-
-        # Autoscale the y-axis
-        if not (self.po.show_posterior_pdf and self.po.show_prof_like):
-            ax = plt.gca()
-            ax.autoscale(axis='y')
-            ax.set_ylim([0., ax.get_ylim()[1]])
 
 
 class OneDimChiSq(OneDimPlot):

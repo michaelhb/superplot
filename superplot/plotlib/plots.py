@@ -17,7 +17,7 @@ is implemented, it should be added to this list.
 
 Also includes a function to save the current plot.
 """
-from itertools import groupby
+import warnings
 
 import numpy as np
 from scipy.stats import chi2
@@ -318,3 +318,36 @@ def get_plot_from_yaml(plot_options_yaml):
     """
     plot_options = Defaults(plot_options_yaml)
     return get_plot(plot_options)
+
+def make_plot_from_yamls(plot_options_yamls):
+    """
+    Make a single plot from several yamls.
+
+    Special care taken to build one legend per yaml. The plot limits, labels etc
+    are taken taken from the final yaml.
+
+    :param plot_options_yamls: Options for plot in yaml file
+    :type plot_options_yamls: List
+    """
+    # Number of items in legend per object
+    n_handles = 0
+
+    # Leg positions
+    leg_positions = []
+
+    for name in plot_options_yamls:
+        obj = get_plot_from_yaml(name)
+
+        # Get information for legend
+        handles, labels = plt.gca().get_legend_handles_labels()
+        n_handles = len(handles) - n_handles
+        leg_positions.append(obj.po.leg_position)
+
+        # Make a legend per plot
+        leg = pm.legend(leg_title=obj.po.leg_title, leg_position=obj.po.leg_position, handles=handles[-n_handles:], labels=labels[-n_handles:])
+        plt.gca().add_artist(leg)
+
+    if "best" in leg_positions or len(leg_positions) != len(set(leg_positions)):
+        warnings.warn("legends may have overlapped - {}".format(leg_positions))
+
+    obj.save()

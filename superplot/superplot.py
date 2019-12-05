@@ -730,10 +730,7 @@ def main():
         if args.plot_options is None:
             raise RuntimeError("In non-gui mode, you must pass an options file")
 
-        for name in args.plot_options:
-            obj = plots.get_plot_from_yaml(name)
-        plt.legend(ncol=len(args.plot_options))
-        obj.save()
+        plots.make_plot_from_yamls(args.plot_options)
         return
 
     if args.plot_options is None:

@@ -113,7 +113,7 @@ def appearance(mpl_path, plot_style="default", extra_style=None):
                         "Using matplotlib's mathtext.")
 
 
-def legend(leg_title=None, leg_position=None):
+def legend(leg_title=None, leg_position=None, **kwargs):
     """
     Turn on the legend.
 
@@ -127,7 +127,7 @@ def legend(leg_title=None, leg_position=None):
     :type leg_position: string
     """
     if leg_position != "no legend":
-        leg = plt.legend(loc=leg_position)
+        leg = plt.legend(loc=leg_position, **kwargs)
         frame = leg.get_frame()
         frame.set_linewidth(rcParams["patch.linewidth"])
         frame.set_edgecolor(rcParams["patch.edgecolor"])
@@ -138,7 +138,7 @@ def legend(leg_title=None, leg_position=None):
         except KeyError:
             size = rcParams["legend.fontsize"]
         leg.set_title(leg_title, prop={"size": size})
-
+        return leg
 
 def plot_limits(limits=None):
     """

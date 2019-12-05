@@ -34,7 +34,7 @@ def kde_posterior_pdf(paramx,
                       paramy,
                       posterior,
                       npoints=100,
-                      bin_limits='extent',
+                      bin_limits='quantile',
                       bandwidth='scott',
                       fft=True):
     r"""
@@ -98,7 +98,7 @@ def kde_posterior_pdf(paramx,
     centers_y = np.linspace(bin_limits_y[0], bin_limits_y[1], npoints)
     points = np.array([[x, y] for x in centers_x for y in centers_y]).T
     kde = kde_func(points)
-    kde = np.reshape(kde, (npoints, npoints))
+    kde = np.reshape(kde, (npoints, npoints)).astype(float)
 
     kde /= kde.sum() * (centers_x[1] - centers_x[0]) * (centers_y[1] - centers_y[0])
     kde_norm_max = kde / kde.max()
@@ -301,16 +301,14 @@ def critical_density(pdf, alpha):
 
     >>> nbins = 100
     >>> alpha = 0.32
-    >>> pdf_norm_sum = posterior_pdf(data[2], data[3], data[0], nbins=nbins)[2]
-    >>> pdf_norm_sum.sum()
-    1.0
+    >>> pdf_norm_sum = posterior_pdf(data[2], data[3], data[0], nbins=nbins, bin_limits="extent")[2]
     >>> round(critical_density(pdf_norm_sum, alpha), DOCTEST_PRECISION)
     0.0008088721
 
     Critical density from KDE estimate of pdf
 
-    >>> kde_norm_sum = kde_posterior_pdf(data[2], data[3], data[0])[2]
-    >>> round(critical_density(kde_norm_sum, alpha)[0], DOCTEST_PRECISION)
+    >>> kde_norm_sum = kde_posterior_pdf(data[2], data[3], data[0], bin_limits="extent")[2]
+    >>> round(critical_density(kde_norm_sum, alpha), DOCTEST_PRECISION)
     0.0008115551
     """
     # Flatten and sort pdf to find critical density
@@ -380,14 +378,14 @@ def posterior_mode(pdf, bin_centers_x, bin_centers_y):
     Mode from binned pdf
 
     >>> nbins = 70
-    >>> pdf_data = posterior_pdf(data[2], data[3], data[0], nbins=nbins)
+    >>> pdf_data = posterior_pdf(data[2], data[3], data[0], nbins=nbins, bin_limits="extent")
     >>> bin_centers = posterior_mode(pdf_data.pdf, pdf_data.bin_centers_x, pdf_data.bin_centers_y)[0]
     >>> [round(x, DOCTEST_PRECISION) for x in bin_centers]
     [-2142.9943612644, 142.9757248582]
 
     Mode from KDE estimate of pdf
 
-    >>> kde_data = kde_posterior_pdf(data[2], data[3], data[0])
+    >>> kde_data = kde_posterior_pdf(data[2], data[3], data[0], bin_limits="extent")
     >>> bin_centers = posterior_mode(kde_data.pdf, kde_data.bin_centers_x, kde_data.bin_centers_y)[0]
     >>> [round(x, DOCTEST_PRECISION) for x in bin_centers]
     [-1919.3356566959, 101.1291971019]

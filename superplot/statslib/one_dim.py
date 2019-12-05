@@ -29,7 +29,7 @@ _prof_data_1D = namedtuple("_prof_data_1D", ("prof_chi_sq", "prof_like", "bin_ce
 def kde_posterior_pdf(parameter,
                       posterior,
                       npoints=500,
-                      bin_limits='extent',
+                      bin_limits='quantile',
                       bandwidth='scott',
                       fft=True):
     r"""
@@ -69,7 +69,7 @@ def kde_posterior_pdf(parameter,
     :Example:
 
     >>> npoints = 1000
-    >>> kde = kde_posterior_pdf(data[2], data[0], npoints=npoints)
+    >>> kde = kde_posterior_pdf(data[2], data[0], npoints=npoints, bin_limits="extent")
     >>> assert len(kde.pdf) == npoints
     >>> assert len(kde.bin_centers) == npoints
     """
@@ -299,13 +299,13 @@ def credible_region(pdf, bin_centers, alpha, tail="symmetric"):
 
     Credible regions from binned pdf
 
-    >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
+    >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins, bin_limits="extent")
     >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, tail)[0], DOCTEST_PRECISION)
     ...  for tail in ["lower", "upper", "symmetric"]]
-    [-inf, -2430.8656160596, -2955.0811702776]
+    [-inf, -2430.1288491488, -2950.1136928797]
     >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, tail)[1], DOCTEST_PRECISION)
     ...  for tail in ["lower", "upper", "symmetric"]]
-    [-1499.6121020959, inf, -975.3965478779]
+    [-1490.1562470198, inf, -970.1714032888]
     """
     if tail == "lower":
         return [-np.inf, _inverse_cdf(1. - alpha, pdf, bin_centers)]
@@ -342,12 +342,12 @@ def conf_interval(chi_sq, bin_centers, alpha):
     >>> nbins = 1000
     >>> alpha = 0.32
 
-    >>> prof = prof_data(data[2], data[1], nbins=nbins)
+    >>> prof = prof_data(data[2], data[1], nbins=nbins, bin_limits="extent")
     >>> interval = conf_interval(prof.prof_chi_sq, prof.bin_centers, alpha)
     >>> [round(x, DOCTEST_PRECISION) for x in [np.nanmin(interval), np.nanmax(interval)]]
     [-2970.1131099463, -970.1714032888]
 
-    >>> prof = prof_data(data[3], data[1], nbins=nbins)
+    >>> prof = prof_data(data[3], data[1], nbins=nbins, bin_limits="extent")
     >>> interval = conf_interval(prof.prof_chi_sq, prof.bin_centers, alpha)
     >>> [round(x, DOCTEST_PRECISION) for x in [np.nanmin(interval), np.nanmax(interval)]]
     [-2409.8500561616, 2570.0887645632]
@@ -387,21 +387,21 @@ def posterior_median(pdf, bin_centers):
     Posterior median from binned pdf
 
     >>> nbins = 750
-    >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
+    >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins, bin_limits="extent")
     >>> round(posterior_median(pdf.pdf, pdf.bin_centers), DOCTEST_PRECISION)
     -1960.1425480843
 
-    >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins)
+    >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins, bin_limits="extent")
     >>> round(posterior_median(pdf.pdf, pdf.bin_centers), DOCTEST_PRECISION)
     66.7861846674
 
     Posterior median from KDE estimate of pdf
 
-    >>> kde = kde_posterior_pdf(data[2], data[0])
+    >>> kde = kde_posterior_pdf(data[2], data[0], bin_limits="extent")
     >>> round(posterior_median(kde.pdf,kde.bin_centers), DOCTEST_PRECISION)
     -1984.1097853705
 
-    >>> kde = kde_posterior_pdf(data[3], data[0])
+    >>> kde = kde_posterior_pdf(data[3], data[0], bin_limits="extent")
     >>> round(posterior_median(kde.pdf, kde.bin_centers), DOCTEST_PRECISION)
     60.2398389045
     """
@@ -439,21 +439,21 @@ def posterior_mode(pdf, bin_centers):
     Posterior mode from binned pdf
 
     >>> nbins = 70
-    >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
+    >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins, bin_limits="extent")
     >>> round(posterior_mode(pdf.pdf, pdf.bin_centers)[0], DOCTEST_PRECISION)
     -1857.2884031704
 
-    >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins)
+    >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins, bin_limits="extent")
     >>> round(posterior_mode(pdf.pdf, pdf.bin_centers)[0], DOCTEST_PRECISION)
     -142.7350508575
 
     Posterior mode from KDE estimate of pdf
 
-    >>> kde = kde_posterior_pdf(data[2], data[0])
+    >>> kde = kde_posterior_pdf(data[2], data[0], bin_limits="extent")
     >>> round(posterior_mode(kde.pdf, kde.bin_centers)[0], DOCTEST_PRECISION)
     -1984.1097853705
 
-    >>> kde = kde_posterior_pdf(data[3], data[0])
+    >>> kde = kde_posterior_pdf(data[3], data[0], bin_limits="extent")
     >>> round(posterior_mode(kde.pdf, kde.bin_centers)[0], DOCTEST_PRECISION)
     140.3991747766
     """

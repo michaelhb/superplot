@@ -34,6 +34,7 @@ class Plot(object):
     """
     def __init__(self, plot_options, data=None):
         self.po = copy.deepcopy(plot_options)
+        self.po.schemes_yaml = data_loader.get_yaml_path(self.po.schemes_yaml)
         self.schemes = Schemes(self.po.schemes_yaml)
 
         # Load data if neccessary
@@ -85,8 +86,8 @@ class Plot(object):
             extra = self.po.style
             self.schemes.override_colours = self.po.style_overrides_schemes_colours
 
-        self.po.mpl_path = pm.check_mpl_path(self.po.mpl_path)
-        pm.appearance(self.__class__.__name__, extra, self.po.mpl_path)
+        self.po.mpl_path = data_loader.get_mpl_path(self.po.mpl_path)
+        pm.appearance(self.po.mpl_path, self.__class__.__name__, extra)
 
         # Apply changes to axes
         pm.plot_ticks(self.po.max_xticks, self.po.max_yticks)

@@ -7,8 +7,8 @@ in a consistent manner.
 """
 
 import subprocess
-import os
 import warnings
+import os
 
 from matplotlib.ticker import AutoMinorLocator, MaxNLocator
 from matplotlib.pylab import rcParams, rc, get_cmap
@@ -63,34 +63,7 @@ def plot_data(x, y, scheme, zorder=1):
              zorder=zorder)
 
 
-def check_mpl_path(mpl_path):
-    """
-    :returns: Path for mpl files
-    :rtype: str
-    """
-    if mpl_path is None:
-        # Try to use the style sheets in the user directory
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        home_dir_locfile = os.path.join(os.path.dirname(script_dir), "user_home.txt")
-
-        style_sheet_path = None
-        default_style_sheet_path = None
-
-        if os.path.exists(home_dir_locfile):
-            with open(home_dir_locfile, "rb") as f:
-               mpl_path = f.read()
-
-    if mpl_path is None or not os.path.exists(mpl_path):
-        # Try to use the style sheets in the install directory
-        mpl_path = os.path.split(os.path.abspath(__file__))[0]
-
-    if not os.path.exists(mpl_path):
-        raise RuntimeError("Cannot find mpl style files")
-
-    return mpl_path
-
-
-def appearance(plot_style="default", extra_style=None, mpl_path=None):
+def appearance(mpl_path, plot_style="default", extra_style=None):
     """
     Specify the plot's appearance, with e.g. font types etc.
     from mplstyle files.
@@ -108,8 +81,6 @@ def appearance(plot_style="default", extra_style=None, mpl_path=None):
         interface with LaTeX). If it isn't, we issue a warning and fall \
         back to mathtext.
     """
-    mpl_path = check_mpl_path(mpl_path)
-
     style_sheet_name = "{}.mplstyle".format(plot_style)
 
     style_sheet_path = os.path.join(

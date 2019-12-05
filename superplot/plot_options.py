@@ -46,7 +46,7 @@ class Defaults(object):
                     return None
 
     def keys(self):
-        return load_yaml(self.yaml_file).keys()
+        return self.default_yaml.keys()
 
     def __str__(self):
         d = {k: getattr(self, k) for k in self.keys()}

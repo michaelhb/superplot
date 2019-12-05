@@ -158,40 +158,65 @@ def _label_chain(data, labels):
             labels[index] = str(index)
 
 
-def load_yaml(yaml_file):
+def get_mpl_path(mpl_path):
     """
-    Load a yaml file, either from the user data
-    directory, or if that is not available, the installed
-    copy.
-
-    :param yaml_file: Name of yaml file
-    :type yaml_file: str
-
-    :returns: Data in yaml file
-    :rtype: dict
+    :returns: Path for mpl files
+    :rtype: str
     """
-    # First check whether the user has a custom home directory.
+    if mpl_path is None:
+        # Try to use the style sheets in the user directory
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        home_dir_locfile = os.path.join(os.path.dirname(script_dir), "user_home.txt")
+
+        style_sheet_path = None
+        default_style_sheet_path = None
+
+        if os.path.exists(home_dir_locfile):
+            with open(home_dir_locfile, "rb") as f:
+               mpl_path = f.read()
+
+    if mpl_path is None or not os.path.exists(mpl_path):
+        # Try to use the style sheets in the install directory
+        mpl_path = os.path.join(os.path.split(os.path.abspath(__file__))[0], "plotlib")
+
+    if not os.path.exists(mpl_path):
+        raise RuntimeError("Cannot find mpl style files")
+
+    return mpl_path
+
+
+def get_yaml_path(yaml_file):
+    """
+    :returns: Path for a yaml file including file name
+    :rtype: str
+    """
+    if os.path.isfile(yaml_file):
+        return yaml_file
+
+    # Look for the yaml in the user directory
     script_dir = os.path.dirname(os.path.realpath(__file__))
     home_dir_locfile = os.path.join(script_dir, "user_home.txt")
-
-    config_path = None
 
     if os.path.exists(home_dir_locfile):
         with open(home_dir_locfile, "r") as f:
             home_dir_path = f.read()
-            config_path = os.path.join(home_dir_path, yaml_file)
+        yaml_path = os.path.join(home_dir_path, yaml_file)
+        if os.path.isfile(yaml_path):
+            return yaml_path
 
-    # If it doesn't exist, use the installed copy
-    if config_path is None or not os.path.exists(config_path):
-        config_path = os.path.join(
-            os.path.split(os.path.abspath(__file__))[0],
-            yaml_file
-        )
+    # Look for the yaml in the install directory
+    yaml_path = os.path.join(os.path.split(os.path.abspath(__file__))[0], yaml_file)
+    if os.path.isfile(yaml_path):
+        return yaml_path
 
-    # If that doesn't exist, try a local copy
-    if config_path is None or not os.path.exists(config_path):
-        config_path = yaml_file
+    raise RuntimeError("Cannot find yaml - {}".format(yaml_file))
 
-    # Load and return config
-    with open(config_path) as cfile:
+
+def load_yaml(yaml_file):
+    """
+    :returns: Data from a yaml file
+    :rtype: dict
+    """
+    yaml_path = get_yaml_path(yaml_file)
+    with open(yaml_path) as cfile:
         return yaml.load(cfile)

@@ -55,6 +55,7 @@ posterior:
     number_colours: 15 # Number of colours on colour map
     colour_bar_title: 'PDF'
     level_names: ['$2\sigma$ region', '$1\sigma$ region']
+    label_on_lines: True
 
 # Profile Likelihood
 prof_like:
@@ -69,6 +70,7 @@ prof_like:
     number_colours: 15 # Number of colours on colour map
     colour_bar_title: 'PL'
     level_names: ['$2\sigma$ region', '$1\sigma$ region']
+    label_on_lines: True
 
 # Profile chi-squared
 prof_chi_sq:

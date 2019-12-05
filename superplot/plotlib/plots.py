@@ -347,7 +347,7 @@ def make_plot_from_yamls(plot_options_yamls):
         leg = pm.legend(leg_title=obj.po.leg_title, leg_position=obj.po.leg_position, handles=handles[-n_handles:], labels=labels[-n_handles:])
         plt.gca().add_artist(leg)
 
-    if "best" in leg_positions or len(leg_positions) != len(set(leg_positions)):
+    if len(leg_positions) > 1 and ("best" in leg_positions or len(leg_positions) != len(set(leg_positions))):
         warnings.warn("legends may have overlapped - {}".format(leg_positions))
 
     obj.save()

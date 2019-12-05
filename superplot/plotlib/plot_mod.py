@@ -283,7 +283,8 @@ def plot_contour(data, levels, scheme, bin_limits):
     fmt = dict(zip(cset.levels, scheme.level_names))
 
     # Plot inline labels on contours.
-    plt.clabel(cset, inline=True, fmt=fmt, fontsize=12)
+    if scheme.label_on_lines:
+        plt.clabel(cset, inline=True, fmt=fmt, fontsize=12)
 
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours/styles of contours.

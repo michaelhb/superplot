@@ -62,10 +62,10 @@ class Defaults(object):
         for k in self.keys():
             d[k] = getattr(self, k)
             # Try to remove np.float64 etc that make yaml messier
-            if k == "bin_limits" or k == "plot_limit" or k == "alpha":
+            if k == "bin_limits" or k == "plot_limits" or k == "alpha":
                 try:
                     d[k] = np.array(d[k]).astype(float).tolist()
-                except:
+                except Exception as m:
                     pass
 
         with open(file_name, 'w') as f:

@@ -113,3 +113,6 @@ mpl_path: null
 
 # Whether to normalize 1d pdf such that maximum is at one.
 pdf_1d_norm_max: True
+
+# Tails for 1d credible region. lower, upper, or symmetric
+cr_1d_tail: symmetric

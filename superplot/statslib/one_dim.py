@@ -265,9 +265,9 @@ def _inverse_cdf(prob, pdf, bin_centers):
 
 
 @memory.cache
-def credible_region(pdf, bin_centers, alpha, region):
+def credible_region(pdf, bin_centers, alpha, tail="symmetric"):
     r"""
-    Calculate one-dimensional credible region with symmetric ordering rule i.e.
+    Calculate one-dimensional credible region. By default, we use a symmetric ordering rule i.e.
     equal probability in right- and left-hand tails.
 
     E.g. for a lower interval, find :math:`a` such that
@@ -286,8 +286,8 @@ def credible_region(pdf, bin_centers, alpha, region):
     :type bin_centers: numpy.ndarray
     :param alpha: Probability level
     :type alpha: float
-    :param region: Interval - must be "upper" or "lower"
-    :type region: string
+    :param tail: Must be "upper", "lower" or "symmetric"
+    :type tail: string
 
     :returns: Bin center of edge of credible region
     :rtype: float
@@ -300,49 +300,21 @@ def credible_region(pdf, bin_centers, alpha, region):
     Credible regions from binned pdf
 
     >>> pdf = posterior_pdf(data[2], data[0], nbins=nbins)
-    >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, region), DOCTEST_PRECISION)
-    ...  for region in ["lower", "upper"]]
-    [-2950.1136928797, -970.1714032888]
-
-    >>> pdf = posterior_pdf(data[3], data[0], nbins=nbins)
-    >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, region), DOCTEST_PRECISION)
-    ...  for region in ["lower", "upper"]]
-    [-2409.8500561616, 2570.0887645632]
-
-    Credible regions from KDE estimate of pdf
-
-    >>> kde = kde_posterior_pdf(data[2], data[0])
-    >>> [round(credible_region(kde.pdf, kde.bin_centers, alpha, region), DOCTEST_PRECISION)
-    ...  for region in ["lower", "upper"]]
-    [-2946.0055961876, -982.1349824359]
-
-    >>> kde = kde_posterior_pdf(data[3], data[0])
-    >>> [round(credible_region(kde.pdf, kde.bin_centers, alpha, region), DOCTEST_PRECISION)
-    ...  for region in ["lower", "upper"]]
-    [-2424.6995731319, 2585.258918877]
-
-    Credible regions from KDE estimate of pdf without FFT
-
-    >>> kde_posterior_pdf(data[2], data[0]).pdf[0] == kde_posterior_pdf(data[2], data[0], fft=False).pdf[0]
-    False
-
-    >>> kde = kde_posterior_pdf(data[2], data[0], fft=False)
-    >>> [round(credible_region(kde.pdf, kde.bin_centers, alpha, region), DOCTEST_PRECISION)
-    ...  for region in ["lower", "upper"]]
-    [-2946.0055961876, -982.1349824359]
-
-    >>> kde = kde_posterior_pdf(data[3], data[0], fft=False)
-    >>> [round(credible_region(kde.pdf, kde.bin_centers, alpha, region), DOCTEST_PRECISION)
-    ...  for region in ["lower", "upper"]]
-    [-2424.6995731319, 2585.258918877]
+    >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, tail)[0], DOCTEST_PRECISION)
+    ...  for tail in ["lower", "upper", "symmetric"]]
+    [-inf, -2430.8656160596, -2955.0811702776]
+    >>> [round(credible_region(pdf.pdf, pdf.bin_centers, alpha, tail)[1], DOCTEST_PRECISION)
+    ...  for tail in ["lower", "upper", "symmetric"]]
+    [-1499.6121020959, inf, -975.3965478779]
     """
-    assert region in ["lower", "upper"]
-    if region == "lower":
-        desired_prob = 0.5 * alpha
-    elif region == "upper":
-        desired_prob = 1. - 0.5 * alpha
-
-    return _inverse_cdf(desired_prob, pdf, bin_centers)
+    if tail == "lower":
+        return [-np.inf, _inverse_cdf(1. - alpha, pdf, bin_centers)]
+    elif tail == "upper":
+        return [_inverse_cdf(alpha, pdf, bin_centers), np.inf]
+    elif tail == "symmetric":
+        return [_inverse_cdf(0.5 * alpha, pdf, bin_centers), _inverse_cdf(1. - 0.5 * alpha, pdf, bin_centers)]
+    else:
+        raise RuntimeError("Unknown tail - {}".format(tail))
 
 
 @memory.cache

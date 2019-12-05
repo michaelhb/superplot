@@ -53,22 +53,14 @@ class OneDimStandard(OneDimPlot):
             pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_like, self.schemes.prof_like)
 
         # Credible regions
-        lower_credible_region = [
-            one_dim.credible_region(
-                    self.pdf_data.pdf, self.pdf_data.bin_centers, alpha=aa, region="lower")
-            for aa in self.po.alpha]
+        regions = [one_dim.credible_region(self.pdf_data.pdf, self.pdf_data.bin_centers, alpha=aa, tail=self.po.cr_1d_tail)
+                   for aa in self.po.alpha]
 
-        upper_credible_region = [
-            one_dim.credible_region(self.pdf_data.pdf, self.pdf_data.bin_centers, alpha=aa, region="upper")
-            for aa in self.po.alpha]
-
-        self.summary.append("Lower credible region: {}".format(lower_credible_region))
-        self.summary.append("Upper credible region: {}".format(upper_credible_region))
-
-        if self.po.show_credible_regions:
-            for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, self.schemes.credible_regions):
+        for region, scheme in zip(regions, self.schemes.credible_regions):
+            self.summary.append("{}: {}".format(scheme.label, region))
+            if self.po.show_credible_regions:
                 pdf = self.pdf_data.pdf_norm_max if self.po.pdf_1d_norm_max else self.pdf_data.pdf
-                where = np.logical_and(self.pdf_data.bin_centers > lower, self.pdf_data.bin_centers < upper)
+                where = np.logical_and(self.pdf_data.bin_centers > region[0], self.pdf_data.bin_centers < region[1])
                 pm.plot_fill(self.pdf_data.bin_centers, pdf, where, scheme)
 
 

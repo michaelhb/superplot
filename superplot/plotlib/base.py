@@ -189,7 +189,7 @@ class OneDimPlot(Plot):
             masked = np.ma.masked_array(intervals, np.logical_not(np.isnan(intervals)))
             clumps = np.ma.clump_masked(masked)
             for c in clumps:
-                self.summary.append("{} to {}".format(self.prof_data.bin_centers[c.start], self.prof_data.bin_centers[c.stop]))
+                self.summary.append("{} to {}".format(self.prof_data.bin_centers[c.start], self.prof_data.bin_centers[c.stop - 1]))
 
         # Note the best-fit point is calculated using the raw data,
         # while the mean, median and mode use the binned PDF.

@@ -16,7 +16,7 @@ cb_limits: null
 # Maximum number of ticks for axes.
 max_xticks: 5
 max_yticks: 5
-max_cbticks: 10
+max_cbticks: 5
 
 # Plot title.
 plot_title: null

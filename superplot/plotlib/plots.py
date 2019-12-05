@@ -43,6 +43,9 @@ class OneDimStandard(OneDimPlot):
     def __init__(self, plot_options, data=None):
         super(OneDimStandard, self).__init__(plot_options, data)
 
+        # Turn off y-tick labels since they are somewhat arbitrary
+        plt.gca().get_yaxis().set_ticklabels([])
+
         # Plot posterior PDF
         if self.po.show_posterior_pdf:
             pdf = self.pdf_data.pdf_norm_max if self.po.pdf_1d_norm_max else self.pdf_data.pdf

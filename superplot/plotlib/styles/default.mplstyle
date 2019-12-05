@@ -17,7 +17,7 @@ legend.numpoints : 1
 legend.framealpha : 0.9
 patch.linewidth : 1.
 patch.edgecolor : black
-legend.handlelength : 1.5
+legend.handlelength : 2.5
 legend.handletextpad : 0.5
 legend.fontsize : x-small
 

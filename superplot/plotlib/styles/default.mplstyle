@@ -14,18 +14,18 @@ legend.loc : best
 legend.borderaxespad : 1.
 legend.scatterpoints : 1
 legend.numpoints : 1
-legend.framealpha : 0.9
+legend.framealpha : 0.5
 patch.linewidth : 1.
 patch.edgecolor : black
-legend.handlelength : 2.5
+legend.handlelength : 2.
 legend.handletextpad : 0.5
-legend.fontsize : x-small
+legend.fontsize : xx-small
 
 # Font choices
 text.usetex : True
 font.family : 'serif'
 font.serif : ['Computer Modern Roman']
-font.size : 20
+font.size : 35
 
 # Saving figure options
 savefig.facecolor : white
@@ -37,18 +37,18 @@ savefig.bbox : tight
 savefig.pad_inches : 0.1
 
 # Tweak ticks and axes
-axes.linewidth: 1.5
+axes.linewidth: 2.5
 xtick.top : True
 ytick.right : True
-xtick.major.size: 6
-ytick.major.size: 6
+xtick.major.size: 5
+ytick.major.size: 5
 xtick.minor.size: 3
 ytick.minor.size: 3
-xtick.major.width: 1.5
-ytick.major.width: 1.5
-xtick.minor.width: 1
-ytick.minor.width: 1
-axes.facecolor : EAEAF2
+xtick.major.width: 2.5
+ytick.major.width: 2.5
+xtick.minor.width: 1.75
+ytick.minor.width: 1.75
+axes.facecolor: F8F8F8
 
 # Round numbers for ticks
 axes.autolimit_mode : round_numbers

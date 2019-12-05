@@ -45,10 +45,8 @@ class OneDimStandard(OneDimPlot):
 
         # Plot posterior PDF
         if self.po.show_posterior_pdf:
-            if self.po.pdf_1d_norm_max:
-                pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf_norm_max, self.schemes.posterior)
-            else:
-                pm.plot_data(self.pdf_data.bin_centers, self.pdf_data.pdf, self.schemes.posterior)
+            pdf = self.pdf_data.pdf_norm_max if self.po.pdf_1d_norm_max else self.pdf_data.pdf
+            pm.plot_data(self.pdf_data.bin_centers, pdf, self.schemes.posterior)
 
         # Plot profile likelihood
         if self.po.show_prof_like:
@@ -68,22 +66,17 @@ class OneDimStandard(OneDimPlot):
         self.summary.append("Upper credible region: {}".format(upper_credible_region))
 
         if self.po.show_credible_regions:
-            height = 1.1 if self.po.pdf_1d_norm_max else 1.1 * self.pdf_data.pdf.max()
             for lower, upper, scheme in zip(lower_credible_region, upper_credible_region, self.schemes.credible_regions):
-                pm.plot_data([lower, upper], [height, height], scheme)
+                pdf = self.pdf_data.pdf_norm_max if self.po.pdf_1d_norm_max else self.pdf_data.pdf
+                where = np.logical_and(self.pdf_data.bin_centers > lower, self.pdf_data.bin_centers < upper)
+                pm.plot_fill(self.pdf_data.bin_centers, pdf, where, scheme)
+
 
         # Confidence intervals
-        conf_intervals = [one_dim.conf_interval(self.prof_data.prof_chi_sq, self.prof_data.bin_centers, alpha=aa) for aa
-                          in
-                          self.po.alpha]
-
-        for intervals, scheme in zip(conf_intervals, self.schemes.conf_intervals):
-            if self.po.show_conf_intervals:
-                height = 1. if self.po.pdf_1d_norm_max else self.pdf_data.pdf.max()
+        if self.po.show_conf_intervals:
+            for intervals, scheme in zip(self.conf_intervals, self.schemes.conf_intervals):
+                height = 0.9 * self.po.plot_limits[1][1]
                 pm.plot_data(intervals, [height] * len(intervals), scheme)
-            self.summary.append("{}:".format(scheme.label))
-            for interval in intervals:
-                self.summary.append(str(interval))
 
         # Add plot legend
         pm.legend(self.po.leg_title, self.po.leg_position)
@@ -112,46 +105,14 @@ class OneDimChiSq(OneDimPlot):
         # Plot the delta chi-squared
         pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, self.schemes.prof_chi_sq)
 
-        # Alter the y-axis limit so that it extends to 10.
-        self.po.plot_limits[1][1] = 10.
-        pm.plot_limits(ax, self.po.plot_limits)
-
-        # Confidence intervals as filled regions
-        critical_chi_sq = [chi2.ppf(1. - aa, 1) for aa in self.po.alpha]
-
-        if self.schemes.prof_chi_sq.colours:
-
-            for chi_sq, facecolor, name in zip(critical_chi_sq, self.schemes.prof_chi_sq.colours,
-                                               self.schemes.prof_chi_sq.level_names):
-
-                # Create a list where element i is True if bin i should be filled.
-                fill_where = self.prof_data.prof_chi_sq >= chi_sq
-
+        if self.po.show_conf_intervals:
+            for interval, scheme in reversed(list(zip(self.conf_intervals, self.schemes.conf_intervals))):
                 # Fill in areas on the chart above the threshold
-                if self.po.show_conf_intervals:
-                    ax.fill_between(self.prof_data.bin_centers,
-                                    0,
-                                    10,
-                                    where=fill_where,
-                                    facecolor=facecolor,
-                                    interpolate=False,
-                                    alpha=0.7
-                                    )
-
-                # List the boundaries of the regions that were filled in the summary file
-                # as comma separated pairs. itertools.groupby splits the list into
-                # contiguous regions according to the key function - we take the first
-                # and last elements of the "True" regions.
-                self.summary.append(name + ":")
-                for filled, group in groupby(zip(self.prof_data.bin_centers, fill_where), key=lambda x: x[1]):
-                    if filled:
-                        bins = [g[0] for g in group]
-                        self.summary.append("{},{}".format(min(bins), max(bins)))
-
-                # Plot a proxy for the legend - plot spurious data outside plot limits,
-                # with legend entry matching colours of filled regions.
-                if self.po.show_conf_intervals:
-                    plt.plot(-1, -1, 's', color=facecolor, label=name, alpha=0.7, ms=15)
+                pm.plot_fill(self.prof_data.bin_centers,
+                             self.po.plot_limits[1][1] * len(self.prof_data.bin_centers),
+                             np.isnan(interval),
+                             scheme
+                             )
 
         if self.po.tau is not None:
             # Plot the theory error as a band around the usual line

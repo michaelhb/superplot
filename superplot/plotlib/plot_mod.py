@@ -40,6 +40,7 @@ def save_plot(name):
     fig.set_size_inches(scaled_w, scaled_h)
     plt.savefig(name)
 
+
 def plot_data(x, y, scheme, zorder=1):
     """
     Plot a point with a particular color scheme.
@@ -318,11 +319,9 @@ def plot_contour(data, levels, scheme, bin_limits):
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours/styles of contours.
     if scheme.colour:
-        x_outside = 1E1 * abs(bin_limits[0][1])
-        y_outside = 1E1 * abs(bin_limits[1][1])
         for name, style in zip(scheme.level_names, ['--', '-']):
-            plt.plot(x_outside,
-                     y_outside,
+            plt.plot(np.nan,
+                     np.nan,
                      style,
                      color=scheme.colour,
                      label=name,
@@ -373,13 +372,11 @@ def plot_filled_contour(
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours of filled contours.
     if scheme.colours:
-        x_outside = 1E1 * abs(bin_limits[0][1])
-        y_outside = 1E1 * abs(bin_limits[1][1])
         for name, color in zip(scheme.level_names, scheme.colours):
             edgecolor = colors.colorConverter.to_rgba(color, alpha=1.);
             facecolor = colors.colorConverter.to_rgba(color, alpha=0.7);
-            plt.plot(x_outside,
-                     y_outside,
+            plt.plot(np.nan,
+                     np.nan,
                      's',
                      markerfacecolor=facecolor,
                      markeredgecolor=edgecolor,
@@ -421,8 +418,26 @@ def plot_band(x_data, y_data, width, scheme):
     plt.fill_between(x_data, lower_y, upper_y, where=None, facecolor=scheme.colour, alpha=0.7)
 
     # Proxy for legend
-    plt.plot(-1, -1, 's',
+    plt.plot(np.nan, np.nan, 's',
              color=scheme.colour,
              label=scheme.label,
              alpha=0.7,
              ms=15)
+
+
+def plot_fill(x_data, y_data, where, scheme, alpha=0.7):
+    r"""
+    Fill the area underneath a line with a color.
+
+    :param x_data: x-data to be plotted
+    :type x_data: numpy.ndarray
+    :param y_data: y-data to be plotted
+    :type y_data: numpy.ndarray
+    :param where: Where to fill
+    :type where: numpy.ndarray
+    :param scheme: Object containing appearance options, colours etc
+    :type scheme: :py:class:`schemes.Scheme`
+    """
+    plt.fill_between(x_data, y_data, where=where, color=scheme.colour, alpha=alpha)
+    # Proxy for legend
+    plt.fill(np.nan, np.nan, color=scheme.colour, alpha=alpha, label=scheme.label)

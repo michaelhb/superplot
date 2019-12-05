@@ -385,15 +385,8 @@ def conf_interval(chi_sq, bin_centers, alpha):
     critical_chi_sq = stats.chi2.ppf(1. - alpha, 1)
 
     # Find regions of binned parameter that have delta chi_sq < critical_value
-    delta_chi_sq = chi_sq - chi_sq.min()
-    _conf_interval = np.zeros(chi_sq.size)
-
-    for index in range(delta_chi_sq.size):
-        if delta_chi_sq[index] < critical_chi_sq:
-            _conf_interval[index] = bin_centers[index]
-        else:
-            _conf_interval[index] = None
-
+    _conf_interval = np.array(bin_centers)
+    _conf_interval[chi_sq > critical_chi_sq + chi_sq.min()] = np.nan
     return _conf_interval
 
 

@@ -77,10 +77,6 @@ prof_chi_sq:
     symbol: '--'
     label: '$\Delta \chi^2$'
 
-    # Colours and labels for excluded regions
-    colours: ['Gold', 'Peru']
-    level_names: ['$2\sigma$ excluded', '$1\sigma$ excluded']
-
 # Theory error band label and colour (used in chi-squared plot)
 tau_band:
     colour: 'RoyalBlue'

@@ -177,6 +177,20 @@ class OneDimPlot(Plot):
             nbins=self.po.nbins,
             bin_limits=self.po.bin_limits)
 
+        # Confidence intervals
+        self.conf_intervals = [one_dim.conf_interval(self.prof_data.prof_chi_sq, self.prof_data.bin_centers, alpha=aa) for aa
+                               in
+                               self.po.alpha]
+
+
+        for intervals, scheme in zip(self.conf_intervals, self.schemes.conf_intervals):
+            self.summary.append("{}:".format(scheme.label))
+
+            masked = np.ma.masked_array(intervals, np.logical_not(np.isnan(intervals)))
+            clumps = np.ma.clump_masked(masked)
+            for c in clumps:
+                self.summary.append("{} to {}".format(self.prof_data.bin_centers[c.start], self.prof_data.bin_centers[c.stop]))
+
         # Note the best-fit point is calculated using the raw data,
         # while the mean, median and mode use the binned PDF.
 
@@ -196,7 +210,7 @@ class OneDimPlot(Plot):
         self.posterior_modes = one_dim.posterior_mode(self.pdf_data.pdf, self.pdf_data.bin_centers)
         self.summary.append("Posterior mode/s: {}".format(self.posterior_modes))
 
-        height = 0.01 if self.po.pdf_1d_norm_max else 0.01 * self.pdf_data.pdf.max()
+        height = 0.01 * self.po.plot_limits[1][1]
 
         # Best-fit point
         if self.po.show_best_fit:

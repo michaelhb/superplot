@@ -546,6 +546,32 @@ class GUIControl(gtk.Window):
         alignment.add(child)
         return alignment
 
+    def save(self):
+        """
+        Save a plot via a dialogue box.
+        """
+        self.po.save_plot = self.obj.po.save_plot = self.save_plot.get_active()
+        self.po.save_summary = self.obj.po.save_summary = self.save_summary.get_active()
+        self.po.save_options = self.obj.po.save_options = self.save_options.get_active()
+
+        if not (self.po.save_plot or self.po.save_summary or self.po.save_options):
+            message_dialog(gtk_wrapper.MESSAGE_WARNING, "Nothing to save!")
+            return
+
+        # Get name to save to from a dialogue box.
+        save_name = save_file_gui(default_file_name=os.path.splitext(self.po.save_name)[0],
+                                  add_pattern=["*.pdf",
+                                               "*.png",
+                                               "*.eps",
+                                               "*.ps"])
+
+        if not isinstance(save_name, str):
+            # Case in which no file is chosen
+            return
+
+        self.obj.po.save_name = save_name
+        self.obj.save()
+
     ###########################################################################
 
     # Call-back functions. These functions are executed when buttons
@@ -662,53 +688,20 @@ class GUIControl(gtk.Window):
         self.box = gtk.VBox()
         canvas = gtk_wrapper.FigureCanvas(plt.gcf())
         self.box.pack_start(canvas, True, True, 0)
+
+        # Monkey-patch the toolbar to use a different method for saving
+        gtk_wrapper.NavigationToolbar.save_figure = lambda *args, **kwargs: self.save()
         toolbar = gtk_wrapper.NavigationToolbar(canvas, self)
         self.box.pack_start(toolbar, False, False, 0)
-        self.gridbox.attach(self.box, 2, 5, 0, 15)
-
-        # Button to save the plot
-        save_button = gtk.Button(label='Save plot.')
-        save_button.connect("clicked", self._psave)
-        self.gridbox.attach(save_button, 2, 5, 16, 17)
+        self.gridbox.attach(self.box, 2, 5, 0, 16)
 
         # Attach the check boxes to specify what is saved
-        self.gridbox.attach(self._align_center(self.save_plot), 2, 3, 15, 16)
-        self.gridbox.attach(self._align_center(self.save_summary), 3, 4, 15, 16)
-        self.gridbox.attach(self._align_center(self.save_options), 4, 5, 15, 16)
+        self.gridbox.attach(self._align_center(self.save_plot), 2, 3, 16, 17)
+        self.gridbox.attach(self._align_center(self.save_summary), 3, 4, 16, 17)
+        self.gridbox.attach(self._align_center(self.save_options), 4, 5, 16, 17)
 
         # Show new buttons etc
         self.show_all()
-
-    def _psave(self, button):
-        """
-        Callback function to save a plot via a dialogue box.
-        NB differs from toolbox save, because it's figure object, rather
-        than image in the canvas box.
-
-        :param button: Button with this callback function
-        :type button:
-        """
-        self.po.save_plot = self.obj.po.save_plot = self.save_plot.get_active()
-        self.po.save_summary = self.obj.po.save_summary = self.save_summary.get_active()
-        self.po.save_options = self.obj.po.save_options = self.save_options.get_active()
-
-        if not (self.po.save_plot or self.po.save_summary or self.po.save_options):
-            message_dialog(gtk_wrapper.MESSAGE_WARNING, "Nothing to save!")
-            return
-
-        # Get name to save to from a dialogue box.
-        save_name = save_file_gui(default_file_name=os.path.splitext(self.po.save_name)[0],
-                                  add_pattern=["*.pdf",
-                                               "*.png",
-                                               "*.eps",
-                                               "*.ps"])
-
-        if not isinstance(save_name, str):
-            # Case in which no file is chosen
-            return
-
-        self.obj.po.save_name = save_name
-        self.obj.save()
 
 def main():
     """

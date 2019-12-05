@@ -1,27 +1,27 @@
 # Values of alpha.
 alpha: [0.045500263896, 0.31731050786]
 
-# Default plot limits [[xmin, xmax], [ymin, ymax]] or bins or extent.
+# Plot limits [[xmin, xmax], [ymin, ymax]] or bins or extent.
 plot_limits: bins
 
-# Default bin limits [[xmin, xmax], [ymin, ymax]] or quantile or extent.
+# Bin limits [[xmin, xmax], [ymin, ymax]] or quantile or extent.
 bin_limits: quantile
 
-# Default number of bins, int or auto.
+# Number of bins, int, (int, int) or auto.
 nbins: auto
 
-# Default colorbar limits for scatter plots
+# Colorbar limits for scatter plots
 cb_limits: null
 
-# Default number of ticks for axes.
-xticks: 5
-yticks: 5
-cbticks: 10
+# Maximum number of ticks for axes.
+max_xticks: 5
+max_yticks: 5
+max_cbticks: 10
 
-# Default plot title.
+# Plot title.
 plot_title: null
 
-# Default legend title.
+# Legend title.
 leg_title: null
 
 # Location of plot title.
@@ -46,7 +46,7 @@ dof: 10
 lower: 0.001
 upper: 0.999
 
-# Default variables to show.
+# Variables to show.
 xindex: 2
 yindex: 3
 zindex: 4
@@ -57,12 +57,12 @@ logy: False
 logz: False
 
 
-# Default labels.
+# Labels.
 xlabel: "$x$"
 ylabel: "$y$"
 zlabel: "$z$"
 
-# Default elements to show.
+# Elements to show.
 show_best_fit: True
 show_posterior_mean: True
 show_posterior_median: True
@@ -72,7 +72,7 @@ show_credible_regions: True
 show_posterior_pdf: True
 show_prof_like: True
 
-# Default plot type.
+# Plot type.
 plot_type: OneDimStandard
 
 # Which matplotlib style - seee https://matplotlib.org/3.1.1/tutorials/introductory/customizing.html
@@ -88,10 +88,10 @@ schemes_yaml: schemes.yml
 # List of extra styles available by URL.
 url_styles: ["https://raw.githubusercontent.com/scikit-hep/mplhep/master/mplhep/stylelib/ROOT.mplstyle"]
 
-# Default data file.
+# Data file.
 data_file: null
 
-# Default info file.
+# Info file.
 info_file: null
 
 # Name of saved figure.

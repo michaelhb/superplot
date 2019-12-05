@@ -181,22 +181,20 @@ def plot_limits(limits=None):
         plt.ylim(limits[1])
 
 
-def plot_ticks(xticks, yticks):
+def plot_ticks(max_xticks, max_yticks):
     """
-    Set the numbers of ticks on the axis.
+    Set the maximum numbers of ticks on the axes.
 
-    :param ax: Axis object
-    :type ax: matplotlib.axes.Axes
-    :param xticks: Number of required major x ticks
-    :type xticks: integer
-    :param yticks: Number of required major y ticks
-    :type yticks: integer
+    :param max_xticks: Maximum number of major x ticks
+    :type max_xticks: integer
+    :param max_yticks: Maximum number of major y ticks
+    :type max_yticks: integer
 
     """
     ax = plt.gca()
     # Set major x, y ticks
-    ax.xaxis.set_major_locator(MaxNLocator(xticks))
-    ax.yaxis.set_major_locator(MaxNLocator(yticks))
+    ax.xaxis.set_major_locator(MaxNLocator(max_xticks - 1))
+    ax.yaxis.set_major_locator(MaxNLocator(max_yticks - 1))
     # Auto minor x and y ticks
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -221,7 +219,7 @@ def plot_labels(xlabel, ylabel, plot_title=None, title_position='right'):
     plt.title(plot_title, loc=title_position)
 
 
-def plot_image(data, bin_limits, plot_limits, scheme, show_colorbar=True, force_aspect=True, cbticks=5):
+def plot_image(data, bin_limits, plot_limits, scheme, show_colorbar=True, force_aspect=True, max_cbticks=5):
     """
     Plot data as an image.
 
@@ -274,7 +272,7 @@ def plot_image(data, bin_limits, plot_limits, scheme, show_colorbar=True, force_
         # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
         cb = plt.colorbar(im, orientation='vertical', fraction=0.046, pad=0.04)
         # Set reasonable number of ticks
-        cb.locator = MaxNLocator(cbticks)
+        cb.locator = MaxNLocator(max_cbticks - 1)
         cb.update_ticks()
         # Colour bar label
         cb.ax.set_ylabel(scheme.colour_bar_title)

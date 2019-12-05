@@ -190,7 +190,7 @@ class TwoDimPlotPDF(TwoDimPlot):
                     self.schemes.posterior,
                     self.po.show_colorbar,
                     self.po.force_aspect,
-                    self.po.cbticks)
+                    self.po.max_cbticks)
 
         # Credible regions
         levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]
@@ -223,7 +223,7 @@ class TwoDimPlotPL(TwoDimPlot):
                     self.schemes.prof_like,
                     self.po.show_colorbar,
                     self.po.force_aspect,
-                    self.po.cbticks)
+                    self.po.max_cbticks)
 
         levels = [two_dim.critical_prof_like(aa) for aa in self.po.alpha]
 
@@ -274,7 +274,7 @@ class Scatter(TwoDimPlot):
             # Colour bar label
             cb.ax.set_ylabel(self.po.zlabel)
             # Set reasonable number of ticks
-            cb.locator = MaxNLocator(self.po.cbticks)
+            cb.locator = MaxNLocator(self.po.max_cbticks - 1)
             cb.update_ticks()
 
         # Credible regions

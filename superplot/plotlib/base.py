@@ -89,7 +89,7 @@ class Plot(object):
         pm.appearance(self.__class__.__name__, extra, self.po.mpl_path)
 
         # Apply changes to axes
-        pm.plot_ticks(self.po.xticks, self.po.yticks)
+        pm.plot_ticks(self.po.max_xticks, self.po.max_yticks)
         pm.plot_labels(self.po.xlabel, self.po.ylabel, self.po.plot_title, self.po.title_position)
 
     def save(self):

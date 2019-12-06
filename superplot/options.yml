@@ -67,7 +67,7 @@ show_posterior_pdf: True
 show_prof_like: True
 
 # Plot type.
-plot_type: OneDimStandard
+plot_type: one-dim
 
 # Which matplotlib style - seee https://matplotlib.org/3.1.1/tutorials/introductory/customizing.html
 # e.g. seaborn-darkgrid, Solarize_Light2, seaborn-notebook, classic, seaborn-ticks, grayscale, bmh, seaborn-talk, dark_background, ggplot, fivethirtyeight, _classic_test, seaborn-colorblind, seaborn-deep, seaborn-whitegrid, seaborn-bright, seaborn-poster, seaborn-muted, seaborn-paper, seaborn-white, fast, seaborn-pastel, seaborn-dark, seaborn, seaborn-dark-palette

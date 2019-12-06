@@ -15,7 +15,7 @@ import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
 import superplot.statslib.bins as bins
 from . import plot_mod as pm
-from .base import OneDimPlot, TwoDim
+from .base import OneDimPlot, TwoDimPlot
 from superplot.plot_options import Defaults
 
 
@@ -89,7 +89,7 @@ class OneDimChiSq(OneDimPlot):
         plt.ylabel(self.schemes.prof_chi_sq.label)
 
 
-class TwoDimFilledPDF(TwoDim):
+class TwoDimFilledPDF(TwoDimPlot):
     """ Makes a two dimensional plot with filled credible regions
     and point statistics. """
 
@@ -111,7 +111,7 @@ class TwoDimFilledPDF(TwoDim):
                     bin_limits=self.po.bin_limits)
 
 
-class TwoDimFilledPL(TwoDim):
+class TwoDimFilledPL(TwoDimPlot):
     """ Makes a two dimensional plot with filled confidence intervals
      and point statistics. """
 
@@ -129,7 +129,7 @@ class TwoDimFilledPL(TwoDim):
                     bin_limits=self.po.bin_limits)
 
 
-class TwoDimPDF(TwoDim):
+class TwoDimPDF(TwoDimPlot):
     """ Makes a two dimensional marginalised posterior plot
     with point statistics and credible regions. """
 
@@ -158,7 +158,7 @@ class TwoDimPDF(TwoDim):
                     bin_limits=self.po.bin_limits)
 
 
-class TwoDimPL(TwoDim):
+class TwoDimPL(TwoDimPlot):
     """ Makes a two dimensional profile likelihood plot with
     point statistics and confidence intervals. """
 
@@ -187,7 +187,7 @@ class TwoDimPL(TwoDim):
                     bin_limits=self.po.bin_limits)
 
 
-class Scatter(TwoDim):
+class Scatter(TwoDimPlot):
     """ Makes a three dimensional scatter plot showing point statistics,
     credible regions and confidence intervals. The scattered points are
     coloured by the zdata. """

@@ -12,7 +12,6 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.pylab import rcParams
 
 from . import plot_mod as pm
 import superplot.statslib.one_dim as one_dim

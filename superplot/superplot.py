@@ -685,8 +685,8 @@ class GUIControl(gtk.Window):
             pass
 
         # Add new box
-        self.box = gtk.VBox()
         canvas = gtk_wrapper.FigureCanvas(plt.gcf())
+        self.box = gtk.VBox()
         self.box.pack_start(canvas, True, True, 0)
 
         # Monkey-patch the toolbar to use a different method for saving

@@ -12,10 +12,9 @@ from superplot.data_loader import load_yaml
 default_yaml = "options.yml"
 
 # Converters for data in yaml
-converters = {"alpha": lambda x: np.sort(np.array(x)),
+converters = {"alpha": sorted,
               "plot_title": lambda x: "" if x is None else x,
-              "leg_title": lambda x: "" if x is None else x,
-              "style": lambda x: "original_colours_classic" if x is None else x}
+              "leg_title": lambda x: "" if x is None else x}
 
 class Defaults(object):
     """
@@ -38,7 +37,6 @@ class Defaults(object):
             except Exception:
                 try:
                     d = c(self.default_yaml[attr])
-                    setattr(self, attr, d)
                     warnings.warn("No {} - using {}".format(attr, d))
                     return d
                 except:
@@ -61,12 +59,10 @@ class Defaults(object):
         d = {}
         for k in self.keys():
             d[k] = getattr(self, k)
-            # Try to remove np.float64 etc that make yaml messier
-            if k == "bin_limits" or k == "plot_limits" or k == "alpha":
-                try:
-                    d[k] = np.array(d[k]).astype(float).tolist()
-                except Exception as m:
-                    pass
+            try:
+                d[k] = d[k].tolist()
+            except:
+                pass
 
         with open(file_name, 'w') as f:
             yaml.dump(d, f)

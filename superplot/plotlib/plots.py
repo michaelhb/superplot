@@ -3,45 +3,31 @@
 plotlib.plots
 =============
 
-Implementation of plot classes. These inherit from the classes in
-plotlib.base and must specify a figure() method which returns
-a matplotlib figure object.
-
-Plots should also have a "description" attribute with a one line
-description of the type of plot.
-
-A list of implemented plot classes :py:data:`plotlib.plots.plot_types`
-is found at the bottom of this module. This is useful for the GUI,
-which needs to enumerate the available plots. So if a new plot type
-is implemented, it should be added to this list.
-
-Also includes a function to save the current plot.
+Implementation of plot classes.
 """
 import warnings
 
 import numpy as np
-from scipy.stats import chi2
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
-from matplotlib.pylab import get_cmap, rcParams
+from matplotlib.pylab import get_cmap
 
 import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
+import superplot.statslib.bins as bins
 from . import plot_mod as pm
-from .base import OneDimPlot, TwoDimPlot
+from .base import OneDimPlot, TwoDim
 from superplot.plot_options import Defaults
 
 
 class OneDimStandard(OneDimPlot):
-    """
-    Makes a one dimensional plot, showing profile likelihood,
-    marginalised posterior, and statistics.
-    """
+    """ Makes a one dimensional plot, showing profile likelihood,
+    marginalised posterior, and point statistics. """
 
     description = "One-dimensional plot."
+    name = "one-dim"
 
-    def __init__(self, plot_options, data=None):
-        super(OneDimStandard, self).__init__(plot_options, data)
+    def plot(self):
+        super(OneDimStandard, self).plot()
 
         # Turn off y-tick labels since they are somewhat arbitrary
         plt.gca().get_yaxis().set_ticklabels([])
@@ -55,13 +41,8 @@ class OneDimStandard(OneDimPlot):
         if self.po.show_prof_like:
             pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_like, self.schemes.prof_like)
 
-        # Credible regions
-        regions = [one_dim.credible_region(self.pdf_data.pdf, self.pdf_data.bin_centers, alpha=aa, tail=self.po.cr_1d_tail)
-                   for aa in self.po.alpha]
-
-        for region, scheme in zip(regions, self.schemes.credible_regions):
-            self.summary.append("{}: {}".format(scheme.label, region))
-            if self.po.show_credible_regions:
+        if self.po.show_credible_regions:
+            for region, scheme in zip(self.credible_regions, self.schemes.credible_regions):
                 pdf = self.pdf_data.pdf_norm_max if self.po.pdf_1d_norm_max else self.pdf_data.pdf
                 where = np.logical_and(self.pdf_data.bin_centers > region[0], self.pdf_data.bin_centers < region[1])
                 pm.plot_fill(self.pdf_data.bin_centers, pdf, where, scheme)
@@ -73,11 +54,7 @@ class OneDimStandard(OneDimPlot):
                 height = 0.9 * self.po.plot_limits[1][1]
                 pm.plot_data(intervals, [height] * len(intervals), scheme)
 
-        # Add plot legend
-        pm.legend(self.po.leg_title, self.po.leg_position)
-
-        # Override y-axis label. This prevents the y axis from taking its
-        # label from the 'y-axis variable' selction in the GUI.
+        # Override y-axis label
         if self.po.show_posterior_pdf and not self.po.show_prof_like:
             plt.ylabel(self.schemes.posterior.label)
         elif self.po.show_prof_like and not self.po.show_posterior_pdf:
@@ -87,15 +64,14 @@ class OneDimStandard(OneDimPlot):
 
 
 class OneDimChiSq(OneDimPlot):
-    """
-    Makes a one dimensional plot, showing delta-chisq only,
-    and excluded regions.
-    """
+    """ Makes a one dimensional plot, showing delta chi-squared,
+    excluded regions, and point statistics. """
 
     description = "One-dimensional chi-squared plot."
+    name = "one-dim-chisq"
 
-    def __init__(self, plot_options, data=None):
-        super(OneDimChiSq, self).__init__(plot_options, data)
+    def plot(self):
+        super(OneDimChiSq, self).plot()
 
         # Plot the delta chi-squared
         pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, self.schemes.prof_chi_sq)
@@ -109,27 +85,19 @@ class OneDimChiSq(OneDimPlot):
                              scheme
                              )
 
-        if self.po.tau is not None:
-            # Plot the theory error as a band around the usual line
-            pm.plot_band(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, self.po.tau, self.schemes.tau_band)
-
-        # Add plot legend
-        pm.legend(self.po.leg_title, self.po.leg_position)
-
-        # Override y-axis label. This prevents the y axis from taking its
-        # label from the 'y-axis variable' selction in the GUI (as
-        # in this plot it should always be chi-squared).
+        # Override y-axis label
         plt.ylabel(self.schemes.prof_chi_sq.label)
 
 
-class TwoDimPlotFilledPDF(TwoDimPlot):
-    """ Makes a two dimensional plot with filled credible regions only, showing
-    best-fit and posterior mean. """
+class TwoDimFilledPDF(TwoDim):
+    """ Makes a two dimensional plot with filled credible regions
+    and point statistics. """
 
     description = "Two-dimensional posterior pdf, filled contours only."
+    name = "two-dim-filled-pdf"
 
-    def __init__(self, plot_options, data=None):
-        super(TwoDimPlotFilledPDF, self).__init__(plot_options, data)
+    def plot(self):
+        super(TwoDimFilledPDF, self).plot()
 
         # Credible regions
         levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]
@@ -142,109 +110,95 @@ class TwoDimPlotFilledPDF(TwoDimPlot):
                     self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
 
-        # Add legend
-        pm.legend(self.po.leg_title, self.po.leg_position)
 
-
-class TwoDimPlotFilledPL(TwoDimPlot):
-    """ Makes a two dimensional plot with filled confidence intervals only, showing
-    best-fit and posterior mean. """
+class TwoDimFilledPL(TwoDim):
+    """ Makes a two dimensional plot with filled confidence intervals
+     and point statistics. """
 
     description = "Two-dimensional profile likelihood, filled contours only."
+    name = "two-dim-filled-pl"
 
-    def __init__(self, plot_options, data=None):
-        super(TwoDimPlotFilledPL, self).__init__(plot_options, data)
-
-        levels = [two_dim.critical_prof_like(aa) for aa in self.po.alpha]
+    def plot(self):
+        super(TwoDimFilledPL, self).plot()
 
         if self.po.show_conf_intervals:
             pm.plot_filled_contour(
                     self.prof_data.prof_like,
-                    levels,
+                    self.credible_region_levels,
                     self.schemes.prof_like,
                     bin_limits=self.po.bin_limits)
 
-        # Add legend
-        pm.legend(self.po.leg_title, self.po.leg_position)
 
-
-class TwoDimPlotPDF(TwoDimPlot):
-    """ Makes a two dimensional marginalised posterior plot, showing
-    best-fit and posterior mean and credible regions. """
+class TwoDimPDF(TwoDim):
+    """ Makes a two dimensional marginalised posterior plot
+    with point statistics and credible regions. """
 
     description = "Two-dimensional posterior pdf."
+    name = "two-dim-pdf"
 
-    def __init__(self, plot_options, data=None):
-        super(TwoDimPlotPDF, self).__init__(plot_options, data)
+    def plot(self):
+        super(TwoDimPDF, self).plot()
 
         if self.po.show_posterior_pdf:
-            pm.plot_image(
+            im = pm.plot_image(
                     self.pdf_data.pdf_norm_max,
                     self.po.bin_limits,
                     self.po.plot_limits,
                     self.schemes.posterior,
-                    self.po.show_colorbar,
-                    self.po.force_aspect,
-                    self.po.max_cbticks)
+                    self.po.force_aspect)
 
-        # Credible regions
-        levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]
+            if self.po.show_colorbar:
+                pm.plot_colorbar(im, self.po.max_cbticks, self.schemes.posterior.colour_bar_title)
 
         if self.po.show_credible_regions:
             pm.plot_contour(
                     self.pdf_data.pdf,
-                    levels,
+                    self.credible_region_levels,
                     self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
 
-        # Add legend
-        pm.legend(self.po.leg_title, self.po.leg_position)
 
-
-class TwoDimPlotPL(TwoDimPlot):
-    """ Makes a two dimensional profile likelihood plot, showing
-    best-fit and posterior mean and confidence intervals. """
+class TwoDimPL(TwoDim):
+    """ Makes a two dimensional profile likelihood plot with
+    point statistics and confidence intervals. """
 
     description = "Two-dimensional profile likelihood."
+    name = "two-dim-pl"
 
-    def __init__(self, plot_options, data=None):
-        super(TwoDimPlotPL, self).__init__(plot_options, data)
+    def plot(self):
+        super(TwoDimPL, self).plot()
 
         if self.po.show_prof_like:
-            pm.plot_image(
+            im = pm.plot_image(
                     self.prof_data.prof_like,
                     self.po.bin_limits,
                     self.po.plot_limits,
                     self.schemes.prof_like,
-                    self.po.show_colorbar,
-                    self.po.force_aspect,
-                    self.po.max_cbticks)
+                    self.po.force_aspect)
 
-        levels = [two_dim.critical_prof_like(aa) for aa in self.po.alpha]
+            if self.po.show_colorbar:
+                pm.plot_colorbar(im, self.po.max_cbticks, self.schemes.prof_like.colour_bar_title)
 
         if self.po.show_conf_intervals:
             pm.plot_contour(
                     self.prof_data.prof_like,
-                    levels,
+                    self.conf_interval_levels,
                     self.schemes.prof_like,
                     bin_limits=self.po.bin_limits)
 
-        # Add legend
-        pm.legend(self.po.leg_title, self.po.leg_position)
 
-
-class Scatter(TwoDimPlot):
-    """ Makes a three dimensional scatter plot, showing
-    best-fit and posterior mean and credible regions and confidence intervals.
-    The scattered points are coloured by the zdata. """
+class Scatter(TwoDim):
+    """ Makes a three dimensional scatter plot showing point statistics,
+    credible regions and confidence intervals. The scattered points are
+    coloured by the zdata. """
 
     description = "Three-dimensional scatter plot."
+    name = "three-dim-scatter"
 
-    def __init__(self, plot_options, data=None):
-        super(Scatter, self).__init__(plot_options, data)
+    def plot(self):
+        super(Scatter, self).plot()
 
-        min_ = min(self.po.cb_limits) if self.po.cb_limits else np.percentile(self.zdata, 5.)
-        max_ = max(self.po.cb_limits) if self.po.cb_limits else np.percentile(self.zdata, 95.)
+        self.po.cb_limits = bins.bin_limits(self.po.cb_limits, self.zdata, self.posterior)
 
         # Plot scatter of points.
         sc = plt.scatter(
@@ -255,57 +209,41 @@ class Scatter(TwoDimPlot):
                 marker=self.schemes.scatter.symbol,
                 cmap=get_cmap(self.schemes.scatter.colour_map, self.schemes.scatter.number_colours),
                 norm=None,
-                vmin=min_,
-                vmax=max_,
+                vmin=self.po.cb_limits[0],
+                vmax=self.po.cb_limits[1],
                 linewidth=0.,
                 verts=None,
                 rasterized=True)
 
         if self.po.show_colorbar:
-
-            # Plot a colour bar. NB "magic" values for fraction and pad taken from
-            # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
-            cb = plt.colorbar(sc, orientation='vertical', fraction=0.046, pad=0.04)
-            # Colour bar label
-            cb.ax.set_ylabel(self.po.zlabel)
-            # Set reasonable number of ticks
-            cb.locator = MaxNLocator(self.po.max_cbticks - 1)
-            cb.update_ticks()
-
-        # Credible regions
-        levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]
+            pm.plot_colorbar(sc, self.po.max_cbticks, self.po.zlabel)
 
         if self.po.show_credible_regions:
             pm.plot_contour(
                     self.pdf_data.pdf,
-                    levels,
+                    self.credible_region_levels,
                     self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
-
-        levels = [two_dim.critical_prof_like(aa) for aa in self.po.alpha]
 
         if self.po.show_conf_intervals:
             pm.plot_contour(
                     self.prof_data.prof_like,
-                    levels,
+                    self.conf_interval_levels,
                     self.schemes.prof_like,
                     bin_limits=self.po.bin_limits)
-
-        # Add legend
-        pm.legend(self.po.leg_title, self.po.leg_position)
 
 
 plot_list = [
     OneDimStandard,
     OneDimChiSq,
-    TwoDimPlotFilledPDF,
-    TwoDimPlotFilledPL,
-    TwoDimPlotPDF,
-    TwoDimPlotPL,
+    TwoDimFilledPDF,
+    TwoDimFilledPL,
+    TwoDimPDF,
+    TwoDimPL,
     Scatter
 ]
 
-plot_dict = {c.__name__: c for c in plot_list}
+plot_dict = {c.name: c for c in plot_list}
 
 def get_plot(plot_options, data=None):
     """
@@ -348,7 +286,8 @@ def make_plot_from_yamls(plot_options_yamls):
 
         # Make a legend per plot
         leg = pm.legend(leg_title=obj.po.leg_title, leg_position=obj.po.leg_position, handles=handles[-n_handles:], labels=labels[-n_handles:])
-        plt.gca().add_artist(leg)
+        if leg:
+            plt.gca().add_artist(leg)
 
     if len(leg_positions) > 1 and ("best" in leg_positions or len(leg_positions) != len(set(leg_positions))):
         warnings.warn("legends may have overlapped - {}".format(leg_positions))

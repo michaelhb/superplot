@@ -46,20 +46,17 @@ def _summary(name, param, posterior, chi_sq):
                                      nbins=defaults.nbins,
                                      bin_limits=defaults.bin_limits)
 
-    lower_credible_region = one_dim.credible_region(pdf_data.pdf,
-                                                    pdf_data.bin_centers,
-                                                    alpha=defaults.alpha[1],
-                                                    region="lower")
-    upper_credible_region = one_dim.credible_region(pdf_data.pdf,
-                                                    pdf_data.bin_centers,
-                                                    alpha=defaults.alpha[1],
-                                                    region="upper")
+    lower, uppper = one_dim.credible_region(pdf_data.pdf,
+                                            pdf_data.bin_centers,
+                                            alpha=defaults.alpha[1],
+                                            region="symmetric")
+
 
     summary = [name,
                bestfit,
                post_mean,
-               lower_credible_region,
-               upper_credible_region]
+               lower,
+               upper]
 
     return summary
 
@@ -101,14 +98,12 @@ def _summary_table(labels, data, names=None, data_file=None, info_file=None):
 
     # Best-fit information and information about chain
     min_chi_sq = data[1].min()
-    p_value = stats.p_value(data[1], defaults.dof)
     bestfit_table = pt(header=False)
     bestfit_table.align = "l"
     bestfit_table.float_format = "4.2"
     bestfit_table.add_row(["File", data_file])
     bestfit_table.add_row(["Info-file", info_file])
     bestfit_table.add_row(["Minimum chi-squared", min_chi_sq])
-    bestfit_table.add_row(["p-value", p_value])
 
     return bestfit_table.get_string() + "\n\n" + param_table.get_string()
 

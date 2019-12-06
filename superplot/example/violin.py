@@ -36,13 +36,13 @@ def custom_violin_stats(parameter, posterior, bin_limits=None):
     """
 
     pdf = kde_posterior_pdf(parameter, posterior, bin_limits=bin_limits)
-
+    lower, upper = credible_region(pdf.pdf, pdf.bin_centers, ALPHA, "symmetric")
     violin_stats = {"coords": pdf.bin_centers,
                     "vals": pdf.pdf,
                     "mean": posterior_mean(posterior, parameter),
                     "median": posterior_median(pdf.pdf, pdf.bin_centers),
-                    "min": credible_region(pdf.pdf, pdf.bin_centers, ALPHA, "lower"),
-                    "max": credible_region(pdf.pdf, pdf.bin_centers, ALPHA, "upper")}
+                    "min": lower,
+                    "max": upper}
 
     return violin_stats
 

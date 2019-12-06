@@ -27,18 +27,21 @@ def save_plot(name):
 
     :param name: Prefix of filename, without extension
     :type name: string
-
     """
-    # Set axes size rather than figure size
-    # https://stackoverflow.com/a/44971177
+    plt.savefig(name)
+
+
+def set_ax_size():
+    """
+    Set axes size rather than figure size - see https://stackoverflow.com/a/44971177
+    """
     ax = plt.gca()
     w, h = rcParams["figure.figsize"]
     scaled_w = float(w) / (ax.figure.subplotpars.right - ax.figure.subplotpars.left)
     scaled_h = float(h) / (ax.figure.subplotpars.top -  ax.figure.subplotpars.bottom)
-
     fig = plt.gcf()
     fig.set_size_inches(scaled_w, scaled_h)
-    plt.savefig(name)
+    plt.tight_layout()
 
 
 def plot_data(x, y, scheme, zorder=1):
@@ -63,7 +66,7 @@ def plot_data(x, y, scheme, zorder=1):
              zorder=zorder)
 
 
-def appearance(mpl_path, plot_style="default", extra_style=None):
+def style(mpl_path, plot_style="default", extra_style=None):
     """
     Specify the plot's appearance, with e.g. font types etc.
     from mplstyle files.
@@ -140,6 +143,7 @@ def legend(leg_title=None, leg_position=None, **kwargs):
         leg.set_title(leg_title, prop={"size": size})
         return leg
 
+
 def plot_limits(limits=None):
     """
     If specified plot limits, set them.
@@ -160,7 +164,6 @@ def plot_ticks(max_xticks, max_yticks):
     :type max_xticks: integer
     :param max_yticks: Maximum number of major y ticks
     :type max_yticks: integer
-
     """
     ax = plt.gca()
     # Set major x, y ticks
@@ -183,14 +186,13 @@ def plot_labels(xlabel, ylabel, plot_title=None, title_position='right'):
     :type plot_title: string
     :param title_position: Location of title
     :type title_position: string
-
     """
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(plot_title, loc=title_position)
 
 
-def plot_image(data, bin_limits, plot_limits, scheme, show_colorbar=True, force_aspect=True, max_cbticks=5):
+def plot_image(data, bin_limits, plot_limits, scheme, force_aspect=True):
     """
     Plot data as an image.
 
@@ -207,7 +209,6 @@ def plot_image(data, bin_limits, plot_limits, scheme, show_colorbar=True, force_
     :param scheme: Object containing appearance options, colours etc
     :type scheme: :py:class:`schemes.Scheme`
     """
-
     # Flatten bin limits
     extent = np.array(
             (bin_limits[0][0],
@@ -238,15 +239,23 @@ def plot_image(data, bin_limits, plot_limits, scheme, show_colorbar=True, force_
     ax = plt.gca()
     ax.set_facecolor(cmin)
 
-    if show_colorbar:
-        # Plot a colour bar. NB "magic" values for fraction and pad taken from
-        # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
-        cb = plt.colorbar(im, orientation='vertical', fraction=0.046, pad=0.04)
-        # Set reasonable number of ticks
-        cb.locator = MaxNLocator(max_cbticks - 1)
-        cb.update_ticks()
-        # Colour bar label
-        cb.ax.set_ylabel(scheme.colour_bar_title)
+
+def plot_colorbar(obj, max_ticks, label):
+    """
+    Add a colorbar to a plot object.
+
+    :param obj: Object to add colorbar for
+    :param max_ticks: Maximum number of ticks on colorbar
+    :param label: Label for colorbar
+    """
+    # Plot a colour bar. NB "magic" values for fraction and pad taken from
+    # http://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
+    cb = plt.colorbar(obj, orientation='vertical', fraction=0.046, pad=0.04)
+    # Set reasonable number of ticks
+    cb.locator = MaxNLocator(max_ticks - 1)
+    cb.update_ticks()
+    # Colour bar label
+    cb.ax.set_ylabel(label)
 
 
 def plot_contour(data, levels, scheme, bin_limits):
@@ -262,7 +271,6 @@ def plot_contour(data, levels, scheme, bin_limits):
     :param bin_limits: Bin limits
     :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
     """
-
     # Flatten bin limits.
     extent = np.array(
             (bin_limits[0][0],
@@ -353,46 +361,6 @@ def plot_filled_contour(
                      label=name,
                      markeredgewidth=4,
                      ms=15)
-
-
-def plot_band(x_data, y_data, width, scheme):
-    r"""
-    Plot a band around a line.
-
-    This is typically for a theoretical error. Vary x by +/- width
-    and find the variation in y. Fill between these largest
-    and smallest y for a given x.
-
-    :param x_data: x-data to be plotted
-    :type x_data: numpy.ndarray
-    :param y_data: y-data to be plotted
-    :type y_data: numpy.ndarray
-    :param width: Width of band - width on the left and right hand-side
-    :type width: integer
-    :param scheme: Object containing appearance options, colours etc
-    :type scheme: :py:class:`schemes.Scheme`
-    """
-
-    # For a given x, find largest/smallest y within x \pm width
-    upper_y = np.full(len(y_data), -float("inf"))
-    lower_y = np.full(len(y_data), float("inf"))
-    for index, x in enumerate(x_data):
-        for x_prime, y_prime in zip(x_data, y_data):
-            if abs(x - x_prime) < width:
-                if y_prime < lower_y[index]:
-                    lower_y[index] = y_prime
-                elif y_prime > upper_y[index]:
-                    upper_y[index] = y_prime
-
-    # Finally plot
-    plt.fill_between(x_data, lower_y, upper_y, where=None, facecolor=scheme.colour, alpha=0.7)
-
-    # Proxy for legend
-    plt.plot(np.nan, np.nan, 's',
-             color=scheme.colour,
-             label=scheme.label,
-             alpha=0.7,
-             ms=15)
 
 
 def plot_fill(x_data, y_data, where, scheme, alpha=0.7):

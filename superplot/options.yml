@@ -30,17 +30,11 @@ title_position : center
 # Location of legend.
 leg_position : best
 
-# For theoretical error on delta chi-squared plots.
-tau: 2
-
 # Whether to use KDE
 kde: False
 
 # Band-width method, if KDE is used for pdfs. scott, silverman or float.
 bandwidth: scott
-
-# Degrees of freedom for calculating chi-squared. Currently only used in summary.py.
-dof: 10
 
 # Fraction of data to include when guessing bin limits.
 lower: 0.001
@@ -116,3 +110,8 @@ pdf_1d_norm_max: True
 
 # Tails for 1d credible region. lower, upper, or symmetric
 cr_1d_tail: symmetric
+
+# Scale data by a factor for units etc.
+scalex: 1.
+scaley: 1.
+scalez: 1.

@@ -47,7 +47,6 @@ class OneDimStandard(OneDimPlot):
                 where = np.logical_and(self.pdf_data.bin_centers > region[0], self.pdf_data.bin_centers < region[1])
                 pm.plot_fill(self.pdf_data.bin_centers, pdf, where, scheme)
 
-
         # Confidence intervals
         if self.po.show_conf_intervals:
             for intervals, scheme in zip(self.conf_intervals, self.schemes.conf_intervals):
@@ -99,14 +98,10 @@ class TwoDimFilledPDF(TwoDimPlot):
     def plot(self):
         super(TwoDimFilledPDF, self).plot()
 
-        # Credible regions
-        levels = [two_dim.critical_density(self.pdf_data.pdf, aa) for aa in self.po.alpha]
-
-        # Plot contours
         if self.po.show_credible_regions:
             pm.plot_filled_contour(
                     self.pdf_data.pdf,
-                    levels,
+                    self.credible_region_levels,
                     self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
 
@@ -124,7 +119,7 @@ class TwoDimFilledPL(TwoDimPlot):
         if self.po.show_conf_intervals:
             pm.plot_filled_contour(
                     self.prof_data.prof_like,
-                    self.credible_region_levels,
+                    self.conf_interval_levels,
                     self.schemes.prof_like,
                     bin_limits=self.po.bin_limits)
 

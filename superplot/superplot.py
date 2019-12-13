@@ -559,17 +559,17 @@ class GUIControl(gtk.Window):
             return
 
         # Get name to save to from a dialogue box.
-        save_name = save_file_gui(default_file_name=os.path.splitext(self.po.save_name)[0],
-                                  add_pattern=["*.pdf",
-                                               "*.png",
-                                               "*.eps",
-                                               "*.ps"])
+        save_image_name = save_file_gui(default_file_name=os.path.splitext(self.po.save_image_name)[0],
+                                        add_pattern=["*.pdf",
+                                                     "*.png",
+                                                     "*.eps",
+                                                     "*.ps"])
 
-        if not isinstance(save_name, str):
+        if not isinstance(save_image_name, str):
             # Case in which no file is chosen
             return
-
-        self.obj.po.save_name = save_name
+        # TODO the other names should get the right path...
+        self.obj.po.save_image_name = save_image_name
         self.obj.save()
 
     ###########################################################################
@@ -724,7 +724,17 @@ def main():
                         default=False,
                         required=False)
 
+    parser.add_argument('--only-stats',
+                        '-s',
+                        help='Only compute statistics',
+                        action='store_true',
+                        default=False,
+                        required=False)
+
     args = parser.parse_args()
+
+    if args.only_stats:
+        return
 
     if args.no_gui:
         if args.plot_options is None:

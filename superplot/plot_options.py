@@ -60,7 +60,7 @@ class Defaults(object):
         for k in self.keys():
             d[k] = getattr(self, k)
             try:
-                d[k] = d[k].tolist()
+                d[k] = np.array(d[k]).tolist()
             except:
                 pass
 

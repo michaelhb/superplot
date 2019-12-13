@@ -256,6 +256,7 @@ def plot_colorbar(obj, max_ticks, label):
     cb.update_ticks()
     # Colour bar label
     cb.ax.set_ylabel(label)
+    return cb
 
 
 def plot_contour(data, levels, scheme, bin_limits):
@@ -283,6 +284,7 @@ def plot_contour(data, levels, scheme, bin_limits):
             data.T,
             levels,
             colors=scheme.colour,
+            linewidths=0.5 * rcParams["lines.linewidth"],
             extent=extent,
             origin=None,
             linestyles=['--', '-'])
@@ -303,8 +305,15 @@ def plot_contour(data, levels, scheme, bin_limits):
                      style,
                      color=scheme.colour,
                      label=name,
+                     linewidth=0.5 * rcParams["lines.linewidth"],
                      alpha=0.7)
 
+
+def add_cbar_levels(cbar, levels, scheme):
+  """
+  Add levels to a colorbar.
+  """
+  cbar.ax.hlines(levels, 0., 1., colors=scheme.colour, linestyles=['--', '-'], linewidths=0.5 * rcParams["lines.linewidth"])
 
 
 def plot_filled_contour(
@@ -345,7 +354,7 @@ def plot_filled_contour(
     filled = plt.contourf(data.T, levels, alpha=0.7, **settings)
 
     # Bold outline of contour
-    plt.contour(data.T, levels, alpha=1., linewidths=4, zorder=0, **settings)
+    plt.contour(data.T, levels, alpha=1., zorder=0, **settings)
 
     # Plot a proxy for the legend - plot spurious data outside bin limits,
     # with legend entry matching colours of filled contours.
@@ -359,8 +368,8 @@ def plot_filled_contour(
                      markerfacecolor=facecolor,
                      markeredgecolor=edgecolor,
                      label=name,
-                     markeredgewidth=4,
-                     ms=15)
+                     markeredgewidth=rcParams["lines.linewidth"],
+                     ms=8)
 
 
 def plot_fill(x_data, y_data, where, scheme, alpha=0.7):

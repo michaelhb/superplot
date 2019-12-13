@@ -89,7 +89,16 @@ data_file: null
 info_file: null
 
 # Name of saved figure.
-save_name: "image.pdf"
+save_image_name: "image.pdf"
+
+# Name of saved statistics.
+save_stats_name: "image_stats.yml"
+
+# Name of saved options.
+save_options_name: "image_options.yml"
+
+# Type of statistics to compute
+stats_type: one-dim
 
 # Which data files to save.
 save_plot: True

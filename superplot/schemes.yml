@@ -12,35 +12,35 @@ posterior_mean:
     colour: 'Olive'
     symbol: 'X'
     label: 'Posterior mean'
-    size: 11
+    size: 6
 
 # Posterior median (point)
 posterior_median:
     colour: 'Tan'
     symbol: 'h'
     label: 'Posterior median'
-    size: 11
+    size: 6
 
 # Posterior mode (point)
 posterior_mode:
     colour: 'Indigo'
     symbol: 'H'
     label: 'Posterior mode'
-    size: 11
+    size: 6
 
 # Best fit (point)
 best_fit:
     colour: 'GoldenRod'
     symbol: 'P'
     label: 'Best-fit'
-    size: 11
+    size: 6
 
 # Data points for scatter plotting
 scatter:
     symbol: 's'
     colour_map: 'PiYG'
     number_colours: 10 # Number of colours on colour map
-    size: 11
+    size: 6
 
 # Posterior PDF
 posterior:
@@ -78,11 +78,6 @@ prof_chi_sq:
     colour: 'DarkOrange'
     symbol: '--'
     label: '$\Delta \chi^2$'
-
-# Theory error band label and colour (used in chi-squared plot)
-tau_band:
-    colour: 'RoyalBlue'
-    label: 'Theory Error'
 
 # Two sigma confidence interval line
 conf_interval_s2:

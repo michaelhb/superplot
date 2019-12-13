@@ -32,24 +32,24 @@ class OneDimStandard(OneDimPlot):
         # Turn off y-tick labels since they are somewhat arbitrary
         plt.gca().get_yaxis().set_ticklabels([])
 
+        pdf = self.stats.pdf_data.pdf_norm_max if self.po.pdf_1d_norm_max else self.stats.pdf_data.pdf
+
         # Plot posterior PDF
         if self.po.show_posterior_pdf:
-            pdf = self.pdf_data.pdf_norm_max if self.po.pdf_1d_norm_max else self.pdf_data.pdf
-            pm.plot_data(self.pdf_data.bin_centers, pdf, self.schemes.posterior)
+            pm.plot_data(self.stats.pdf_data.bin_centers, pdf, self.schemes.posterior)
 
         # Plot profile likelihood
         if self.po.show_prof_like:
-            pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_like, self.schemes.prof_like)
+            pm.plot_data(self.stats.prof_data.bin_centers, self.stats.prof_data.prof_like, self.schemes.prof_like)
 
         if self.po.show_credible_regions:
-            for region, scheme in zip(self.credible_regions, self.schemes.credible_regions):
-                pdf = self.pdf_data.pdf_norm_max if self.po.pdf_1d_norm_max else self.pdf_data.pdf
-                where = np.logical_and(self.pdf_data.bin_centers > region[0], self.pdf_data.bin_centers < region[1])
-                pm.plot_fill(self.pdf_data.bin_centers, pdf, where, scheme)
+            for region, scheme in zip(self.stats.credible_regions, self.schemes.credible_regions):
+                where = np.logical_and(self.stats.pdf_data.bin_centers > region[0], self.stats.pdf_data.bin_centers < region[1])
+                pm.plot_fill(self.stats.pdf_data.bin_centers, pdf, where, scheme)
 
         # Confidence intervals
         if self.po.show_conf_intervals:
-            for intervals, scheme in zip(self.conf_intervals, self.schemes.conf_intervals):
+            for intervals, scheme in zip(self.stats.conf_intervals, self.schemes.conf_intervals):
                 height = 0.9 * self.po.plot_limits[1][1]
                 pm.plot_data(intervals, [height] * len(intervals), scheme)
 
@@ -73,13 +73,13 @@ class OneDimChiSq(OneDimPlot):
         super(OneDimChiSq, self).plot()
 
         # Plot the delta chi-squared
-        pm.plot_data(self.prof_data.bin_centers, self.prof_data.prof_chi_sq, self.schemes.prof_chi_sq)
+        pm.plot_data(self.stats.prof_data.bin_centers, self.stats.prof_data.prof_chi_sq, self.schemes.prof_chi_sq)
 
         if self.po.show_conf_intervals:
-            for interval, scheme in reversed(list(zip(self.conf_intervals, self.schemes.conf_intervals))):
+            for interval, scheme in reversed(list(zip(self.stats.conf_intervals, self.schemes.conf_intervals))):
                 # Fill in areas on the chart above the threshold
-                pm.plot_fill(self.prof_data.bin_centers,
-                             self.po.plot_limits[1][1] * len(self.prof_data.bin_centers),
+                pm.plot_fill(self.stats.prof_data.bin_centers,
+                             self.po.plot_limits[1][1] * len(self.stats.prof_data.bin_centers),
                              np.isnan(interval),
                              scheme
                              )
@@ -100,8 +100,8 @@ class TwoDimFilledPDF(TwoDimPlot):
 
         if self.po.show_credible_regions:
             pm.plot_filled_contour(
-                    self.pdf_data.pdf,
-                    self.credible_region_levels,
+                    self.stats.pdf_data.pdf,
+                    self.stats.credible_region_levels,
                     self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
 
@@ -118,8 +118,8 @@ class TwoDimFilledPL(TwoDimPlot):
 
         if self.po.show_conf_intervals:
             pm.plot_filled_contour(
-                    self.prof_data.prof_like,
-                    self.conf_interval_levels,
+                    self.stats.prof_data.prof_like,
+                    self.stats.conf_interval_levels,
                     self.schemes.prof_like,
                     bin_limits=self.po.bin_limits)
 
@@ -136,21 +136,26 @@ class TwoDimPDF(TwoDimPlot):
 
         if self.po.show_posterior_pdf:
             im = pm.plot_image(
-                    self.pdf_data.pdf_norm_max,
+                    self.stats.pdf_data.pdf_norm_max,
                     self.po.bin_limits,
                     self.po.plot_limits,
                     self.schemes.posterior,
                     self.po.force_aspect)
 
             if self.po.show_colorbar:
-                pm.plot_colorbar(im, self.po.max_cbticks, self.schemes.posterior.colour_bar_title)
+                cbar = pm.plot_colorbar(im, self.po.max_cbticks, self.schemes.posterior.colour_bar_title)
+
 
         if self.po.show_credible_regions:
             pm.plot_contour(
-                    self.pdf_data.pdf,
-                    self.credible_region_levels,
+                    self.stats.pdf_data.pdf,
+                    self.stats.credible_region_levels,
                     self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
+
+        if self.po.show_posterior_pdf and self.po.show_colorbar:
+            levels = self.stats.credible_region_levels / self.stats.pdf_data.pdf.max()
+            pm.add_cbar_levels(cbar, levels, self.schemes.posterior)
 
 
 class TwoDimPL(TwoDimPlot):
@@ -165,22 +170,24 @@ class TwoDimPL(TwoDimPlot):
 
         if self.po.show_prof_like:
             im = pm.plot_image(
-                    self.prof_data.prof_like,
+                    self.stats.prof_data.prof_like,
                     self.po.bin_limits,
                     self.po.plot_limits,
                     self.schemes.prof_like,
                     self.po.force_aspect)
 
             if self.po.show_colorbar:
-                pm.plot_colorbar(im, self.po.max_cbticks, self.schemes.prof_like.colour_bar_title)
+                cbar = pm.plot_colorbar(im, self.po.max_cbticks, self.schemes.prof_like.colour_bar_title)
 
         if self.po.show_conf_intervals:
             pm.plot_contour(
-                    self.prof_data.prof_like,
-                    self.conf_interval_levels,
+                    self.stats.prof_data.prof_like,
+                    self.stats.conf_interval_levels,
                     self.schemes.prof_like,
                     bin_limits=self.po.bin_limits)
 
+        if self.po.show_prof_like and self.po.show_colorbar:
+            pm.add_cbar_levels(cbar, self.stats.conf_interval_levels, self.schemes.prof_like)
 
 class Scatter(TwoDimPlot):
     """ Makes a three dimensional scatter plot showing point statistics,
@@ -193,14 +200,14 @@ class Scatter(TwoDimPlot):
     def plot(self):
         super(Scatter, self).plot()
 
-        self.po.cb_limits = bins.bin_limits(self.po.cb_limits, self.zdata, self.posterior)
+        self.po.cb_limits = bins.bin_limits(self.po.cb_limits, self.stats.zdata, self.stats.posterior)
 
         # Plot scatter of points.
         sc = plt.scatter(
-                self.xdata,
-                self.ydata,
+                self.stats.xdata,
+                self.stats.ydata,
                 s=self.schemes.scatter.size,
-                c=self.zdata,
+                c=self.stats.zdata,
                 marker=self.schemes.scatter.symbol,
                 cmap=get_cmap(self.schemes.scatter.colour_map, self.schemes.scatter.number_colours),
                 norm=None,
@@ -215,15 +222,15 @@ class Scatter(TwoDimPlot):
 
         if self.po.show_credible_regions:
             pm.plot_contour(
-                    self.pdf_data.pdf,
-                    self.credible_region_levels,
+                    self.stats.pdf_data.pdf,
+                    self.stats.credible_region_levels,
                     self.schemes.posterior,
                     bin_limits=self.po.bin_limits)
 
         if self.po.show_conf_intervals:
             pm.plot_contour(
-                    self.prof_data.prof_like,
-                    self.conf_interval_levels,
+                    self.stats.prof_data.prof_like,
+                    self.stats.conf_interval_levels,
                     self.schemes.prof_like,
                     bin_limits=self.po.bin_limits)
 

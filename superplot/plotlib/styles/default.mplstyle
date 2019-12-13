@@ -1,11 +1,10 @@
-# Make the lines thicker
-lines.linewidth : 4
+lines.linewidth : 2.
 
 # No gridlines over the plot
 axes.grid : False
 
-# Set size of plot in inches
-figure.figsize : 8, 8
+# Size in inches for two-column latex w/o scaling
+figure.figsize : 2.5, 2.5
 
 # Legend properties
 legend.shadow : False
@@ -15,17 +14,18 @@ legend.borderaxespad : 1.
 legend.scatterpoints : 1
 legend.numpoints : 1
 legend.framealpha : 0.5
-patch.linewidth : 1.
+patch.linewidth : 1.25
 patch.edgecolor : black
 legend.handlelength : 2.
 legend.handletextpad : 0.5
 legend.fontsize : xx-small
+legend.markerscale : 0.7
 
 # Font choices
 text.usetex : True
 font.family : 'serif'
 font.serif : ['Computer Modern Roman']
-font.size : 35
+font.size : 11
 
 # Saving figure options
 savefig.facecolor : white
@@ -37,17 +37,17 @@ savefig.bbox : tight
 savefig.pad_inches : 0.1
 
 # Tweak ticks and axes
-axes.linewidth: 2.5
+axes.linewidth: 1.5
 xtick.top : True
 ytick.right : True
-xtick.major.size: 5
-ytick.major.size: 5
-xtick.minor.size: 3
-ytick.minor.size: 3
-xtick.major.width: 2.5
-ytick.major.width: 2.5
-xtick.minor.width: 1.75
-ytick.minor.width: 1.75
+xtick.major.size: 2.5
+ytick.major.size: 2.5
+xtick.minor.size: 1.75
+ytick.minor.size: 1.75
+xtick.major.width: 1.5
+ytick.major.width: 1.5
+xtick.minor.width: 1.
+ytick.minor.width: 1.
 axes.facecolor: F8F8F8
 
 # Round numbers for ticks

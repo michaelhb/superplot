@@ -27,6 +27,7 @@ if version < required_version:
 
 import superplot.data_loader as data_loader
 import superplot.plotlib.plots as plots
+import superplot.statslib.stats as stats
 import superplot.gtk_wrapper as gtk_wrapper
 from superplot.gtk_wrapper import gtk
 from superplot.plot_options import defaults, Defaults
@@ -744,6 +745,7 @@ def main():
     args = parser.parse_args()
 
     if args.only_stats:
+        stats.make_stats_from_yamls(args.plot_options)
         return
 
     if args.no_gui:

@@ -92,18 +92,18 @@ info_file: null
 save_image_name: "image.pdf"
 
 # Name of saved statistics.
-save_stats_name: "image_stats.yml"
+save_stats_name: null
 
 # Name of saved options.
-save_options_name: "image_options.yml"
+save_options_name: null
 
 # Type of statistics to compute
 stats_type: one-dim
 
 # Which data files to save.
-save_plot: True
+save_image: True
 save_options: True
-save_summary: True
+save_stats: True
 
 # Whether to show a color bar.
 show_colorbar: True

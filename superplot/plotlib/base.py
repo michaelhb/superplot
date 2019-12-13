@@ -84,10 +84,10 @@ class Plot(object):
 
         if self.po.save_options:
             self.po.save(self.po.save_options_name)
-        if self.po.save_plot:
+        if self.po.save_image:
             pm.save_plot(self.po.save_image_name)
-        if self.po.save_summary:
-            self.stats.save()
+        if self.po.save_stats:
+            self.stats.save(self.po.save_stats_name)
 
     @abstractmethod
     def set_plot_limits(self):

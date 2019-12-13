@@ -281,7 +281,7 @@ class GUIControl(gtk.Window):
         self.typebox = gtk_wrapper.COMBO_BOX_TEXT()
         for c in plots.plot_list:
             self.typebox.append_text(c.description)
-        default = [i for i, n in enumerate(plots.plot_dict.keys()) if n == self.po.plot_type][0]
+        default = list(plots.plot_dict.keys()).index(self.po.plot_type)
         self.typebox.set_active(default)
 
         #######################################################################
@@ -351,7 +351,7 @@ class GUIControl(gtk.Window):
         allowed = ["no-extra-style"] + internal + prepended + self.po.url_styles
 
         try:
-            default = [i for i, n in enumerate(allowed) if n == self.po.style][0]
+            default = allowed.index(self.po.style)
         except:
             default = 0
             allowed = [self.po.style] + allowed
@@ -391,7 +391,7 @@ class GUIControl(gtk.Window):
         for loc in allowed:
             self.leg_position.append_text(loc)
 
-        default = [i for i, n in enumerate(allowed) if n == self.po.leg_position][0]
+        default = allowed.index(self.po.leg_position)
         self.leg_position.set_active(default)
 
         #######################################################################
@@ -455,10 +455,10 @@ class GUIControl(gtk.Window):
         # Check boxes to control what is saved (note we only attach them to the
         # window after showing a plot)
 
-        self.save_plot = gtk.CheckButton('Save plot')
-        self.save_plot.set_active(self.po.save_plot)
-        self.save_summary = gtk.CheckButton('Save statistics in plot')
-        self.save_summary.set_active(self.po.save_summary)
+        self.save_image = gtk.CheckButton('Save plot')
+        self.save_image.set_active(self.po.save_image)
+        self.save_stats = gtk.CheckButton('Save statistics in plot')
+        self.save_stats.set_active(self.po.save_stats)
         self.save_options = gtk.CheckButton('Save options for plot')
         self.save_options.set_active(self.po.save_options)
 
@@ -550,11 +550,11 @@ class GUIControl(gtk.Window):
         """
         Save a plot via a dialogue box.
         """
-        self.po.save_plot = self.obj.po.save_plot = self.save_plot.get_active()
-        self.po.save_summary = self.obj.po.save_summary = self.save_summary.get_active()
+        self.po.save_image = self.obj.po.save_image = self.save_image.get_active()
+        self.po.save_stats = self.obj.po.save_stats = self.save_stats.get_active()
         self.po.save_options = self.obj.po.save_options = self.save_options.get_active()
 
-        if not (self.po.save_plot or self.po.save_summary or self.po.save_options):
+        if not (self.po.save_image or self.po.save_stats or self.po.save_options):
             message_dialog(gtk_wrapper.MESSAGE_WARNING, "Nothing to save!")
             return
 
@@ -568,8 +568,17 @@ class GUIControl(gtk.Window):
         if not isinstance(save_image_name, str):
             # Case in which no file is chosen
             return
-        # TODO the other names should get the right path...
+
         self.obj.po.save_image_name = save_image_name
+
+        prefix = os.path.splitext(save_image_name)[0]
+
+        if self.obj.po.save_options_name is None:
+          self.obj.po.save_options_name = prefix + "_options.yaml"
+
+        if self.obj.po.save_stats_name is None:
+          self.obj.po.save_stats_name = prefix + "_stats.yaml"
+
         self.obj.save()
 
     ###########################################################################
@@ -696,8 +705,8 @@ class GUIControl(gtk.Window):
         self.gridbox.attach(self.box, 2, 5, 0, 16)
 
         # Attach the check boxes to specify what is saved
-        self.gridbox.attach(self._align_center(self.save_plot), 2, 3, 16, 17)
-        self.gridbox.attach(self._align_center(self.save_summary), 3, 4, 16, 17)
+        self.gridbox.attach(self._align_center(self.save_image), 2, 3, 16, 17)
+        self.gridbox.attach(self._align_center(self.save_stats), 3, 4, 16, 17)
         self.gridbox.attach(self._align_center(self.save_options), 4, 5, 16, 17)
 
         # Show new buttons etc

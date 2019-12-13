@@ -580,6 +580,7 @@ class GUIControl(gtk.Window):
           self.obj.po.save_stats_name = prefix + "_stats.yaml"
 
         self.obj.save()
+        self._pmakeplot(None)  # Hack to reset figure canvas
 
     ###########################################################################
 

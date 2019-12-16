@@ -50,7 +50,6 @@ logx: False
 logy: False
 logz: False
 
-
 # Labels.
 xlabel: null
 ylabel: null
@@ -120,15 +119,16 @@ pdf_1d_norm_max: True
 # Tails for 1d credible region. lower, upper, or symmetric
 cr_1d_tail: symmetric
 
-# Whether to use highest-posterior density in 1d
-cr_1d_hpd: true
+# Whether to use highest-posterior density in 1d.
+cr_1d_hpd: false
 
 # Scale data by a factor for units etc.
 scalex: 1.
 scaley: 1.
 scalez: 1.
 
-# Index for posterior weight and chi-squared
+# Index for posterior weight and chi-squared.
+# If chi-squared isn't avaiable, provide the log-likelihood index
 posterior_index: 0
 chi_sq_index: 1
 loglike_index: null

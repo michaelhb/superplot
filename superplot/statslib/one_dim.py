@@ -12,7 +12,6 @@ from collections import namedtuple
 import numpy as np
 from scipy import stats
 
-from . import point
 from . import bins
 from .kde import gaussian_kde
 from .patched_joblib import memory
@@ -177,30 +176,23 @@ def prof_data(parameter, chi_sq, nbins='auto', bin_limits='quantile'):
     nbins = bins.nbins(nbins, bin_limits, parameter)
 
     # Bin the data to find bins, but ignore count itself
-    bin_edges = np.histogram(parameter,
-                             nbins,
-                             range=bin_limits)[1]
+    bin_edges = np.histogram_bin_edges(parameter,
+                                       nbins,
+                                       range=bin_limits)
     # Find centers of bins
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) * 0.5
 
     # Find bin number for each point in the chain
     bin_numbers = np.digitize(parameter, bin_edges)
 
-    # Shift bin numbers to account for outliers
-    def shift(_bin_number):
-        return point._shift(_bin_number, nbins)
-
-    bin_numbers = [shift(n) for n in bin_numbers]
-
     # Initialize the profiled chi-squared to something massive
-    prof_chi_sq = np.full(nbins, float("inf"))
+    prof_chi_sq = np.full(nbins, np.inf)
 
-    # Minimize the chi-squared in each bin by looping over all the entries in
-    # the chain.
-    for index in range(chi_sq.size):
-        bin_number = bin_numbers[index]
-        if bin_number is not None and chi_sq[index] < prof_chi_sq[bin_number]:
-            prof_chi_sq[bin_number] = chi_sq[index]
+    # Find minimum in each bin
+    for n in range(nbins):
+        match = bin_numbers == n + 1
+        if any(match):
+            prof_chi_sq[n] = chi_sq[match].min()
 
     # Subtract minimum chi-squared (i.e. minimum profile chi-squared is zero,
     # and maximum profile likelihood is one).
@@ -318,17 +310,39 @@ def credible_region(pdf, bin_centers, alpha, tail="symmetric"):
 
 
 @memory.cache
-def conf_interval(chi_sq, bin_centers, alpha):
+def critical_prof_like(alpha):
+    r"""
+    Use confidence levels to calculate :math:`\Delta \mathcal{L}`.
+
+    This is used to plot one dimensional confidence intervals.
+
+    :param alpha: Confidence level desired
+    :type alpha: float
+
+    :returns: :math:`\Delta \mathcal{L}`
+    :rtype: float
+
+    >>> alpha = 0.32
+    >>> critical_prof_like(alpha)
+    0.6098920890022492
     """
-    Calculate one dimensional confidence interval with delta-chi-squared.
+    critical_chi_sq = stats.chi2.ppf(1. - alpha, 1)
+    _critical_prof_like = np.exp(- 0.5 * critical_chi_sq)
+    return _critical_prof_like
+
+
+@memory.cache
+def conf_interval(prof_like, bin_centers, alpha):
+    """
+    Calculate one dimensional confidence interval.
 
     .. warning::
         Confidence intervals are are not contiguous.
         We have to specify whether each bin is inside or outside of a
         confidence interval.
 
-    :param chi_sq: Data column of profiled chi-squared
-    :type chi_sq: numpy.ndarray
+    :param prof_like: Data column of profiled likelihood
+    :type prof_like: numpy.ndarray
     :param bin_centers: Data column of parameter at bin centers
     :type bin_centers: numpy.ndarray
     :param alpha: Probability level
@@ -343,22 +357,19 @@ def conf_interval(chi_sq, bin_centers, alpha):
     >>> alpha = 0.32
 
     >>> prof = prof_data(data[2], data[1], nbins=nbins, bin_limits="extent")
-    >>> interval = conf_interval(prof.prof_chi_sq, prof.bin_centers, alpha)
+    >>> interval = conf_interval(prof.prof_like, prof.bin_centers, alpha)
     >>> [round(x, DOCTEST_PRECISION) for x in [np.nanmin(interval), np.nanmax(interval)]]
     [-2970.1131099463, -970.1714032888]
 
     >>> prof = prof_data(data[3], data[1], nbins=nbins, bin_limits="extent")
-    >>> interval = conf_interval(prof.prof_chi_sq, prof.bin_centers, alpha)
+    >>> interval = conf_interval(prof.prof_like, prof.bin_centers, alpha)
     >>> [round(x, DOCTEST_PRECISION) for x in [np.nanmin(interval), np.nanmax(interval)]]
     [-2409.8500561616, 2570.0887645632]
     """
-    # Invert alpha to a delta chi-squared with an inverse cumulative
-    # chi-squared distribution with one degree of freedom.
-    critical_chi_sq = stats.chi2.ppf(1. - alpha, 1)
-
     # Find regions of binned parameter that have delta chi_sq < critical_value
+    critical_prof_like_ = critical_prof_like(alpha)
     _conf_interval = np.array(bin_centers)
-    _conf_interval[chi_sq > critical_chi_sq + chi_sq.min()] = np.nan
+    _conf_interval[prof_like < critical_prof_like_] = np.nan
     return _conf_interval
 
 
@@ -470,6 +481,59 @@ def posterior_mode(pdf, bin_centers):
         ), RuntimeWarning)
 
     return [bin_centers[i] for i in max_indices]
+
+
+@memory.cache
+def critical_density(pdf, alpha):
+    r"""
+    Calculate "critical density" from marginalised pdf.
+
+    Ordering rule is that credible regions are the smallest regions that contain
+    a given fraction of the total posterior pdf. This is in fact the "densest"
+    region of the posterior pdf. There is, therefore, a "critical density" of
+    posterior pdf, above which a point is inside a credible region. I.e. this
+    function returns :math:`p_\text{critical}` such that
+
+    .. math::
+        \int_{p > p_\text{critical}} p(x) dx = 1 - \alpha
+
+    The critical density is used to calculate one- and two-dimensional credible regions.
+
+    .. warning::
+        The critical density is not invariant under reparameterisations.
+
+    :param pdf: Marginalised posterior pdf
+    :type pdf: numpy.ndarray
+    :param alpha: Credible region contains :math:`1 - \alpha` of probability
+    :type alpha: float
+
+    :returns: Critical density for probability alpha
+    :rtype: float
+
+    :Example:
+
+    Critical density from binned pdf
+
+    >>> nbins = 100
+    >>> alpha = 0.32
+    >>> pdf_norm_sum = posterior_pdf(data[2], data[0], nbins=nbins, bin_limits="extent")[2]
+    >>> round(critical_density(pdf_norm_sum, alpha), DOCTEST_PRECISION)
+    0.0487889521
+
+    Critical density from KDE estimate of pdf
+
+    >>> kde_norm_sum = kde_posterior_pdf(data[2], data[0], bin_limits="extent")[2]
+    >>> round(critical_density(kde_norm_sum, alpha), DOCTEST_PRECISION)
+    0.0097904747
+    """
+    # Flatten and sort pdf to find critical density
+    flattened = pdf.flatten()
+    sorted_ = np.sort(flattened)
+    cumulative = np.cumsum(sorted_)
+    critical_index = np.argwhere(cumulative > alpha * cumulative.max())[0][0]
+    _critical_density = 0.5 * (sorted_[critical_index] + sorted_[critical_index - 1])
+
+    return _critical_density
 
 
 if __name__ == "__main__":

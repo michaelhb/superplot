@@ -11,10 +11,10 @@ from collections import namedtuple
 
 import numpy as np
 
-from . import point
 from . import bins
 from .kde import gaussian_kde
 from .patched_joblib import memory
+from .one_dim import critical_density
 
 
 DOCTEST_PRECISION = 10
@@ -24,8 +24,8 @@ _posterior_pdf_2D = namedtuple(
     "_posterior_pdf_2D",
     ("pdf", "pdf_norm_max", "pdf_norm_sum", "bin_centers_x", "bin_centers_y"))
 
-_profile_data_2D = namedtuple(
-    "_profile_data_2D",
+_prof_data_2D = namedtuple(
+    "_prof_data_2D",
     ("prof_chi_sq", "prof_like", "bin_center_x", "bin_center_y"))
 
 
@@ -173,7 +173,7 @@ def posterior_pdf(paramx, paramy, posterior, nbins='auto', bin_limits='quantile'
 
 
 @memory.cache
-def profile_like(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile'):
+def prof_data(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile'):
     """
     Maximizes the likelihood in each bin to obtain the profile likelihood and
     profile chi-squared.
@@ -199,7 +199,7 @@ def profile_like(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile'):
     :Example:
 
     >>> nbins = 100
-    >>> chi_sq, like, x, y = profile_like(data[2], data[3], data[0], nbins=nbins)
+    >>> chi_sq, like, x, y = prof_data(data[2], data[3], data[0], nbins=nbins)
     >>> assert len(chi_sq) == nbins
     >>> assert len(like) == nbins
     >>> assert len(x) == nbins
@@ -235,25 +235,15 @@ def profile_like(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile'):
     bin_numbers_x = np.digitize(paramx, bin_edges_x)
     bin_numbers_y = np.digitize(paramy, bin_edges_y)
 
-    # Shift bin numbers to account for outliers
-    def shift_x(bin_number_):
-        return point._shift(bin_number_, nbins_x)
-
-    def shift_y(bin_number_):
-        return point._shift(bin_number_, nbins_y)
-
-    bin_numbers_x = [shift_x(n) for n in bin_numbers_x]
-    bin_numbers_y = [shift_y(n) for n in bin_numbers_y]
-
     # Initialize the profiled chi-squared to something massive
-    prof_chi_sq = np.full((nbins_x, nbins_y), float("inf"))
+    prof_chi_sq = np.full((nbins_x, nbins_y), np.inf)
 
-    # Minimize the chi-squared in each bin by looping over all the entries in
-    # the chain.
-    for index in range(chi_sq.size):
-        bin_numbers = (bin_numbers_x[index], bin_numbers_y[index])
-        if bin_numbers[0] is not None and bin_numbers[1] is not None and chi_sq[index] < prof_chi_sq[bin_numbers]:
-            prof_chi_sq[bin_numbers] = chi_sq[index]
+    # Find minimum in each bin
+    for n in range(nbins_x):
+        for m in range(nbins_y):
+            match = np.logical_and(bin_numbers_x == n + 1, bin_numbers_y == m + 1)
+            if any(match):
+                prof_chi_sq[n, m] = chi_sq[match].min()
 
     # Subtract minimum chi-squared (i.e. minimum profile chi-squared is zero,
     # and maximum profile likelihood is one).
@@ -262,63 +252,7 @@ def profile_like(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile'):
     # Exponentiate to obtain profile likelihood
     prof_like = np.exp(- 0.5 * prof_chi_sq)
 
-    return _profile_data_2D(prof_chi_sq, prof_like, bin_center_x, bin_center_y)
-
-
-@memory.cache
-def critical_density(pdf, alpha):
-    r"""
-    Calculate "critical density" from marginalised pdf.
-
-    Ordering rule is that credible regions are the smallest regions that contain
-    a given fraction of the total posterior pdf. This is in fact the "densest"
-    region of the posterior pdf. There is, therefore, a "critical density" of
-    posterior pdf, above which a point is inside a credible region. I.e. this
-    function returns :math:`p_\text{critical}` such that
-
-    .. math::
-        \int_{p > p_\text{critical}} p(x, y) dx dy = 1 - \alpha
-
-    The critical density is used to calculate two-dimensional credible regions.
-
-    .. warning::
-        One-dimensional credible regions do not use a critical density.
-
-    .. warning::
-        The critical density is not invariant under reparameterisations.
-
-    :param pdf: Marginalised two-dimensional posterior pdf
-    :type pdf: numpy.ndarray
-    :param alpha: Credible region contains :math:`1 - \alpha` of probability
-    :type alpha: float
-
-    :returns: Critical density for probability alpha
-    :rtype: float
-
-    :Example:
-
-    Critical density from binned pdf
-
-    >>> nbins = 100
-    >>> alpha = 0.32
-    >>> pdf_norm_sum = posterior_pdf(data[2], data[3], data[0], nbins=nbins, bin_limits="extent")[2]
-    >>> round(critical_density(pdf_norm_sum, alpha), DOCTEST_PRECISION)
-    0.0008088721
-
-    Critical density from KDE estimate of pdf
-
-    >>> kde_norm_sum = kde_posterior_pdf(data[2], data[3], data[0], bin_limits="extent")[2]
-    >>> round(critical_density(kde_norm_sum, alpha), DOCTEST_PRECISION)
-    0.0008115551
-    """
-    # Flatten and sort pdf to find critical density
-    flattened = pdf.flatten()
-    sorted_ = np.sort(flattened)
-    cumulative = np.cumsum(sorted_)
-    critical_index = np.argwhere(cumulative > alpha * cumulative.max())[0][0]
-    _critical_density = 0.5 * (sorted_[critical_index] + sorted_[critical_index - 1])
-
-    return _critical_density
+    return _prof_data_2D(prof_chi_sq, prof_like, bin_center_x, bin_center_y)
 
 
 @memory.cache
@@ -341,11 +275,6 @@ def critical_prof_like(alpha):
     >>> critical_prof_like(alpha)
     0.32
     """
-    # General solution: invert alpha to a delta chi-squared with inverse
-    # cumulative chi-squared distribution with two degrees of freedom
-    # critical_chi_sq = stats.chi2.ppf(1. - alpha, 2)
-    # Convert chi-squared to a likelihood
-    # _critical_prof_like = np.exp(- 0.5 * critical_chi_sq)
     return alpha
 
 

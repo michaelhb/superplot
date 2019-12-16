@@ -42,9 +42,13 @@ class OneDimStandard(OneDimPlot):
         if self.po.show_prof_like:
             pm.plot_data(self.stats.prof_data.bin_centers, self.stats.prof_data.prof_like, self.schemes.prof_like)
 
+        # Credible regions
         if self.po.show_credible_regions:
-            for region, scheme in zip(self.stats.credible_regions, self.schemes.credible_regions):
-                where = np.logical_and(self.stats.pdf_data.bin_centers > region[0], self.stats.pdf_data.bin_centers < region[1])
+            for level, region, scheme in zip(self.stats.credible_region_levels, self.stats.credible_regions, self.schemes.credible_regions):
+                if self.po.cr_1d_hpd:
+                    where = self.stats.pdf_data.pdf > level
+                else:
+                    where = np.logical_and(self.stats.pdf_data.bin_centers > region[0], self.stats.pdf_data.bin_centers < region[1])
                 pm.plot_fill(self.stats.pdf_data.bin_centers, pdf, where, scheme)
 
         # Confidence intervals

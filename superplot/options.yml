@@ -120,6 +120,9 @@ pdf_1d_norm_max: True
 # Tails for 1d credible region. lower, upper, or symmetric
 cr_1d_tail: symmetric
 
+# Whether to use highest-posterior density in 1d
+cr_1d_hpd: true
+
 # Scale data by a factor for units etc.
 scalex: 1.
 scaley: 1.

@@ -13,31 +13,6 @@ from .patched_joblib import memory
 DOCTEST_PRECISION = 10
 
 
-def _shift(bin_number, nbins):
-    """
-    Modify bin numbers so that bin numbers, initially `[0, nbins + 1]` because
-    :mod:`numpy` uses extra bins for outliers, match array indices
-    `[0, nbins - 1]`.
-
-    :param bin_number: A bin number
-    :type bin_number: integer
-    :param nbins: Total number of bins
-    :type nbins: integer
-
-    :returns: Shifted bin number
-    :rtype: integer
-    """
-    if bin_number == 0 or bin_number == nbins + 1:
-        # First deal with outliers in 0 and nbins + 1 bins
-        bin_number = None
-    else:
-        # Subtract one from all bin numbers to shift (1, n_bins) to
-        # (0, n_bins - 1).
-        bin_number -= 1
-
-    return bin_number
-
-
 @memory.cache
 def posterior_mean(posterior, param):
     r"""

@@ -227,16 +227,12 @@ def _inverse_cdf(prob, pdf, bin_centers):
     # Probabilities should be between 0 and 1
     assert 0. <= prob <= 1.
 
-    # Check whether data is binned. Bin centers should be uniformly spaced -
-    # this won't be the case for raw, unbinned data.
-    bin_widths = [b_2 - b_1 for b_1, b_2 in zip(bin_centers, bin_centers[1:])]
-    assert all(abs(width - bin_widths[0]) < 1E-10 for width in bin_widths)
-
     # Shift all bins forward by 1/2 bin width (i.e. bin edges)
-    bin_edges = [bin_ + 0.5 * bin_widths[0] for bin_ in bin_centers]
+    bin_width = bin_centers[1] - bin_centers[0]
+    bin_edges = [bin_ + 0.5 * bin_width for bin_ in bin_centers]
 
     # Insert first edge so we have n + 1 edges
-    bin_edges.insert(0, bin_centers[0] - 0.5 * bin_widths[0])
+    bin_edges.insert(0, bin_centers[0] - 0.5 * bin_width)
 
     # Build a list of (parameter index, cumulative posterior weight).
     # Note we insert an initial entry at index zero with cumulative weight

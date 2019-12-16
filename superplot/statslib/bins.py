@@ -30,7 +30,7 @@ def neff(parameter, posterior=None):
     """
     if posterior is None:
         return len(parameter)
-    return sum(posterior**2)**-1
+    return posterior.sum()**2 / sum(posterior**2)
 
 
 def iqr(parameter, posterior=None):
@@ -66,7 +66,7 @@ def quantile(q, parameter, posterior=None):
     parameter_sorted = parameter[order]
     posterior_sorted = posterior[order]
     cumulative = np.cumsum(posterior_sorted)
-    index = np.argwhere(cumulative > q)[0][0]
+    index = np.argwhere(cumulative > q * cumulative[-1])[0][0]
     return 0.5 * (parameter_sorted[index] + parameter_sorted[index - 1])
 
 

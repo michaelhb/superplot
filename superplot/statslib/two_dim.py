@@ -173,7 +173,7 @@ def posterior_pdf(paramx, paramy, posterior, nbins='auto', bin_limits='quantile'
 
 
 @memory.cache
-def prof_data(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile'):
+def prof_data(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile', threshold=20.):
     """
     Maximizes the likelihood in each bin to obtain the profile likelihood and
     profile chi-squared.
@@ -188,10 +188,12 @@ def prof_data(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile'):
     :type nbins: integer
     :param bin_limits: Bin limits for histogram
     :type bin_limits: list [[xmin, xmax], [ymin, ymax]]
+    :param threshold: Threshold above which to ignore samples
+    :type threshold: float
 
     :returns: Profile chi squared, profile likelihood, x and y bin centers
     :rtype: named tuple (\
-        profchi_sq: numpy.ndarray, \
+        prof_chi_sq: numpy.ndarray, \
         prof_like: numpy.ndarray, \
         bin_center_x: numpy.ndarray, \
         bin_center_y: numpy.ndarray)
@@ -205,6 +207,11 @@ def prof_data(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile'):
     >>> assert len(x) == nbins
     >>> assert len(y) == nbins
     """
+    keep = chi_sq < threshold + chi_sq.min()
+    chi_sq = chi_sq[keep]
+    paramx = paramx[keep]
+    paramy = paramy[keep]
+
     if not isinstance(bin_limits, str):
         bin_limits_x = bins.bin_limits(bin_limits[0], paramx)
         bin_limits_y = bins.bin_limits(bin_limits[1], paramy)
@@ -219,13 +226,13 @@ def prof_data(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile'):
         nbins_x = bins.nbins(nbins, bin_limits_x, paramx)
         nbins_y = bins.nbins(nbins, bin_limits_y, paramy)
 
-    # Bin the data to find bin edges. NB we discard the count
-    _, bin_edges_x, bin_edges_y = np.histogram2d(
-                                    paramx,
-                                    paramy,
-                                    (nbins_x, nbins_y),
-                                    range=np.array((bin_limits_x, bin_limits_y)),
-                                    weights=None)
+    # Bin the data to find bin edges
+
+    _, bin_edges_x, bin_edges_y = np.histogram2d(paramx,
+                                                 paramy,
+                                                 (nbins_x, nbins_y),
+                                                 range=np.array((bin_limits_x, bin_limits_y)),
+                                                 weights=None)
 
     # Find centers of bins
     bin_center_x = 0.5 * (bin_edges_x[:-1] + bin_edges_x[1:])
@@ -239,9 +246,15 @@ def prof_data(paramx, paramy, chi_sq, nbins='auto', bin_limits='quantile'):
     prof_chi_sq = np.full((nbins_x, nbins_y), np.inf)
 
     # Find minimum in each bin
+
+    match_x = np.array([bin_numbers_x == i + 1 for i in range(nbins_x)])
+    match_y = np.array([bin_numbers_y == i + 1 for i in range(nbins_y)])
+
     for n in range(nbins_x):
+        if not any(match_x[n]):
+            continue
         for m in range(nbins_y):
-            match = np.logical_and(bin_numbers_x == n + 1, bin_numbers_y == m + 1)
+            match = np.logical_and(match_x[n], match_y[m])
             if any(match):
                 prof_chi_sq[n, m] = chi_sq[match].min()
 

@@ -237,7 +237,7 @@ class GUIControl(gtk.Window):
 
         if self.po.data_file is None:
             self.po.data_file = open_file_gui(window_title="Select a data file",
-                                              add_pattern=["*.txt", "*.dat"],
+                                              add_pattern=["*.txt", "*.dat", "*.hd5", "*.hdf5"],
                                               allow_no_file=False,
                                               parent=self)
         if ask_info:
@@ -252,17 +252,20 @@ class GUIControl(gtk.Window):
 
         # Load data from files
 
-        self.labels, self.data = data_loader.load(self.po.info_file, self.po.data_file)
+        self.labels = data_loader.label_chain(self.po.info_file, self.po.data_file)
 
         #######################################################################
 
         if self.po.info_file is None:
-            self.labels[self.po.xindex] = self.po.xlabel
-            self.labels[self.po.yindex] = self.po.ylabel
-            self.labels[self.po.zindex] = self.po.zlabel
+            if self.po.xlabel is not None:
+                self.labels[self.po.xindex] = self.po.xlabel
+            if self.po.ylabel is not None:
+                self.labels[self.po.yindex] = self.po.ylabel
+            if self.po.zlabel is not None:
+                self.labels[self.po.zindex] = self.po.zlabel
 
         # We need at least three columns - posterior, chisq & a data column
-        data_columns = self.data.shape[0]
+        data_columns = len(self.labels)
         assert data_columns >= 3
 
         # Set x, y & z indices. If not possible, assign to the rightmost available column.
@@ -687,7 +690,7 @@ class GUIControl(gtk.Window):
 
         # Instantiate the plot and get the figure
         plt.clf()
-        self.obj = plots.get_plot(self.po, self.data)
+        self.obj = plots.get_plot(self.po)
 
         # Try to remove existing box
         try:

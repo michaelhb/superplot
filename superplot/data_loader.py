@@ -5,43 +5,27 @@ This module contains code for:
 - Opening and processing an \\*.info information file.
 - Using the \\*.info file to label the data.
 """
+from __future__ import print_function
 
 import os
 import warnings
 import pandas as pd
 import yaml
+import h5py
+import numpy as np
+from collections import defaultdict
 
 
-def load(info_file, data_file):
-    """
-    Read data from \\*.info file and \\*.txt file.
-
-    :param data_file: Name of \\*.txt file
-    :type data_file: string
-    :param info_file: Name of \\*.info file
-    :type info_file: string
-
-    :returns: Dictionary with chain's labels and array of data
-    :rtype: dict (labels), array (data)
-    """
-    if not data_file:
-        raise RuntimeError("Must specify a *.txt data file")
-
-    data = _read_data_file(data_file)
-    labels = _read_info_file(info_file)
-    _label_chain(data, labels)
-
-    return labels, data
-
-
-def _read_data_file(file_name, fill=0.):
+def _read_txt_file(data_file, cols=None, fill=0.):
     """
     Read \\*.txt file into an array.
 
-    :param file_name: Name of \\*.txt file
-    :type file_name: string
+    :param data_file: Name of \\*.txt file
+    :type data_file: string
     :param fill: Fill value for problematic data entries
     :type fill: float
+    :param cols: Which columns to load
+    :type cols: list
 
     :returns: Data as an array, with first index as column number
     :rtype: numpy.array
@@ -63,29 +47,104 @@ def _read_data_file(file_name, fill=0.):
             warnings.warn("{} filled with {}".format(entry, fill), RuntimeWarning)
             return fill
 
-    with open(file_name) as file_:
-        n_cols = len(file_.readline().split())
-
-    converters = dict.fromkeys(range(n_cols), safe_float)
+    converters = defaultdict(lambda: safe_float)
 
     # Read data into a pandas data-frame
-    data_frame = pd.read_csv(file_name,
+    data_frame = pd.read_csv(data_file,
                              header=None,
                              sep=r"\s+",
                              engine="c",
                              converters=converters,
-                             na_filter=False)
+                             na_filter=False,
+                             usecols=cols)
 
     # Transpose data-frame, such that first index is column rather than row
     data_frame = data_frame.transpose()
 
     # Find array from data-frame
-    data_array = data_frame.values.astype('float64')
+    data_array = data_frame.values
 
+    # Make a sensible column order
+    if cols is not None:
+        order = np.sort(np.unique(cols)).tolist()
+        want = [order.index(i) for i in cols]
+        data_array = data_array[want, :]
     return data_array
 
 
-def _read_info_file(file_name):
+def _traverse_keys(dict_, lead=""):
+    """
+    Traverse all keys in a nested dictionary-like object.
+    """
+    for key, value in dict_.items():
+        combine = "/".join([lead, key]).strip("/")
+        if hasattr(value, "keys"):
+            for subkey in _traverse_keys(value, combine):
+                yield subkey
+        else:
+            yield combine
+
+
+def _read_hdf_file(data_file, cols=None):
+    """
+    Read hdf file into an array.
+
+    :param data_file: Name of \\*.hdf data file
+    :type data_file: string
+    :param cols: Which columns to load
+    :type cols: list
+
+    :returns: Data as an array, with first index as column number
+    :rtype: numpy.array
+    """
+    with h5py.File(data_file, 'r') as f:
+        keys = list(_traverse_keys(f))
+        if cols is not None:
+            keys = [keys[c] for c in cols]
+        return np.array([f[k][()] for k in keys])
+
+
+def read_data_file(data_file, **kwargs):
+    """
+    Read a data file into an array.
+
+    :param data_file: Name of data file
+    :type data_file: string
+
+    :returns: Data as an array, with first index as column number
+    :rtype: numpy.array
+    """
+    extension = os.path.splitext(data_file)[-1]
+
+    if extension in [".txt", ".dat"]:
+        return _read_txt_file(data_file, **kwargs)
+    elif extension in [".hd5", ".hdf5"]:
+        return _read_hdf_file(data_file, **kwargs)
+    else:
+        raise IOError("Unknown data file type: {}".format(data_file))
+
+
+def _cols_data_file(data_file):
+    """
+    :param data_file: Name of data file
+    :type data_file: string
+
+    :returns: Number of columns
+    :rtype: int
+    """
+    extension = os.path.splitext(data_file)[-1]
+
+    if extension in [".txt", ".dat"]:
+        with open(data_file) as f:
+            return len(f.readline().split())
+    elif extension in [".hd5", ".hdf5"]:
+        with h5py.File(data_file, 'r') as f:
+            return len(list(_traverse_keys(f)))
+    else:
+        raise IOError("Unknown file type: {}".format(data_file))
+
+
+def _read_info_file(info_file):
     """
     Read labels from a SuperBayeS-style *.info file into a dictionary.
 
@@ -94,23 +153,22 @@ def _read_info_file(file_name):
         chi-squared. We begin at index 0 and include posterior weight and
         chi-squared. Thus, we add 1 to SuperBayeS indexes.
 
-    :param file_name: Name of *.info file
-    :type file_name: string
+    :param info_file: Name of *.info file
+    :type info_file: string
 
     :returns: Labels of columns in *.txt file
     :rtype: dict
     """
+    if info_file is None:
+        warnings.warn("No *.info file for labels")
+        return {}
 
     # Add posterior weight and chi-squared to labels.
     labels = {0: r'$p_i$', 1: r'$\chi^2$'}
 
-    if file_name is None:
-        warnings.warn("No *.info file for labels")
-        return labels
+    with open(info_file, 'r') as f:
 
-    with open(file_name, 'r') as info_file:
-
-        for line in info_file:
+        for line in f:
 
             # Strip leading and trailing whitespace
             line = line.strip()
@@ -122,7 +180,7 @@ def _read_info_file(file_name):
                 line = line.lstrip("lab")
 
                 # Split line about "=" sign
-                words = line.split("=")
+                words = line.split("=", 1)
 
                 # Read corrected index
                 index = int(words[0]) + 1
@@ -131,32 +189,44 @@ def _read_info_file(file_name):
                 name = str(words[1])
 
                 # Add to dictionary of labels
-                labels[index] = name
+                labels[index] = name.strip()
 
     return labels
 
 
-def _label_chain(data, labels):
+def label_chain(info_file, data_file):
     r"""
-    Check if labels match data. If they don't, add data indicies to the list
-    of labels.
+    Read lables from files.
 
-    .. warning::
-        This alters labels in place.
+    :param info_file: Name of \\*.info file
+    :type info_file: string
+    :param data_file: Name of \\*.txt file
+    :type data_file: string
 
-    :param data: Data chain, to match arguments with
-    :type data: numpy.array
-    :param info: Labels for data chain
-    :type info: dict
+    :returns: Labels
+    :rtype: dict
     """
+    n_cols = _cols_data_file(data_file)
+    labels = _read_info_file(info_file)
 
-    # Label all unlabelled columns with integers
-    for index in range(len(data)):
+    extension = os.path.splitext(data_file)[-1]
+
+    if extension in [".txt", ".dat"]:
+        default = [str(i) for i in range(n_cols)]
+    elif extension in [".hd5", ".hdf5"]:
+        with h5py.File(data_file, 'r') as f:
+            default = list(_traverse_keys(f))
+    else:
+        raise IOError("Unknown file type: {}".format(data_file))
+
+    # Label all unlabelled columns with default keys
+    for index in range(n_cols):
         if not labels.get(index):
-            warnings.warn("Labels did not match data. "
-                          "Missing labels are integers.", RuntimeWarning)
-            labels[index] = str(index)
+            labels[index] = default[index]
+            warnings.warn("Labels did not match data.", RuntimeWarning)
+        print("column {} = {}".format(index, labels[index]))
 
+    return labels
 
 def get_mpl_path(mpl_path):
     """

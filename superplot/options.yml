@@ -52,9 +52,9 @@ logz: False
 
 
 # Labels.
-xlabel: "$x$"
-ylabel: "$y$"
-zlabel: "$z$"
+xlabel: null
+ylabel: null
+zlabel: null
 
 # Elements to show.
 show_best_fit: True
@@ -127,3 +127,8 @@ cr_1d_hpd: true
 scalex: 1.
 scaley: 1.
 scalez: 1.
+
+# Index for posterior weight and chi-squared
+posterior_index: 0
+chi_sq_index: 1
+loglike_index: null

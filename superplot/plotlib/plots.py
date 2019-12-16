@@ -200,6 +200,7 @@ class Scatter(TwoDimPlot):
 
     description = "Three-dimensional scatter plot."
     name = "three-dim-scatter"
+    stats_type = "three-dim"
 
     def plot(self):
         super(Scatter, self).plot()
@@ -251,12 +252,12 @@ plot_list = [
 
 plot_dict = {c.name: c for c in plot_list}
 
-def get_plot(plot_options, data=None):
+def get_plot(plot_options):
     """
     :param plot_options: Options for plot
     :returns: Plot object built from plot option
     """
-    return plot_dict[plot_options.plot_type](plot_options, data)
+    return plot_dict[plot_options.plot_type](plot_options)
 
 def get_plot_from_yaml(plot_options_yaml):
     """

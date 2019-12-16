@@ -24,19 +24,16 @@ class Plot(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, plot_options, data=None):
+    def __init__(self, plot_options):
         """
         :param plot_options: :py:data:`plot_options.plot_options` configuration.
         :type plot_options: namedtuple
-
-        :param data: Data loaded from chain file by :py:mod:`data_loader`
-        :type data: np.ndarry
         """
         self.po = copy.deepcopy(plot_options)
         self.po.schemes_yaml = data_loader.get_yaml_path(self.po.schemes_yaml)
         self.schemes = Schemes(self.po.schemes_yaml)
         self.po.stats_type = self.stats_type
-        self.stats = get_stats(self.po, data)
+        self.stats = get_stats(self.po)
 
         self.set_plot_limits()
         self.styling()

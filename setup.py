@@ -16,7 +16,8 @@ dependencies = [
     "numpy",
     "scipy",
     "pandas",
-    "joblib"
+    "joblib",
+    "h5py"
 ]
 
 # Detect if gi or pygtk are already available. Only add it to the

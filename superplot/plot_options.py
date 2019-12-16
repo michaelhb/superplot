@@ -6,7 +6,7 @@ import copy
 import warnings
 import numpy as np
 import yaml
-from superplot.data_loader import load_yaml
+from .data_loader import load_yaml
 
 
 default_yaml = "options.yml"

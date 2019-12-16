@@ -4,7 +4,7 @@ about how individual elements should appear in a plot.
 """
 
 import warnings
-from superplot.data_loader import load_yaml
+from .data_loader import load_yaml
 
 
 class Scheme(object):

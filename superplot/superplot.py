@@ -25,12 +25,12 @@ if version < required_version:
                       "Upgrade via e.g. pip install --force-reinstall --upgrade matplotlib"
                       % (required_version, version))
 
-import superplot.data_loader as data_loader
-import superplot.plotlib.plots as plots
-import superplot.statslib.stats as stats
-import superplot.gtk_wrapper as gtk_wrapper
-from superplot.gtk_wrapper import gtk
-from superplot.plot_options import defaults, Defaults
+from . import data_loader
+from . import gtk_wrapper
+from .plotlib import plots
+from .statslib import stats
+from .gtk_wrapper import gtk
+from .plot_options import defaults, Defaults
 
 
 def open_file_gui(window_title="Open",

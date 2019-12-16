@@ -11,10 +11,9 @@ from argparse import ArgumentParser as arg_parser
 
 from prettytable import PrettyTable as pt
 
-import superplot.data_loader as data_loader
-import superplot.statslib.point as stats
-import superplot.statslib.one_dim as one_dim
-from superplot.plot_options import defaults
+from . import data_loader
+from .statslib import one_dim, point
+from .plot_options import defaults
 
 
 def _summary(name, param, posterior, chi_sq):
@@ -35,10 +34,10 @@ def _summary(name, param, posterior, chi_sq):
     """
 
     # Best-fit point
-    bestfit = stats.best_fit(chi_sq, param)
+    bestfit = point.best_fit(chi_sq, param)
 
     # Posterior mean
-    post_mean = stats.posterior_mean(posterior, param)
+    post_mean = point.posterior_mean(posterior, param)
 
     # Credible regions
     pdf_data = one_dim.posterior_pdf(param,
@@ -46,10 +45,10 @@ def _summary(name, param, posterior, chi_sq):
                                      nbins=defaults.nbins,
                                      bin_limits=defaults.bin_limits)
 
-    lower, uppper = one_dim.credible_region(pdf_data.pdf,
-                                            pdf_data.bin_centers,
-                                            alpha=defaults.alpha[1],
-                                            region="symmetric")
+    lower, upper = one_dim.credible_region(pdf_data.pdf,
+                                           pdf_data.bin_centers,
+                                           alpha=defaults.alpha[1],
+                                           tail="symmetric")
 
 
     summary = [name,
@@ -128,7 +127,8 @@ def main():
     info_file = os.path.abspath(args.info_file) if args.info_file else None
 
     # Load and label data
-    labels, data = data_loader.load(info_file, data_file)
+    labels = data_loader.label_chain(info_file, data_file)
+    data = data_loader.read_data_file(data_file)
 
     summary_table = _summary_table(labels, data, data_file=data_file, info_file=info_file)
     return summary_table

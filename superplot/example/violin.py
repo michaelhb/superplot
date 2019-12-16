@@ -12,9 +12,10 @@ from argparse import ArgumentParser as arg_parser
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import numpy as np
 
-import superplot.data_loader as data_loader
-from superplot.plotlib.plot_mod import appearance
+from superplot import data_loader
+from superplot.plotlib.plot_mod import style
 from superplot.statslib.point import posterior_mean
 from superplot.statslib.one_dim import kde_posterior_pdf, posterior_median, credible_region
 
@@ -36,7 +37,7 @@ def custom_violin_stats(parameter, posterior, bin_limits=None):
     """
 
     pdf = kde_posterior_pdf(parameter, posterior, bin_limits=bin_limits)
-    lower, upper = credible_region(pdf.pdf, pdf.bin_centers, ALPHA, "symmetric")
+    lower, upper = credible_region(pdf.pdf, pdf.bin_centers, ALPHA, tail="symmetric")
     violin_stats = {"coords": pdf.bin_centers,
                     "vals": pdf.pdf,
                     "mean": posterior_mean(posterior, parameter),
@@ -68,7 +69,7 @@ def violin_plot(data,
 
     # Make violin plot
 
-    appearance()
+    style(data_loader.get_mpl_path(None))
     fig, ax = plt.subplots()
     violin = ax.violin(stats, vert=True, showmeans=True, showextrema=True, showmedians=True)
 
@@ -80,10 +81,10 @@ def violin_plot(data,
         pc.set_edgecolor('DodgerBlue')
         pc.set_linewidths(1)
 
-    line_prop = {'cmeans': (5, "RoyalBlue"),
-                 'cmedians': (5, "Crimson"),
-                 'cmins': (5, "SeaGreen"),
-                 'cmaxes': (5, "SeaGreen"),
+    line_prop = {'cmeans': (2, "RoyalBlue"),
+                 'cmedians': (2, "Crimson"),
+                 'cmins': (2, "SeaGreen"),
+                 'cmaxes': (2, "SeaGreen"),
                  'cbars': (0, "Purple")}
 
     for key, (lw, c) in line_prop.items():
@@ -118,10 +119,9 @@ def violin_plot(data,
 
     # Make a  legend
 
-    coords = [[-10, -5], [0., 0.]]
-    plt.plot(*coords, lw=5, color="RoyalBlue", ls="-", label="Mean")
-    plt.plot(*coords, lw=5, color="Crimson", ls="-", label="Median")
-    plt.plot(*coords, lw=5, color="SeaGreen", ls="-", label=r"$1\sigma$ credible region")
+    plt.plot(np.nan, np.nan, lw=2, color="RoyalBlue", ls="-", label="Mean")
+    plt.plot(np.nan, np.nan, lw=2, color="Crimson", ls="-", label="Median")
+    plt.plot(np.nan, np.nan, lw=2, color="SeaGreen", ls="-", label=r"$1\sigma$ credible region")
 
     handles, leg_labels = ax.get_legend_handles_labels()
     handles.append(mpatches.Patch(color='RoyalBlue', alpha=0.4))
@@ -188,13 +188,13 @@ def main():
 
     args = parser.parse_args()
 
-    datafile = os.path.abspath(args.data_file)
-    infofile = os.path.abspath(args.info_file) if args.info_file else None
+    data_file = os.path.abspath(args.data_file)
+    info_file = os.path.abspath(args.info_file) if args.info_file else None
     index_list = args.index_list
 
     # Load and label data
-
-    labels, data = data_loader.load(infofile, datafile)
+    labels = data_loader.label_chain(info_file, data_file)
+    data = data_loader.read_data_file(data_file)
 
     # Make plot
 

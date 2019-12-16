@@ -7,7 +7,12 @@ import sys
 import os
 import warnings
 import functools
-import yaml
+
+try:
+    from yaml import full_load as load
+except ImportError:
+    from yaml import load
+
 from distutils.version import StrictVersion
 from argparse import ArgumentParser as arg_parser
 
@@ -283,9 +288,9 @@ class GUIControl(gtk.Window):
 
         t_typebox = gtk.Button(label="Plot type:")
         self.typebox = gtk_wrapper.COMBO_BOX_TEXT()
-        for c in plots.plot_list:
-            self.typebox.append_text(c.description)
-        default = list(plots.plot_dict.keys()).index(self.po.plot_type)
+        for d in plots.plot_descriptions:
+            self.typebox.append_text(d)
+        default = plots.plot_types.index(self.po.plot_type)
         self.typebox.set_active(default)
 
         #######################################################################
@@ -683,10 +688,10 @@ class GUIControl(gtk.Window):
         self.po.show_posterior_pdf = self.show_posterior_pdf.get_active()
         self.po.show_prof_like = self.show_prof_like.get_active()
         self.po.kde = self.kde.get_active()
-        self.po.plot_type = list(plots.plot_dict.keys())[self.typebox.get_active()]
-        self.po.plot_limits = yaml.load(self.plot_limits.get_text())
-        self.po.bin_limits = yaml.load(self.bin_limits.get_text())
-        self.po.nbins = yaml.load(self.nbins.get_text())
+        self.po.plot_type = plots.plot_types[self.typebox.get_active()]
+        self.po.plot_limits = load(self.plot_limits.get_text())
+        self.po.bin_limits = load(self.bin_limits.get_text())
+        self.po.nbins = load(self.nbins.get_text())
 
         # Instantiate the plot and get the figure
         plt.clf()

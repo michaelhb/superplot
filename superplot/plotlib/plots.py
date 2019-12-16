@@ -251,6 +251,8 @@ plot_list = [
 ]
 
 plot_dict = {c.name: c for c in plot_list}
+plot_types = [c.name for c in plot_list]
+plot_descriptions = [c.description for c in plot_list]
 
 def get_plot(plot_options):
     """

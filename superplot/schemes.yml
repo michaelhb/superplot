@@ -48,6 +48,7 @@ posterior:
     colour: 'RoyalBlue'
     symbol: '-'
     label: 'Posterior pdf'
+    size: null
 
     # 2D Plotting
     colours: ['RoyalBlue', 'SeaGreen'] # Colours for filled contour plots
@@ -63,6 +64,7 @@ prof_like:
     colour: 'DarkOrange'
     symbol: '--'
     label: 'Profile likelihood'
+    size: null
 
     # 2D Plotting
     colours: ['DarkOrange', 'Brown'] # Colours for filled contour plots
@@ -84,12 +86,14 @@ conf_interval_s2:
     colour: 'DarkOrange'
     symbol: '-'
     label: '$2\sigma$ confidence interval'
+    size: null
 
 # One sigma confidence interval line
 conf_interval_s1:
     colour: 'Brown'
     symbol: '-'
     label: '$1\sigma$ confidence interval'
+    size: null
 
 # Two sigma credible region line
 credible_region_s2:

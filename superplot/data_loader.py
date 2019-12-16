@@ -10,10 +10,14 @@ from __future__ import print_function
 import os
 import warnings
 import pandas as pd
-import yaml
 import h5py
 import numpy as np
 from collections import defaultdict
+
+try:
+    from yaml import full_load as load
+except ImportError:
+    from yaml import load
 
 
 def _read_txt_file(data_file, cols=None, fill=0.):
@@ -101,6 +105,7 @@ def _read_hdf_file(data_file, cols=None):
         keys = list(_traverse_keys(f))
         if cols is not None:
             keys = [keys[c] for c in cols]
+        warnings.warn("reading {} from hd5 file".format(keys))
         return np.array([f[k][()] for k in keys])
 
 
@@ -119,6 +124,7 @@ def read_data_file(data_file, **kwargs):
     if extension in [".txt", ".dat"]:
         return _read_txt_file(data_file, **kwargs)
     elif extension in [".hd5", ".hdf5"]:
+        warnings.warn("You must make sure that posterior_index, chi_sq_index or loglike_index are correctly set")
         return _read_hdf_file(data_file, **kwargs)
     else:
         raise IOError("Unknown data file type: {}".format(data_file))
@@ -289,4 +295,4 @@ def load_yaml(yaml_file):
     """
     yaml_path = get_yaml_path(yaml_file)
     with open(yaml_path) as cfile:
-        return yaml.load(cfile)
+        return load(cfile)

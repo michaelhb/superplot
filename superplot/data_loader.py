@@ -9,10 +9,11 @@ from __future__ import print_function
 
 import os
 import warnings
+from collections import defaultdict
+
 import pandas as pd
 import h5py
 import numpy as np
-from collections import defaultdict
 
 try:
     from yaml import full_load as load
@@ -244,12 +245,9 @@ def get_mpl_path(mpl_path):
         script_dir = os.path.dirname(os.path.realpath(__file__))
         home_dir_locfile = os.path.join(os.path.dirname(script_dir), "user_home.txt")
 
-        style_sheet_path = None
-        default_style_sheet_path = None
-
         if os.path.exists(home_dir_locfile):
             with open(home_dir_locfile, "rb") as f:
-               mpl_path = f.read()
+                mpl_path = f.read()
 
     if mpl_path is None or not os.path.exists(mpl_path):
         # Try to use the style sheets in the install directory

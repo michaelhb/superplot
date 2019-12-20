@@ -1,4 +1,4 @@
-"""
+r"""
 =====================================
 One Dimensional Statistical Functions
 =====================================
@@ -239,7 +239,7 @@ def _inverse_cdf(prob, pdf, bin_centers):
     # zero to match the first bin edge.
     cumulative = list(enumerate([0] + list(np.cumsum(pdf))))
     max_cumulative = pdf.sum()
-    cdf = list(zip(*cumulative))[1]
+
     # Find the index of the last param value having
     # cumulative posterior weight <= desired probability
     index_lower = list(filter(lambda x: x[1] <= prob * max_cumulative, cumulative))[-1][0]

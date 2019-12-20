@@ -1,4 +1,4 @@
-"""
+r"""
 =====================================
 Two Dimensional Statistical Functions
 =====================================
@@ -155,12 +155,12 @@ def posterior_pdf(paramx, paramy, posterior, nbins='auto', bin_limits='quantile'
 
     # Two-dimensional histogram the data - pdf is a matrix
     pdf, bin_edges_x, bin_edges_y = np.histogram2d(
-                                        paramx,
-                                        paramy,
-                                        (nbins_x, nbins_y),
-                                        range=np.array((bin_limits_x, bin_limits_y)),
-                                        density=True,
-                                        weights=posterior)
+        paramx,
+        paramy,
+        (nbins_x, nbins_y),
+        range=np.array((bin_limits_x, bin_limits_y)),
+        density=True,
+        weights=posterior)
 
     pdf_norm_max = pdf / pdf.max()
     pdf_norm_sum = pdf / pdf.sum()

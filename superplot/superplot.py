@@ -140,6 +140,9 @@ def save_file_gui(window_title="Save As",
 
         @functools.partial(dialog.connect, "notify::filter")
         def on_notify_filter(*args):
+            """
+            Set default name using specified file type
+            """
             name = dialog.get_filter().get_name()
             dialog.set_current_name(default_file_name + name.strip("*"))
 
@@ -583,10 +586,10 @@ class GUIControl(gtk.Window):
         prefix = os.path.splitext(save_image_name)[0]
 
         if self.obj.po.save_options_name is None:
-          self.obj.po.save_options_name = prefix + "_options.yaml"
+            self.obj.po.save_options_name = prefix + "_options.yaml"
 
         if self.obj.po.save_stats_name is None:
-          self.obj.po.save_stats_name = prefix + "_stats.yaml"
+            self.obj.po.save_stats_name = prefix + "_stats.yaml"
 
         self.obj.save()
         self._pmakeplot(None)  # Hack to reset figure canvas
@@ -724,7 +727,7 @@ class GUIControl(gtk.Window):
 
 def main():
     """
-    SuperPlot program - open relevant files and make GUI.
+    superplot program - process command line arguments and make GUI if required.
     """
 
     parser = arg_parser(description='superplot')

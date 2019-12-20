@@ -6,22 +6,23 @@ This module contains classes used to implement Plots.
 """
 
 import copy
-import os
 
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-from . import plot_mod as pm
-from superplot.statslib.stats import get_stats
 import superplot.statslib.bins as bins
 import superplot.data_loader as data_loader
+from superplot.statslib.stats import get_stats
 from superplot.schemes import Schemes
+from . import plot_mod as pm
 
 
 class Plot(object):
-
+    """
+    Object that draws a plot on current figure and axis.
+    """
     __metaclass__ = ABCMeta
 
     def __init__(self, plot_options):
@@ -112,7 +113,7 @@ class OneDimPlot(Plot):
         shape = np.array(self.po.plot_limits).shape
 
         if isinstance(self.po.plot_limits, str):
-           self.po.plot_limits = [bins.plot_limits(self.po.plot_limits, self.po.bin_limits, self.stats.xdata), plot_limits_y]
+            self.po.plot_limits = [bins.plot_limits(self.po.plot_limits, self.po.bin_limits, self.stats.xdata), plot_limits_y]
         elif shape == (1, 2):
             self.po.plot_limits = [bins.plot_limits(self.po.plot_limits[0], self.po.bin_limits, self.stats.xdata), plot_limits_y]
         elif shape == (2,):

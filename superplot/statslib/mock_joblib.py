@@ -1,5 +1,5 @@
 """
-Trivial implementation of joblib's Memory class, used as a mock for 
+Trivial implementation of joblib's Memory class, used as a mock for
 Sphinx documentation.
 """
 

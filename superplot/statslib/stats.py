@@ -5,11 +5,8 @@ statslib.stats
 This module contains classes used to compute statistics.
 """
 
-import copy
-
-import yaml
 import numpy as np
-import collections
+import yaml
 
 import superplot.statslib.one_dim as one_dim
 import superplot.statslib.two_dim as two_dim
@@ -57,8 +54,8 @@ class Stats(dict):
 
         # Apply log scaling to data if required and possible.
         with np.errstate(invalid='raise'):
-          if self.so.logx:
-              self.xdata = np.log10(self.xdata)
+            if self.so.logx:
+                self.xdata = np.log10(self.xdata)
 
     def save(self, name=None):
         d = {}
@@ -75,7 +72,7 @@ class Stats(dict):
             try:
                 d[k] = dict(d[k]._asdict())
             except:
-               pass
+                pass
             else:
                 for s in d[k]:
                     try:
@@ -177,8 +174,8 @@ class TwoDimStats(Stats):
 
         # Apply log scaling to data if required and possible.
         with np.errstate(invalid='raise'):
-          if self.so.logy:
-              self.ydata = np.log10(self.ydata)
+            if self.so.logy:
+                self.ydata = np.log10(self.ydata)
 
         # Set binning
 
@@ -212,28 +209,28 @@ class TwoDimStats(Stats):
 
             # KDE estimate of PDF
             self.pdf_data = two_dim.kde_posterior_pdf(
-                        self.xdata,
-                        self.ydata,
-                        self.posterior,
-                        bandwidth=self.so.bandwidth,
-                        bin_limits=self.so.bin_limits)
+                self.xdata,
+                self.ydata,
+                self.posterior,
+                bandwidth=self.so.bandwidth,
+                bin_limits=self.so.bin_limits)
         else:
 
             # Binned estimate of PDF
             self.pdf_data = two_dim.posterior_pdf(
-                    self.xdata,
-                    self.ydata,
-                    self.posterior,
-                    nbins=self.so.nbins,
-                    bin_limits=self.so.bin_limits)
+                self.xdata,
+                self.ydata,
+                self.posterior,
+                nbins=self.so.nbins,
+                bin_limits=self.so.bin_limits)
 
         # Profile likelihood
         self.prof_data = two_dim.prof_data(
-                self.xdata,
-                self.ydata,
-                self.chisq,
-                nbins=self.so.nbins,
-                bin_limits=self.so.bin_limits)
+            self.xdata,
+            self.ydata,
+            self.chisq,
+            nbins=self.so.nbins,
+            bin_limits=self.so.bin_limits)
 
         # As with the 1D plots we use raw data for the best-fit point,
         # and binned data for the mean and mode.
@@ -263,7 +260,10 @@ class ThreeDimStats(TwoDimStats):
         # Load z-data from disk
         data = data_loader.read_data_file(self.so.data_file, cols=[self.so.zindex])
         self.zdata = self.so.scalez * data[0]
-
+        # Apply log scaling to data if required and possible.
+        with np.errstate(invalid='raise'):
+            if self.so.logz:
+                self.zdata = np.log10(self.zdata)
 
 stats_dict = {"one-dim": OneDimStats, "two-dim": TwoDimStats, "three-dim": ThreeDimStats}
 

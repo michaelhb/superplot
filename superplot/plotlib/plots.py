@@ -11,12 +11,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pylab import get_cmap
 
-import superplot.statslib.one_dim as one_dim
-import superplot.statslib.two_dim as two_dim
 import superplot.statslib.bins as bins
+from superplot.plot_options import Defaults
 from . import plot_mod as pm
 from .base import OneDimPlot, TwoDimPlot
-from superplot.plot_options import Defaults
 
 
 class OneDimStandard(OneDimPlot):
@@ -86,7 +84,7 @@ class OneDimChiSq(OneDimPlot):
                              self.po.plot_limits[1][1] * len(self.stats.prof_data.bin_centers),
                              np.isnan(interval),
                              scheme
-                             )
+                            )
 
         # Override y-axis label
         plt.ylabel(self.schemes.prof_chi_sq.label)
@@ -104,10 +102,10 @@ class TwoDimFilledPDF(TwoDimPlot):
 
         if self.po.show_credible_regions:
             pm.plot_filled_contour(
-                    self.stats.pdf_data.pdf,
-                    self.stats.credible_region_levels,
-                    self.schemes.posterior,
-                    bin_limits=self.po.bin_limits)
+                self.stats.pdf_data.pdf,
+                self.stats.credible_region_levels,
+                self.schemes.posterior,
+                bin_limits=self.po.bin_limits)
 
 
 class TwoDimFilledPL(TwoDimPlot):
@@ -122,10 +120,10 @@ class TwoDimFilledPL(TwoDimPlot):
 
         if self.po.show_conf_intervals:
             pm.plot_filled_contour(
-                    self.stats.prof_data.prof_like,
-                    self.stats.conf_interval_levels,
-                    self.schemes.prof_like,
-                    bin_limits=self.po.bin_limits)
+                self.stats.prof_data.prof_like,
+                self.stats.conf_interval_levels,
+                self.schemes.prof_like,
+                bin_limits=self.po.bin_limits)
 
 
 class TwoDimPDF(TwoDimPlot):
@@ -140,11 +138,11 @@ class TwoDimPDF(TwoDimPlot):
 
         if self.po.show_posterior_pdf:
             im = pm.plot_image(
-                    self.stats.pdf_data.pdf_norm_max,
-                    self.po.bin_limits,
-                    self.po.plot_limits,
-                    self.schemes.posterior,
-                    self.po.force_aspect)
+                self.stats.pdf_data.pdf_norm_max,
+                self.po.bin_limits,
+                self.po.plot_limits,
+                self.schemes.posterior,
+                self.po.force_aspect)
 
             if self.po.show_colorbar:
                 cbar = pm.plot_colorbar(im, self.po.max_cbticks, self.schemes.posterior.colour_bar_title)
@@ -152,10 +150,10 @@ class TwoDimPDF(TwoDimPlot):
 
         if self.po.show_credible_regions:
             pm.plot_contour(
-                    self.stats.pdf_data.pdf,
-                    self.stats.credible_region_levels,
-                    self.schemes.posterior,
-                    bin_limits=self.po.bin_limits)
+                self.stats.pdf_data.pdf,
+                self.stats.credible_region_levels,
+                self.schemes.posterior,
+                bin_limits=self.po.bin_limits)
 
         if self.po.show_posterior_pdf and self.po.show_colorbar:
             levels = self.stats.credible_region_levels / self.stats.pdf_data.pdf.max()
@@ -174,21 +172,21 @@ class TwoDimPL(TwoDimPlot):
 
         if self.po.show_prof_like:
             im = pm.plot_image(
-                    self.stats.prof_data.prof_like,
-                    self.po.bin_limits,
-                    self.po.plot_limits,
-                    self.schemes.prof_like,
-                    self.po.force_aspect)
+                self.stats.prof_data.prof_like,
+                self.po.bin_limits,
+                self.po.plot_limits,
+                self.schemes.prof_like,
+                self.po.force_aspect)
 
             if self.po.show_colorbar:
                 cbar = pm.plot_colorbar(im, self.po.max_cbticks, self.schemes.prof_like.colour_bar_title)
 
         if self.po.show_conf_intervals:
             pm.plot_contour(
-                    self.stats.prof_data.prof_like,
-                    self.stats.conf_interval_levels,
-                    self.schemes.prof_like,
-                    bin_limits=self.po.bin_limits)
+                self.stats.prof_data.prof_like,
+                self.stats.conf_interval_levels,
+                self.schemes.prof_like,
+                bin_limits=self.po.bin_limits)
 
         if self.po.show_prof_like and self.po.show_colorbar:
             pm.add_cbar_levels(cbar, self.stats.conf_interval_levels, self.schemes.prof_like)
@@ -209,35 +207,35 @@ class Scatter(TwoDimPlot):
 
         # Plot scatter of points.
         sc = plt.scatter(
-                self.stats.xdata,
-                self.stats.ydata,
-                s=self.schemes.scatter.size,
-                c=self.stats.zdata,
-                marker=self.schemes.scatter.symbol,
-                cmap=get_cmap(self.schemes.scatter.colour_map, self.schemes.scatter.number_colours),
-                norm=None,
-                vmin=self.po.cb_limits[0],
-                vmax=self.po.cb_limits[1],
-                linewidth=0.,
-                verts=None,
-                rasterized=True)
+            self.stats.xdata,
+            self.stats.ydata,
+            s=self.schemes.scatter.size,
+            c=self.stats.zdata,
+            marker=self.schemes.scatter.symbol,
+            cmap=get_cmap(self.schemes.scatter.colour_map, self.schemes.scatter.number_colours),
+            norm=None,
+            vmin=self.po.cb_limits[0],
+            vmax=self.po.cb_limits[1],
+            linewidth=0.,
+            verts=None,
+            rasterized=True)
 
         if self.po.show_colorbar:
             pm.plot_colorbar(sc, self.po.max_cbticks, self.po.zlabel)
 
         if self.po.show_credible_regions:
             pm.plot_contour(
-                    self.stats.pdf_data.pdf,
-                    self.stats.credible_region_levels,
-                    self.schemes.posterior,
-                    bin_limits=self.po.bin_limits)
+                self.stats.pdf_data.pdf,
+                self.stats.credible_region_levels,
+                self.schemes.posterior,
+                bin_limits=self.po.bin_limits)
 
         if self.po.show_conf_intervals:
             pm.plot_contour(
-                    self.stats.prof_data.prof_like,
-                    self.stats.conf_interval_levels,
-                    self.schemes.prof_like,
-                    bin_limits=self.po.bin_limits)
+                self.stats.prof_data.prof_like,
+                self.stats.conf_interval_levels,
+                self.schemes.prof_like,
+                bin_limits=self.po.bin_limits)
 
 
 plot_list = [

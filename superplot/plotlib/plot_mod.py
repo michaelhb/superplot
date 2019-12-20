@@ -112,8 +112,7 @@ def style(mpl_path, plot_style="default", extra_style=None):
             rc("text", usetex=False)
             if err.errno == os.errno.ENOENT:
                 warnings.warn(
-                        "Cannot find `latex` command. "
-                        "Using matplotlib's mathtext.")
+                    "Cannot find `latex` command. Using matplotlib's mathtext.")
 
 
 def legend(leg_title=None, leg_position=None, **kwargs):
@@ -143,6 +142,7 @@ def legend(leg_title=None, leg_position=None, **kwargs):
         leg.set_title(leg_title, prop={"size": size})
         return leg
 
+    return None
 
 def plot_limits(limits=None):
     """
@@ -211,10 +211,10 @@ def plot_image(data, bin_limits, plot_limits, scheme, force_aspect=True):
     """
     # Flatten bin limits
     extent = np.array(
-            (bin_limits[0][0],
-             bin_limits[0][1],
-             bin_limits[1][0],
-             bin_limits[1][1]))
+        (bin_limits[0][0],
+         bin_limits[0][1],
+         bin_limits[1][0],
+         bin_limits[1][1]))
 
     if force_aspect:
         # Set the aspect so that resulting figure is a square
@@ -274,20 +274,20 @@ def plot_contour(data, levels, scheme, bin_limits):
     """
     # Flatten bin limits.
     extent = np.array(
-            (bin_limits[0][0],
-             bin_limits[0][1],
-             bin_limits[1][0],
-             bin_limits[1][1]))
+        (bin_limits[0][0],
+         bin_limits[0][1],
+         bin_limits[1][0],
+         bin_limits[1][1]))
 
     # Make the contours of the levels.
     cset = plt.contour(
-            data.T,
-            levels,
-            colors=scheme.colour,
-            linewidths=0.5 * rcParams["lines.linewidth"],
-            extent=extent,
-            origin=None,
-            linestyles=['--', '-'])
+        data.T,
+        levels,
+        colors=scheme.colour,
+        linewidths=0.5 * rcParams["lines.linewidth"],
+        extent=extent,
+        origin=None,
+        linestyles=['--', '-'])
 
     # Set the contour labels - they will show labels
     fmt = dict(zip(cset.levels, scheme.level_names))
@@ -310,10 +310,10 @@ def plot_contour(data, levels, scheme, bin_limits):
 
 
 def add_cbar_levels(cbar, levels, scheme):
-  """
-  Add levels to a colorbar.
-  """
-  cbar.ax.hlines(levels, 0., 1., colors=scheme.colour, linestyles=['--', '-'], linewidths=0.5 * rcParams["lines.linewidth"])
+    """
+    Add levels to a colorbar.
+    """
+    cbar.ax.hlines(levels, 0., 1., colors=scheme.colour, linestyles=['--', '-'], linewidths=0.5 * rcParams["lines.linewidth"])
 
 
 def plot_filled_contour(
@@ -336,10 +336,10 @@ def plot_filled_contour(
 
     # Flatten bin limits
     extent = np.array(
-            (bin_limits[0][0],
-             bin_limits[0][1],
-             bin_limits[1][0],
-             bin_limits[1][1]))
+        (bin_limits[0][0],
+         bin_limits[0][1],
+         bin_limits[1][0],
+         bin_limits[1][1]))
 
     # We need to ensure levels are in ascending order, and append the
     # list with highest possible value. This makes n intervals
@@ -351,7 +351,7 @@ def plot_filled_contour(
     settings = dict(colors=scheme.colours,
                     extent=extent,
                     origin=None)
-    filled = plt.contourf(data.T, levels, alpha=0.7, **settings)
+    plt.contourf(data.T, levels, alpha=0.7, **settings)
 
     # Bold outline of contour
     plt.contour(data.T, levels, alpha=1., zorder=0, **settings)
@@ -360,8 +360,8 @@ def plot_filled_contour(
     # with legend entry matching colours of filled contours.
     if scheme.colours:
         for name, color in zip(scheme.level_names, scheme.colours):
-            edgecolor = colors.colorConverter.to_rgba(color, alpha=1.);
-            facecolor = colors.colorConverter.to_rgba(color, alpha=0.7);
+            edgecolor = colors.colorConverter.to_rgba(color, alpha=1.)
+            facecolor = colors.colorConverter.to_rgba(color, alpha=0.7)
             plt.plot(np.nan,
                      np.nan,
                      's',

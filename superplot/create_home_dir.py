@@ -1,5 +1,6 @@
 """
-A utility script to create a home directory containing config files and examples at a specified location.
+A utility script to create a home directory containing config files
+and examples at a specified location.
 """
 from __future__ import print_function
 
@@ -71,10 +72,10 @@ def main():
     if any([os.path.exists(path) for path in config_paths]):
 
         warnings.warn("yaml files already present. Please note that yamls files "
-                     "distributed with previous versions of superplot may not work with "
-                     "this release. If you wish to compare your customised yamls with "
-                     "the current defaults, they are distributed with the source code "
-                     "(superplot/{}).".format(yaml_names))
+                      "distributed with previous versions of superplot may not work with "
+                      "this release. If you wish to compare your customised yamls with "
+                      "the current defaults, they are distributed with the source code "
+                      "(superplot/{}).".format(yaml_names))
 
         copy_config = prompt("Replace existing files: {}".format(config_paths))
 
@@ -87,9 +88,8 @@ def main():
                 chmod(to)
             except shutil.Error as e:
                 warnings.warn(
-                        "Error copying yaml file to user directory: {}".format(
-                                e.strerror
-                        )
+                    "Error copying yaml file to user directory: {}".format(
+                        e.strerror)
                 )
 
     # Copy style sheets to user directory
@@ -115,9 +115,8 @@ def main():
             chmod(styles_dir)
         except shutil.Error as e:
             warnings.warn(
-                    "Error copying style sheets to user directory: {}".format(
-                            e.strerror
-                    )
+                "Error copying style sheets to user directory: {}".format(
+                    e.strerror)
             )
 
     # Copy example data to user directory
@@ -143,8 +142,8 @@ def main():
             chmod(example_dir)
         except shutil.Error as e:
             warnings.warn(
-                    "Error copying example files to user directory: {}".format(
-                            e.strerror
+                "Error copying example files to user directory: {}".format(
+                    e.strerror
                     )
             )
 

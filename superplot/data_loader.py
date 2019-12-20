@@ -235,7 +235,6 @@ def label_data_file(info_file, data_file):
         if not labels.get(index):
             labels[index] = default[index]
             warnings.warn("Labels did not match data.", RuntimeWarning)
-        print("column {} = {}".format(index, labels[index]))
 
     # Convert to a list
     return [labels[index] for index in range(n_cols)]

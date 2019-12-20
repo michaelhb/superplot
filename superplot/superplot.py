@@ -258,11 +258,37 @@ class GUIControl(gtk.Window):
 
         #######################################################################
 
-        # Load data from files
+        # Load index from files
 
-        self.labels = data_loader.label_chain(self.po.info_file, self.po.data_file)
+        self.index = data_loader.index_data_file(self.po.info_file, self.po.data_file)
+
+        # We need at least three columns - posterior, chisq & a data column
+        data_columns = len(self.index)
+        assert data_columns >= 3
+
+        # Set x, y & z indices. If not possible, assign to the rightmost available column.
+        # If neccessary, convert from a string to an index using the labels.
+
+        if isinstance(self.po.xindex, int):
+            self.po.xindex = min(self.po.xindex, data_columns - 1)
+        else:
+            self.po.xindex = self.index.index(self.po.xindex)
+
+        if isinstance(self.po.yindex, int):
+            self.po.yindex = min(self.po.yindex, data_columns - 1)
+        else:
+            self.po.yindex = self.index.index(self.po.yindex)
+
+        if isinstance(self.po.zindex, int):
+            self.po.zindex = min(self.po.zindex, data_columns - 1)
+        else:
+            self.po.zindex = self.index.index(self.po.zindex)
 
         #######################################################################
+
+        # Update labels
+
+        self.labels = data_loader.label_data_file(self.po.info_file, self.po.data_file)
 
         if self.po.info_file is None:
             if self.po.xlabel is not None:
@@ -271,15 +297,6 @@ class GUIControl(gtk.Window):
                 self.labels[self.po.yindex] = self.po.ylabel
             if self.po.zlabel is not None:
                 self.labels[self.po.zindex] = self.po.zlabel
-
-        # We need at least three columns - posterior, chisq & a data column
-        data_columns = len(self.labels)
-        assert data_columns >= 3
-
-        # Set x, y & z indices. If not possible, assign to the rightmost available column.
-        self.po.xindex = min(self.po.xindex, data_columns - 1)
-        self.po.yindex = min(self.po.yindex, data_columns - 1)
-        self.po.zindex = min(self.po.zindex, data_columns - 1)
 
         self.po.xlabel = self.labels[self.po.xindex]
         self.po.ylabel = self.labels[self.po.yindex]
@@ -302,7 +319,7 @@ class GUIControl(gtk.Window):
 
         t_xbox = gtk.Button(label="x-axis variable:")
         self.xbox = gtk_wrapper.COMBO_BOX_TEXT()
-        for label in self.labels.values():
+        for label in self.labels:
             self.xbox.append_text(label)
         self.xbox.set_wrap_width(5)
         self.xbox.connect('changed', self._cx)
@@ -317,7 +334,7 @@ class GUIControl(gtk.Window):
 
         t_ybox = gtk.Button(label="y-axis variable:")
         self.ybox = gtk_wrapper.COMBO_BOX_TEXT()
-        for label in self.labels.values():
+        for label in self.labels:
             self.ybox.append_text(label)
         self.ybox.set_wrap_width(5)
         self.ybox.connect('changed', self._cy)
@@ -332,7 +349,7 @@ class GUIControl(gtk.Window):
 
         t_zbox = gtk.Button(label="z-axis variable:")
         self.zbox = gtk_wrapper.COMBO_BOX_TEXT()
-        for label in self.labels.values():
+        for label in self.labels:
             self.zbox.append_text(label)
         self.zbox.set_wrap_width(5)
         self.zbox.connect('changed', self._cz)
@@ -582,14 +599,9 @@ class GUIControl(gtk.Window):
             return
 
         self.obj.po.save_image_name = save_image_name
-
         prefix = os.path.splitext(save_image_name)[0]
-
-        if self.obj.po.save_options_name is None:
-            self.obj.po.save_options_name = prefix + "_options.yaml"
-
-        if self.obj.po.save_stats_name is None:
-            self.obj.po.save_stats_name = prefix + "_stats.yaml"
+        self.obj.po.save_options_name = prefix + "_options.yaml"
+        self.obj.po.save_stats_name = prefix + "_stats.yaml"
 
         self.obj.save()
         self._pmakeplot(None)  # Hack to reset figure canvas

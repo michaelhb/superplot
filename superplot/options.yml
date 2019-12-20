@@ -91,10 +91,10 @@ info_file: null
 save_image_name: "image.pdf"
 
 # Name of saved statistics.
-save_stats_name: null
+save_stats_name: "image_stats.yml"
 
 # Name of saved options.
-save_options_name: null
+save_options_name: "image_options.yml"
 
 # Type of statistics to compute
 stats_type: one-dim

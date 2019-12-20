@@ -105,9 +105,13 @@ def _read_hdf_file(data_file, cols=None):
     with h5py.File(data_file, 'r') as f:
         keys = list(_traverse_keys(f))
         if cols is not None:
-            keys = [keys[c] for c in cols]
+            keys = [keys[c] if isinstance(c, int) else c for c in cols]
         warnings.warn("reading {} from hd5 file".format(keys))
-        return np.array([f[k][()] for k in keys])
+        try:
+            return np.array([f[k][f["{}_isvalid".format(k)][()]] for k in keys])
+        except Exception as m:
+            warnings.warn("Did not filter data by isvalid")
+            return np.array([f[k][()] for k in keys])
 
 
 def read_data_file(data_file, **kwargs):
@@ -201,7 +205,7 @@ def _read_info_file(info_file):
     return labels
 
 
-def label_chain(info_file, data_file):
+def label_data_file(info_file, data_file):
     r"""
     Read lables from files.
 
@@ -233,7 +237,33 @@ def label_chain(info_file, data_file):
             warnings.warn("Labels did not match data.", RuntimeWarning)
         print("column {} = {}".format(index, labels[index]))
 
-    return labels
+    # Convert to a list
+    return [labels[index] for index in range(n_cols)]
+
+
+def index_data_file(info_file, data_file):
+    r"""
+    Read lables from files.
+
+    :param info_file: Name of \\*.info file
+    :type info_file: string
+    :param data_file: Name of \\*.txt file
+    :type data_file: string
+
+    :returns: Labels
+    :rtype: dict
+    """
+    n_cols = _cols_data_file(data_file)
+    extension = os.path.splitext(data_file)[-1]
+
+    if extension in [".txt", ".dat"]:
+        return label_data_file(info_file, data_file)
+    elif extension in [".hd5", ".hdf5"]:
+        with h5py.File(data_file, 'r') as f:
+            return list(_traverse_keys(f))
+    else:
+        raise IOError("Unknown file type: {}".format(data_file))
+
 
 def get_mpl_path(mpl_path):
     """
